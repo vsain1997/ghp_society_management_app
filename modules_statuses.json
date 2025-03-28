@@ -1,0 +1,6 @@
+{
+    "SuperAdmin": true,
+    "Admin": true,
+    "Resident": true,
+    "ServiceProvider": true
+}
