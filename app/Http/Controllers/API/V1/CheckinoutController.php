@@ -396,10 +396,13 @@ class CheckinoutController extends Controller
                 ->first();
 
             // Fetch check-in logs for this user
-            $checkin_logs = CheckinDetail::where('by_resident', $user_id)
-                ->where('checkin_at', '>=', $fromDate)  // Start date filter
-                ->where('checkin_at', '<=', $toDate)    // End date filter
-                ->orderBy('checkin_at', 'desc')
+            $checkin_logs = CheckinDetail::where('by_resident', $user_id);
+            if ($request->filled('from_date') && $request->filled('to_date')) {
+
+                $checkin_logs = $checkin_logs->where('checkin_at', '>=', $fromDate)  // Start date filter
+                    ->where('checkin_at', '<=', $toDate);    // End date filter
+            }
+            $checkin_logs = $checkin_logs->orderBy('checkin_at', 'desc')
                 ->get();
 
             // Check if logs are found
@@ -433,7 +436,6 @@ class CheckinoutController extends Controller
             );
         }
     }
-
     public function dailyHelpCheckinoutLog(Request $request)
     {
         try {
