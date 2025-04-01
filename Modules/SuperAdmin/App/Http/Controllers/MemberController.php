@@ -229,6 +229,7 @@ class MemberController extends Controller
                 'message' => 'Added successfully'
             ]);
         } catch (Exception $e) {
+            dd($e);
             superAdminLog('error', 'Exception::', $e->getMessage());
             DB::rollBack();
             return redirect()->back()->with([
