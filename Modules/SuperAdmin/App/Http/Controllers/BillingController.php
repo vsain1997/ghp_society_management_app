@@ -19,6 +19,8 @@ use Spatie\Permission\Models\Permission;
 
 class BillingController extends Controller
 {
+    private $viewPath = "superadmin::bill.";
+
     public function index(Request $request)
     {
         try {
@@ -155,6 +157,25 @@ class BillingController extends Controller
                 'message' => 'Failed, please try again!',
             ]);
         }
+    }
+
+
+
+    /**
+     * Create New Bill
+     * @param Request $request
+     * @return mixed
+    */
+    public function createNewBill(Request $request){
+        $residents = User::whereRole('resident')->whereStatus('active')->get();
+
+        if($request->isMethod('post')){
+
+        }
+
+        return view($this->viewPath. 'add', [
+            'residents' => $residents
+        ]);
     }
 
     public function show($id)

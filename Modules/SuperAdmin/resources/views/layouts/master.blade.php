@@ -126,6 +126,8 @@
         <!-- Select2 JS -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
 
+        <script src="{{ asset('common/js/process-actions.js?' . time()) }}"></script>
+
         @section('default-scripts')
         <!-- Overridable Section -->
         @endsection
@@ -306,7 +308,7 @@
                         }else{
                             $('#notification-all-read').hide();
                         }
-                        
+
                         // Handle button visibility based on totalCountNext
                         if (totalCountNext < 1) {
                             $("#load-more-btn").hide();

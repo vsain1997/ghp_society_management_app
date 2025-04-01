@@ -21,6 +21,7 @@ use Modules\SuperAdmin\App\Http\Controllers\SuperAdminController;
 use Modules\SuperAdmin\App\Http\Controllers\SocietyController;
 use Modules\SuperAdmin\App\Http\Controllers\MemberController;
 use Illuminate\Http\Request;
+use Modules\SuperAdmin\App\Http\Controllers\BillingsController;
 use Modules\SuperAdmin\App\Http\Controllers\TradeController;
 use Modules\SuperAdmin\App\Http\Controllers\VisitorController;
 /*
@@ -253,7 +254,6 @@ Route::prefix('superadmin')->name('superadmin.')->middleware('auth.superadmin')-
 
     //billing
     Route::prefix('billing')->name('billing.')->group(function () {
-
         Route::get('/', [BillingController::class, 'index'])->name('index');
         Route::post('/create', [BillingController::class, 'store'])->name('store');
         Route::get('/details/{id}', [BillingController::class, 'show'])->name('details');
@@ -262,6 +262,8 @@ Route::prefix('superadmin')->name('superadmin.')->middleware('auth.superadmin')-
         Route::delete('/delete/{id}', [BillingController::class, 'destroy'])->name('delete');
         Route::post('/status-change/{id}/{status}', [BillingController::class, 'changeStatus'])->name('status.change');
 
+        // NEW ROUTES
+        Route::match(['get', 'post'], '/create-new', [BillingController::class, 'createNewBill'])->name('add');
     });
 
     //staff
