@@ -236,7 +236,7 @@ class BillingController extends Controller
 
                 DB::commit();
 
-                return redirect()->back()->with([
+                return response()->json([
                     'status' => 'success',
                     'message' => 'Bill(s) added successfully',
                 ]);

@@ -30,7 +30,7 @@ function initSelect2InModal(modalId) {
 
 
 
-function submitForm(e, formId, modalId='', title = 'You want to update this?', refresh = false) {
+function submitForm(e, formId, modalId='', title = 'You want to update this?', refresh = false, reload = false) {
     event.preventDefault();
     if(modalId != ''){
         var formCheck = $('#'+modalId).find('form#' + formId).get(0);
@@ -62,8 +62,8 @@ function submitForm(e, formId, modalId='', title = 'You want to update this?', r
             if(modalId != ''){
                 var processing = $('#'+modalId).find('#processing');
                 var formDiv = $('#'+modalId).find('#form_div');
-                // processing.show();
-                // formDiv.hide();
+                processing.show();
+                formDiv.hide();
             }
 
             $.ajax({
@@ -73,7 +73,7 @@ function submitForm(e, formId, modalId='', title = 'You want to update this?', r
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    if(response.status == true){
+                    if(response.status == 'success'){
                         console.log(response.message);
                         form.trigger('reset');
                         removeErrorTexts(form);
@@ -82,10 +82,15 @@ function submitForm(e, formId, modalId='', title = 'You want to update this?', r
                             refreshContent();
                         }
 
+                        if(reload == true){
+                            window.location.reload();
+                        }
+
                         if(modalId != ''){
                             processing.hide();
                             $('#'+modalId).modal('hide');
                         }
+                        toastr[response.status](response.message);
                     }else{
                         form.trigger('reset');
                         if (response.status == 'error') {

@@ -70,7 +70,7 @@
 
         <div class="save-close-btn">
             <button type="button" class="border_theme_btn close-btn cancel_btn" data-bs-dismiss="modal">Close</button>
-            <button type="button" data-formtype="add" class="bg_theme_btn" onclick="submitForm(this, 'addBilingForm', 'addBillModal', 'You want to create bill?')" >Submit</button>
+            <button type="button" data-formtype="add" class="bg_theme_btn" onclick="submitForm(this, 'addBilingForm', 'addBillModal', 'You want to create bill?', false, true)" >Submit</button>
         </div>
     </form>
 </div>
