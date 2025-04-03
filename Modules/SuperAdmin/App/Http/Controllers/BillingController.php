@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\Notice;
 use App\Models\Society;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Exception;
@@ -107,6 +108,7 @@ class BillingController extends Controller
                 ]);
             }
 
+
             // Create notice
             $bill = Bill::create([
                 ...$request->all(),
@@ -166,17 +168,123 @@ class BillingController extends Controller
      * @param Request $request
      * @return mixed
     */
-    public function createNewBill(Request $request){
-        $residents = User::whereRole('resident')->whereStatus('active')->get();
+    public function createNewBill(Request $request) {
+        $billServices = BillService::orderBy('name')->get();
+        $defaultService = BillService::whereName('Maintenance')->first();
+        $selectedSociety = getSelectedSociety($request);
 
-        if($request->isMethod('post')){
-
+        if ($selectedSociety instanceof \Illuminate\Http\RedirectResponse) {
+            return $selectedSociety;
         }
 
-        return view($this->viewPath. 'add', [
-            'residents' => $residents
+        // Get all active society residents
+        $societyResidents = Member::select('members.user_id', 'members.name', 'members.aprt_no', 'members.floor_number', 'members.unit_type', 'members.phone', 'blocks.name as block_name')
+            ->join('blocks', 'members.block_id', '=', 'blocks.id')
+            ->where('members.status', 'active')
+            ->where('members.society_id', $selectedSociety)
+            ->get();
+
+        if ($request->isMethod('post')) {
+            try {
+                _dLog(eventType: 'info', activityName: 'Bill Creation Started', description: 'Starting the process of creating a new bill');
+
+                $validator = Validator::make($request->all(), [
+                    'billing_user_type' => 'required',
+                    'amount' => 'required|numeric|min:0',
+                    'due_date' => 'required|date|after_or_equal:' . now()->setTimezone('Asia/Kolkata')->toDateString(),
+                ]);
+
+                if ($validator->fails()) {
+                    _dLog(eventType: 'error', activityName: 'Bill Creation Validation Failed', description: 'Validation error during bill creation: ' . $validator->errors()->first(), modelType: 'Bill', modelId: null, status: 'failed');
+
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $validator->errors()->first()
+                    ]);
+                }
+
+                DB::beginTransaction();
+
+                if ($request->billing_user_type == 'single') {
+                    // Single user bill creation
+                    $bill = Bill::create([
+                        ...$request->all(),
+                        'status' => 'unpaid',
+                        'created_by' => auth()->id(),
+                    ]);
+
+                    $this->sendBillNotification($bill);
+                } else if ($request->billing_user_type == 'all') {
+                    // Create bill for all residents
+                    foreach ($societyResidents as $resident) {
+                        $bill = Bill::create([
+                            'user_id' => $resident->user_id,
+                            'amount' => $request->amount,
+                            'due_date' => $request->due_date,
+                            'status' => 'unpaid',
+                            'created_by' => auth()->id(),
+                            'service_id' => $request->service_id,
+                            'society_id' => $selectedSociety,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now(),
+                        ]);
+                        $this->sendBillNotification((object) $bill);
+                    }
+                }
+
+                _dLog(eventType: 'info', activityName: 'Bill Created', description: 'New bill(s) created successfully', modelType: 'Bill', modelId: null, status: 'success', severityLevel: 1);
+
+                DB::commit();
+
+                return redirect()->back()->with([
+                    'status' => 'success',
+                    'message' => 'Bill(s) added successfully',
+                ]);
+            } catch (Exception $e) {
+                DB::rollBack();
+
+                _dLog(eventType: 'error', activityName: 'Bill Creation Failed', description: 'Exception during bill creation: ' . $e->getMessage(), modelType: 'Bill', modelId: null, status: 'failed', severityLevel: 2);
+
+                return redirect()->back()->with([
+                    'status' => 'error',
+                    'message' => 'Failed, please try again!',
+                ]);
+            }
+        }
+
+        return view($this->viewPath . 'add', [
+            'residents' => $societyResidents,
+            'billServices' => $billServices,
+            'defaultService' => $defaultService,
+            'selectedSociety' => $selectedSociety
         ]);
     }
+
+    /**
+     * Send push notification to user about the bill
+     */
+    private function sendBillNotification($bill) {
+        $checkSett = 'bill_notifications';
+
+        $user = User::whereHas('notificationSettings', function ($query) use ($checkSett, $bill) {
+            $query->where('name', $checkSett)
+                ->where('user_id', $bill->user_id)
+                ->where('status', 'enabled')
+                ->where('user_of_system', 'app')
+                ->where('society_id', $bill->society_id);
+        })->select('id', 'device_id')->first();
+
+        if ($user && $user->device_id) {
+            $deviceId = $user->device_id;
+            $notificationMessageArray = [
+                'title' => 'New Bill Added',
+                'body' => "A bill of ₹ " . $bill->amount . " has been added",
+            ];
+
+            sendAppPushNotification($user->id, $deviceId, $notificationMessageArray);
+        }
+    }
+
 
     public function show($id)
     {

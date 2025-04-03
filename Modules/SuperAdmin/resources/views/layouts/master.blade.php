@@ -127,6 +127,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
 
         <script src="{{ asset('common/js/process-actions.js?' . time()) }}"></script>
+        <script src="{{ asset('common/js/ajax-error.js?' . time()) }}"></script>
 
         @section('default-scripts')
         <!-- Overridable Section -->

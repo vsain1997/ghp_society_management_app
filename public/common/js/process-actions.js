@@ -26,3 +26,92 @@ function initSelect2InModal(modalId) {
         dropdownParent: $('#' + modalId)
     });
 }
+
+
+
+
+function submitForm(e, formId, modalId='', title = 'You want to update this?', refresh = false) {
+    event.preventDefault();
+    if(modalId != ''){
+        var formCheck = $('#'+modalId).find('form#' + formId).get(0);
+        var form = $('#'+modalId).find('form#' + formId);
+    }else{
+        var formCheck = $('form#' + formId).get(0);
+        var form = $('form#' + formId);
+    }
+
+    if (!formCheck.checkValidity()) {
+        formCheck.reportValidity();
+        return;
+    }
+
+    var data = new FormData(form.get(0));
+    var url = form.prop('action');
+
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: title,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: "Yes, Am Sure",
+    }).then((result) => {
+        if(result.isConfirmed){
+            if(modalId != ''){
+                var processing = $('#'+modalId).find('#processing');
+                var formDiv = $('#'+modalId).find('#form_div');
+                // processing.show();
+                // formDiv.hide();
+            }
+
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: data,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if(response.status == true){
+                        console.log(response.message);
+                        form.trigger('reset');
+                        removeErrorTexts(form);
+
+                        if(refresh == true){
+                            refreshContent();
+                        }
+
+                        if(modalId != ''){
+                            processing.hide();
+                            $('#'+modalId).modal('hide');
+                        }
+                    }else{
+                        form.trigger('reset');
+                        if (response.status == 'error') {
+                            toastr[response.status](response.message);
+                        }
+                        removeErrorTexts(form);
+                    }
+                },
+                error: function(err) {
+                    if(err.responseJSON.errors){
+                        console.log(err);
+                        addErrorTexts($(form), err.responseJSON.errors, true);
+                        processing.hide();
+                        formDiv.show();
+                    }
+                }
+            })
+            .fail(err => {
+                processing.hide();
+                formDiv.show();
+            })
+            .always(()=>{
+                processing.hide();
+                formDiv.show();
+            });
+        }else{
+        }
+    })
+}

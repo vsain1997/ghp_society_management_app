@@ -367,6 +367,26 @@
 
 @push('footer-script')
     <script>
+        function displayUsersList(e){
+            const value = $(e).val();
+            const modal =  $('#addBillModal');
+
+            const residentsDiv = modal.find('#residents_list');
+            const residentsRequired = modal.find('.resident_required');
+
+            residentsDiv.hide();
+            residentsRequired.prop('required', false);
+            residentsRequired.val('');
+
+            if(value == 'single'){
+                residentsDiv.show();
+                residentsRequired.prop('required', true);
+            }
+        }
+
+    </script>
+
+    <script>
         $(".members_page").on('click', '#addBilingModalOpen', function(event) {
             // set modal form
             $('#addBilingForm').attr('action',
