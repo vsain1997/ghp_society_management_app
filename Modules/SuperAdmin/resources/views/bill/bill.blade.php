@@ -69,38 +69,6 @@
                         </div>
                     </form>
                 </div>
-                <div class="right_filters">
-                    {{-- <h2>Bills Listing </h2> --}}
-                    {{-- <button class="sortby">
-                    <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.13306 7H21.1331" stroke="#020015" stroke-width="1.5" stroke-linecap="round" />
-                        <path d="M6.13306 12H18.1331" stroke="#020015" stroke-width="1.5" stroke-linecap="round" />
-                        <path d="M10.1331 17H14.1331" stroke="#020015" stroke-width="1.5" stroke-linecap="round" />
-                    </svg>
-                    Sort By
-                </button>
-                <button class="filterbtn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M22 6.5H16" stroke="#020015" stroke-width="1.5" stroke-miterlimit="10"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M6 6.5H2" stroke="#020015" stroke-width="1.5" stroke-miterlimit="10"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M10 10C11.933 10 13.5 8.433 13.5 6.5C13.5 4.567 11.933 3 10 3C8.067 3 6.5 4.567 6.5 6.5C6.5 8.433 8.067 10 10 10Z"
-                            stroke="#020015" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        <path d="M22 17.5H18" stroke="#020015" stroke-width="1.5" stroke-miterlimit="10"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M8 17.5H2" stroke="#020015" stroke-width="1.5" stroke-miterlimit="10"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M14 21C15.933 21 17.5 19.433 17.5 17.5C17.5 15.567 15.933 14 14 14C12.067 14 10.5 15.567 10.5 17.5C10.5 19.433 12.067 21 14 21Z"
-                            stroke="#020015" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                    Filter
-                </button> --}}
-                </div>
             </div>
             <div class="table-responsive">
                 <table width="100%" cellpadding="0" cellspacing="0">
@@ -166,11 +134,11 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="actions">
-                                            <a class="edit edit-icon" href="javascript:void(0)" id="{{ $billing->id }}">
+                                            <a class="edit-icon" href="javascript:void(0)" data-modal="updateBillModal" data-target="{{ route('superadmin.billing.update.bill', ['bill_id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
                                                 <img src="{{ url($thisModule) }}/img/edit.png" alt="edit">
                                             </a>
-                                            <a class="view"
-                                                href="{{ route($thisModule . '.billing.details', ['id' => $billing->id]) }}"
+
+                                            <a class="view" href="{{ route($thisModule . '.billing.details', ['id' => $billing->id]) }}"
                                                 id="{{ $billing->id }}">
                                                 <img src="{{ url($thisModule) }}/img/eye.png" alt="view">
                                             </a>
@@ -199,7 +167,7 @@
                             {{ $bills->total() }} results
                         </div>
                         <div>
-                            {{ $bills->links('vendor.pagination.bootstrap-5') }} {{-- Bootstrap 5 pagination view --}}
+                            {{ $bills->links('vendor.pagination.bootstrap-5') }}
                         </div>
                     </div>
 
@@ -208,160 +176,8 @@
         </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade custom_Modal" id="addBilingModalOld" tabindex="-1" aria-labelledby="addBilingModalOldLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered ">
-            <div class="modal-content ">
-                <div class="modal-header">
-                    <h3 class="text-white" id="modalHeadTxt">Add Bill</h3>
-                    {{-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> --}}
-                </div>
-                <div class="modal-body">
-                    <div class="custom_form">
-                        <form method="POST" action="{{ route($thisModule . '.billing.store') }}" id="addBilingForm">
-                            @csrf
-                            <div class="row d-none">
-                                <div class="col">
-                                    <div class="form-group">
-                                        <input type="hidden" name="id" id="id">
-                                        <input type="hidden" name="created_by" value="{{ auth()->user()->id }}">
-                                        <label for="society_id">Society</label>
-                                        <select name="society_id" id="society_id" class="form-select form-control">
-                                            <option value="">--select--</option>
-                                            @if (!empty($mySocietys))
-                                                @foreach ($mySocietys as $society)
-                                                    <option value="{{ $society->id }}" selected>
-                                                        {{ $society->name }}</option>
-                                                @endforeach
-                                            @else
-                                                @php $cnt1 = 0; @endphp
-                                                @foreach ($__societies__ as $society)
-                                                    @if (!session('__selected_society__'))
-                                                        @if ($cnt1 == 0)
-                                                            <option value="{{ $society->id }}" selected>
-                                                                {{ $society->name }}</option>
-                                                            @php
-                                                                session(['__selected_society__' => $society->id]);
-                                                            @endphp
-                                                        @endif
-                                                    @endif
-
-                                                    @if (session('__selected_society__') == $society->id)
-                                                        <option value="{{ $society->id }}" selected>
-                                                            {{ $society->name }}</option>
-                                                    @else
-                                                        <option value="{{ $society->id }}">{{ $society->name }}
-                                                        </option>
-                                                    @endif
-                                                    @php $cnt1++; @endphp
-                                                @endforeach
-                                            @endif
-                                        </select>
-                                        <span class="text-danger err"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-3" id="resident-info" style="display: none;">
-                                <div class="col">
-                                    <div class="card">
-                                        <div class="card-header text-white" style="background-color: #8077F5;">Resident
-                                            Details</div>
-                                        <div class="card-body">
-                                            <p><strong>Name:</strong> <span id="nameShowData"></span></p>
-                                            <p><strong>Tower:</strong> <span id="blockShowData"></span></p>
-                                            <p><strong>Floor:</strong> <span id="floorShowData"></span></p>
-                                            <p><strong>Property Type:</strong> <span id="unitTypeShowData"></span></p>
-                                            <p><strong>Property Number:</strong> <span id="aprtNoShowData"></span></p>
-                                            <p><strong>Phone:</strong> <span id="phoneShowData"></span></p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col overflow-hidden">
-                                    <div class="form-group">
-                                        <label for="user_id">Select Resident</label>
-                                        <select name="user_id" id="user_id"
-                                            class="residentList form-select form-control">
-                                            <option value="">--select--</option>
-                                            @if (!empty($societyResidents))
-                                                @foreach ($societyResidents as $resident)
-                                                    <option data-floor="{{ $resident->floor_number }}"
-                                                        data-block="{{ $resident->block_name }}"
-                                                        data-unitType="{{ $resident->unit_type }}"
-                                                        data-aprtNo="{{ $resident->aprt_no }}"
-                                                        data-phone="{{ $resident->phone }}"
-                                                        data-name="{{ $resident->name }}"
-                                                        value="{{ $resident->user_id }}">
-                                                        {{ $resident->name }}</option>
-                                                @endforeach
-                                            @endif
-                                        </select>
-                                        <span class="text-danger err"></span>
-                                    </div>
-                                </div>
-                                <div class="col overflow-hidden">
-                                    <div class="form-group">
-                                        <label for="bill_type">Bill Type</label>
-                                        <select name="bill_type" id="bill_type" class="form-select form-control">
-                                            <option value="">--select--</option>
-                                            <option value="my_bill">Utility Bill</option>
-                                            <option value="maintenance">Maintenance</option>
-                                        </select>
-                                        <span class="text-danger err"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col overflow-hidden">
-                                    <div class="form-group">
-                                        <label for="service_id">Select Service</label>
-                                        <select name="service_id" id="service_id"
-                                            class="residentList form-select form-control">
-                                            <option value="">--select--</option>
-                                            @if (!empty($billServices))
-                                                @foreach ($billServices as $services)
-                                                    <option value="{{ $services->id }}">
-                                                        {{ $services->name }}</option>
-                                                @endforeach
-                                            @endif
-                                        </select>
-                                        <span class="text-danger err"></span>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-group">
-                                        <label for="amount">Amount</label>
-                                        <input type="text" name="amount" id="amount" class="form-control">
-                                        <span class="text-danger err"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-group">
-                                        <label for="due_date">Due Date</label>
-                                        <input type="date" name="due_date" id="due_date" class="form-control">
-                                        <span class="text-danger err"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="save-close-btn">
-                                <button type="button" class="border_theme_btn close-btn cancel_btn"
-                                    data-bs-dismiss="modal">Close</button>
-                                <button type="button" data-formtype="add" id="submitAddBilingForm"
-                                    class="bg_theme_btn">Submit</button>
-
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <x-comman-modal-component modalId="addBillModal" modalTitle="Add Bill" />
+    <x-comman-modal-component modalId="updateBillModal" modalTitle="Update Bill" />
 
 @endsection
 

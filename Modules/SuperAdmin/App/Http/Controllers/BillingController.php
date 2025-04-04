@@ -164,7 +164,7 @@ class BillingController extends Controller
 
 
     /**
-     * Create New Bill
+     * Create Bill - New
      * @param Request $request
      * @return mixed
     */
@@ -206,6 +206,17 @@ class BillingController extends Controller
                 DB::beginTransaction();
 
                 if ($request->billing_user_type == 'single') {
+                    $isBillExist = Bill::where(function ($query) use ($request) {
+                        $query->whereUserId($request->user_id)
+                              ->whereMonth('due_date', '=', date('m', strtotime($request->due_date)));
+                    })->first();
+
+                    if($isBillExist){
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'This Month Bill Already Created',
+                        ]);
+                    }
                     // Single user bill creation
                     $bill = Bill::create([
                         ...$request->all(),
@@ -217,18 +228,23 @@ class BillingController extends Controller
                 } else if ($request->billing_user_type == 'all') {
                     // Create bill for all residents
                     foreach ($societyResidents as $resident) {
-                        $bill = Bill::create([
-                            'user_id' => $resident->user_id,
-                            'amount' => $request->amount,
-                            'due_date' => $request->due_date,
-                            'status' => 'unpaid',
-                            'created_by' => auth()->id(),
-                            'service_id' => $request->service_id,
-                            'society_id' => $selectedSociety,
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now(),
-                        ]);
-                        $this->sendBillNotification((object) $bill);
+
+                        $isBillExist = Bill::whereUserId($resident->user_id)->whereMonth('due_date', '=', date('m', strtotime($request->due_date)))->first();
+
+                        if(empty($isBillExist)){
+                            $bill = Bill::create([
+                                'user_id' => $resident->user_id,
+                                'amount' => $request->amount,
+                                'due_date' => $request->due_date,
+                                'status' => 'unpaid',
+                                'created_by' => auth()->id(),
+                                'service_id' => $request->service_id,
+                                'society_id' => $selectedSociety,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now(),
+                            ]);
+                            $this->sendBillNotification((object) $bill);
+                        }
                     }
                 }
 
@@ -259,6 +275,98 @@ class BillingController extends Controller
             'selectedSociety' => $selectedSociety
         ]);
     }
+
+
+    /**
+     * Update Bill - New
+     * @param integer $bill_id Billing Id
+     * @param Request $request
+     * @return mixed
+    */
+    public function updateBillingNew(Request $request , $bill_id){
+        try{
+            $bill = Bill::find($bill_id);
+            $selectedSociety = getSelectedSociety($request);
+
+            if ($selectedSociety instanceof \Illuminate\Http\RedirectResponse) {
+                return $selectedSociety;
+            }
+
+            // Get all active society residents
+            $societyResidents = Member::select('members.user_id', 'members.name', 'members.aprt_no', 'members.floor_number', 'members.unit_type', 'members.phone', 'blocks.name as block_name')
+                ->join('blocks', 'members.block_id', '=', 'blocks.id')
+                ->where('members.status', 'active')
+                ->where('members.society_id', $selectedSociety)
+                ->get();
+
+            if(!$bill) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Bill Does Not Exist!!"
+                ]);
+            }
+            if($request->isMethod('post')){
+                _dLog(eventType: 'info', activityName: 'Bill Update Started', description: 'Starting the process of update bill', modelType: 'Bill', modelId: $bill_id);
+                $validator = Validator::make($request->all(), [
+                    'user_id' => 'required|exists:users,id',
+                    'amount' => 'required|numeric|min:0',
+                    'due_date' => 'required|date|after_or_equal:' . now()->setTimezone('Asia/Kolkata')->toDateString(),
+                ]);
+
+                if ($validator->fails()) {
+                    _dLog(eventType: 'error', activityName: 'Bill Update Validation Failed', description: 'Validation error during bill update', modelType: 'Bill', modelId: $bill_id, status: 'failed');
+
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Validation failed: ' . $validator->errors(),
+                    ]);
+                }
+
+                $isBillExist = Bill::where(function ($query) use ($request) {
+                    $query->whereUserId($request->user_id)
+                          ->whereMonth('due_date', '=', date('m', strtotime($request->due_date)));
+                })->first();
+
+                if($isBillExist){
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'This Month Bill Already Created',
+                    ]);
+                }
+
+                $bill->update($request->only([
+                    'user_id',
+                    'amount',
+                    'due_date',
+                ]));
+
+                _dLog(eventType: 'info', activityName: 'Bill Updated', description: 'Bill updated ( Title: Bill Update ) ', modelType: 'Bill', modelId: $bill->id, status: 'success', severityLevel: 1, beforeData: null, afterData: $bill->toArray(), requestData: $request->all());
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Bill updated successfully',
+                ]);
+
+            }
+
+            _dLog(eventType: 'info', activityName: 'Bill Edit Accessed', description: 'Accessing edit page for bill ', modelType: 'Bill', modelId: $bill_id, status: 'success', severityLevel: 1);
+
+            return view($this->viewPath.'update', [
+                'bill' => $bill,
+                'residents' => $societyResidents
+            ]);
+        } catch (Exception $e) {
+
+            _dLog(eventType: 'error', activityName: 'Bill Update Failed', description: 'Exception during bill update: ' . $e->getMessage(), modelType: 'Bill', modelId: $id, status: 'failed', severityLevel: 2);
+
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed, please try again!',
+            ]);
+        }
+    }
+
 
     /**
      * Send push notification to user about the bill
