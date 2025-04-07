@@ -245,6 +245,8 @@ Route::prefix('user/v1')->group(function () {
             // below-api::not-for-app---start
             Route::post('/create', [BillController::class, 'store'])->name('create');
             // below-api::not-for-app---end./
+
+            Route::post('/payment-details', [BillController::class, 'paymentDetails'])->name('payment.details');
         });
 
         // buy-sell-rent-property

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\Notice;
 use App\Models\Society;
 use App\Models\User;
+use App\RazorpayPayments;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -205,8 +206,15 @@ class BillingController extends Controller
 
                 DB::beginTransaction();
 
+                if (Carbon::parse($request->due_date)->format('Y-m') !== Carbon::now()->format('Y-m')) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'You can create bill only for the current month',
+                    ]);
+                }
+
                 if ($request->billing_user_type == 'single') {
-                    $isBillExist = Bill::where(function ($query) use ($request) {
+                    $isBillExist = Bill::whereNull('deleted_at')->where(function ($query) use ($request) {
                         $query->whereUserId($request->user_id)
                               ->whereMonth('due_date', '=', date('m', strtotime($request->due_date)));
                     })->first();
@@ -217,12 +225,22 @@ class BillingController extends Controller
                             'message' => 'This Month Bill Already Created',
                         ]);
                     }
+
                     // Single user bill creation
                     $bill = Bill::create([
                         ...$request->all(),
                         'status' => 'unpaid',
                         'created_by' => auth()->id(),
                     ]);
+
+                    if(isset($res['error'])){
+                        $errMessage = $res['error']['description'];
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => $errMessage
+                        ]);
+                    }else{
+                    }
 
                     $this->sendBillNotification($bill);
                 } else if ($request->billing_user_type == 'all') {
@@ -327,12 +345,19 @@ class BillingController extends Controller
                           ->whereMonth('due_date', '=', date('m', strtotime($request->due_date)));
                 })->first();
 
-                if($isBillExist){
+                if (Carbon::parse($request->due_date)->format('Y-m') !== Carbon::now()->format('Y-m')) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'This Month Bill Already Created',
+                        'message' => 'You can create bill only for the current month',
                     ]);
                 }
+
+                // if($isBillExist){
+                //     return response()->json([
+                //         'status' => 'error',
+                //         'message' => 'This Month Bill Already Created',
+                //     ]);
+                // }
 
                 $bill->update($request->only([
                     'user_id',

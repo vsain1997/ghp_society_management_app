@@ -62,8 +62,8 @@ function submitForm(e, formId, modalId='', title = 'You want to update this?', r
             if(modalId != ''){
                 var processing = $('#'+modalId).find('#processing');
                 var formDiv = $('#'+modalId).find('#form_div');
-                //processing.show();
-                //formDiv.hide();
+                processing.show();
+                formDiv.hide();
             }
 
             $.ajax({

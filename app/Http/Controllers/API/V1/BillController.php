@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bill;
+use App\RazorpayPayments;
 use Illuminate\Http\Request;
 
 class BillController extends Controller
@@ -170,6 +171,27 @@ class BillController extends Controller
                 data: $data,
                 code: HTTP_OK
             );
+
+        } catch (\Exception $e) {
+            // Handle any exceptions that occur
+            return res(
+                status: false,
+                message: $e->getMessage(),
+                code: HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    /**
+     * Billing Details
+     * @param Request $request
+     * @return mixed
+    */
+    public function paymentDetails(Request $request)
+    {
+        try {
+
+            return $request;
 
         } catch (\Exception $e) {
             // Handle any exceptions that occur
