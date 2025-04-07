@@ -453,6 +453,7 @@ class UserController extends Controller
 
             $data = [
                 'user' => $user,
+                'unpaid_bills' => $user->myUnpaidBills
             ];
             return res(
                 status: true,

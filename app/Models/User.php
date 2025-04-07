@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -141,6 +143,18 @@ class User extends Authenticatable
     public function myBills()
     {
         return $this->hasMany(Bill::class, 'user_id');
+    }
+
+    public function myUnpaidBills()
+    {
+        return $this->hasMany(Bill::class, 'user_id')->where('status', 'unpaid');
+    }
+
+    public function myCurrentMonthBills()
+    {
+        return $this->hasMany(Bill::class, 'user_id')
+                    ->whereMonth('created_at', Carbon::now()->month)
+                    ->whereYear('created_at', Carbon::now()->year);
     }
 
     public function myGeneratedBills()
