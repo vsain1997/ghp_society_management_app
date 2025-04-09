@@ -4,6 +4,7 @@ namespace Modules\SuperAdmin\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SendPushNotificationJob;
+use App\Jobs\SendWhatsappMessage;
 use App\Models\Bill;
 use App\Models\BillService;
 use App\Models\Member;
@@ -11,6 +12,7 @@ use App\Notifications\DynamicNotification;
 use Illuminate\Http\Request;
 use App\Models\Notice;
 use App\Models\Society;
+use App\Models\SystemSetting;
 use App\Models\User;
 use App\RazorpayPayments;
 use Carbon\Carbon;
@@ -170,6 +172,7 @@ class BillingController extends Controller
      * @return mixed
     */
     public function createNewBill(Request $request) {
+        $canSendMsg = canSendMessage('whatsapp_message');
         $billServices = BillService::orderBy('name')->get();
         $defaultService = BillService::whereName('Maintenance')->first();
         $selectedSociety = getSelectedSociety($request);
@@ -243,6 +246,9 @@ class BillingController extends Controller
                     }
 
                     $this->sendBillNotification($bill);
+                    SendWhatsappMessage::dispatch($bill, 'bill_reminder');
+
+
                 } else if ($request->billing_user_type == 'all') {
                     // Create bill for all residents
                     foreach ($societyResidents as $resident) {

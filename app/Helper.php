@@ -3,6 +3,7 @@ use Hamcrest\Number\IsCloseTo;
 use Illuminate\Support\Facades\Log;
 use App\Models\Society;
 use App\Models\ActivityLog;
+use App\Models\SystemSetting;
 // for notification----------------
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Contract\Messaging;
@@ -743,6 +744,34 @@ if (!function_exists('isNotificationSettingEnabled')) {
                 ->where('user_of_system', $device)
                 ->where('user_id', $userId);
         })->first();
+    }
+}
+
+
+
+/**
+     * Check Can Send Whatsapp Message Or Not
+     * @param string $name Site Type Name Ex: site-whatsapp-message, app-whatsapp-message, admin-whatsapp-message
+     * @return mixed
+    */
+function canSendMessage($name){
+    $canSend = SystemSetting::whereName($name)->first();
+
+    if($canSend && $canSend->value == 1){
+        return [
+            'status' => true,
+            'message' => 'Can Send Message'
+        ];
+    }elseif($canSend && $canSend->value == 0){
+        return [
+            'status' => false,
+            'message' => $canSend->extra['message']
+        ];
+    }else{
+        return [
+            'status' => false,
+            'message' => "Whatsapp Message Not Configured"
+        ];
     }
 }
 
