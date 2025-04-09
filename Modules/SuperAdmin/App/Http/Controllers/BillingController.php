@@ -172,7 +172,6 @@ class BillingController extends Controller
      * @return mixed
     */
     public function createNewBill(Request $request) {
-        $canSendMsg = canSendMessage('whatsapp_message');
         $billServices = BillService::orderBy('name')->get();
         $defaultService = BillService::whereName('Maintenance')->first();
         $selectedSociety = getSelectedSociety($request);
@@ -246,31 +245,58 @@ class BillingController extends Controller
                     }
 
                     $this->sendBillNotification($bill);
-                    SendWhatsappMessage::dispatch($bill, 'bill_reminder');
+
+                    $canSend = canSendMessage('whatsapp_message');
+                    if($canSend['status']){
+                        SendWhatsappMessage::dispatch($bill, 'new_bill_create');
+                    }
 
 
                 } else if ($request->billing_user_type == 'all') {
-                    // Create bill for all residents
-                    foreach ($societyResidents as $resident) {
+                    // Process residents in chunks directly from DB to avoid memory overload
+                    Member::select(
+                            'members.user_id',
+                            'members.name',
+                            'members.aprt_no',
+                            'members.floor_number',
+                            'members.unit_type',
+                            'members.phone',
+                            'blocks.name as block_name'
+                        )
+                        ->join('blocks', 'members.block_id', '=', 'blocks.id')
+                        ->where('members.status', 'active')
+                        ->where('members.society_id', $selectedSociety)
+                        ->orderBy('members.id') // ensure consistent chunking
+                        ->chunk(500, function ($residents) use ($request, $selectedSociety) {
+                            foreach ($residents as $resident) {
+                                $isBillExist = Bill::whereUserId($resident->user_id)
+                                    ->whereMonth('due_date', '=', date('m', strtotime($request->due_date)))
+                                    ->first();
 
-                        $isBillExist = Bill::whereUserId($resident->user_id)->whereMonth('due_date', '=', date('m', strtotime($request->due_date)))->first();
+                                if (empty($isBillExist)) {
+                                    $bill = Bill::create([
+                                        'user_id' => $resident->user_id,
+                                        'amount' => $request->amount,
+                                        'due_date' => $request->due_date,
+                                        'status' => 'unpaid',
+                                        'created_by' => auth()->id(),
+                                        'service_id' => $request->service_id,
+                                        'society_id' => $selectedSociety,
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now(),
+                                    ]);
 
-                        if(empty($isBillExist)){
-                            $bill = Bill::create([
-                                'user_id' => $resident->user_id,
-                                'amount' => $request->amount,
-                                'due_date' => $request->due_date,
-                                'status' => 'unpaid',
-                                'created_by' => auth()->id(),
-                                'service_id' => $request->service_id,
-                                'society_id' => $selectedSociety,
-                                'created_at' => Carbon::now(),
-                                'updated_at' => Carbon::now(),
-                            ]);
-                            $this->sendBillNotification((object) $bill);
-                        }
-                    }
+                                    $this->sendBillNotification((object) $bill);
+
+                                    $canSend = canSendMessage('whatsapp_message');
+                                    if ($canSend['status']) {
+                                        SendWhatsappMessage::dispatch($bill, 'new_bill_create');
+                                    }
+                                }
+                            }
+                        });
                 }
+
 
                 _dLog(eventType: 'info', activityName: 'Bill Created', description: 'New bill(s) created successfully', modelType: 'Bill', modelId: null, status: 'success', severityLevel: 1);
 

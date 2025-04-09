@@ -9,6 +9,10 @@ use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Contract\Messaging;
 use App\Models\User;
 use App\Notifications\NoticeAlertNotification;
+use Carbon\Carbon;
+use Faker\Extension\Helper;
+use Illuminate\Support\Facades\Storage;
+use Ramsey\Uuid\Uuid;
 
 // HTTP Status Codes as Constants
 if (!defined('HTTP_CONTINUE'))
@@ -749,6 +753,56 @@ if (!function_exists('isNotificationSettingEnabled')) {
 
 
 
+function formateDate($date){
+    return Carbon::parse($date)->format('d M Y \- g:i A');
+}
+
+function formateDate2($date){
+    return Carbon::parse($date)->format('d M - Y');
+}
+
+function shortDate($date){
+    return Carbon::parse($date)->format('j M');
+}
+
+function getFileExtension($fileName){
+    if(!empty($fileName)){
+        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+        return $ext;
+    }
+}
+
+
+
+/**
+ * convert to number format
+ *
+ * @param mixed $num Number
+ * @param int $place Decimal Places
+ * @return float
+ */
+function numFormat($num, $place = 2){
+    return number_format($num, $place, '.');
+    //  return number_format((float)$num, $place, '.', '');
+}
+
+/**
+ * Show Number to Rupee Currency
+ *
+ * @param mixed $num Number
+ * @param int $place Decimal Places
+ * @return string
+ */
+function toRupeeCurrency($num, $place = 2){
+    if (is_int($num) || is_numeric($num)) {
+        return " ₹ " . numFormat($num, $place);
+    } else {
+        // Handle other data types or invalid input gracefully
+        return 'NA';
+    }
+}
+
+
 /**
      * Check Can Send Whatsapp Message Or Not
      * @param string $name Site Type Name Ex: site-whatsapp-message, app-whatsapp-message, admin-whatsapp-message
@@ -775,3 +829,59 @@ function canSendMessage($name){
     }
 }
 
+
+/**
+ * Generate message parameters dynamically based on the inputs.
+ */
+function generateNormalParameters($inputs){
+    $parameters = [];
+    foreach ($inputs as $value) {
+        $parameters[] = ["type" => "text", "text" => $value ?? '--'];
+    }
+    return $parameters;
+}
+
+
+/**
+ * Save parameter Values In Array
+ * @param array $perameter array
+ * @return array
+ */
+function perametersValues($parameters)
+{
+    $textValues = [];
+    // Loop through the $parameters array
+    foreach ($parameters as $parameter) {
+        if (isset($parameter['text'])) {
+            $textValues[] = $parameter['text'];
+        }
+    }
+    return $textValues;
+}
+
+
+/**
+ * Create the message data for the API.
+ * @param string $phone Receipent Phone Number
+ * @param string $templateName Whatsapp Message Template Name
+ * @param string $templateLanguage Template Language
+ * @param array $parameters Message Perameters
+ */
+function createNormalTemplateMessageData($phone, $templateName, $templateLanguage, $parameters)
+{
+    return [
+        "messaging_product" => "whatsapp",
+        "to" => '91' . $phone,
+        "type" => "template",
+        "template" => [
+            "name" => $templateName,
+            "language" => ["code" => $templateLanguage],
+            "components" => [
+                [
+                    "type" => "body",
+                    "parameters" => $parameters
+                ]
+            ]
+        ]
+    ];
+}

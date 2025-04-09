@@ -58,7 +58,7 @@ class FacebookApi {
         $msgData = [
             "messaging_product" => "whatsapp",
             "recipient_type" => "individual",
-            "to" => $phone,
+            "to" => '91'.$phone,
             "type" => "text",
             "text" => [
                 "preview_url" => true,
