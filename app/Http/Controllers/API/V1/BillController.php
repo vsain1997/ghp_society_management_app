@@ -4,8 +4,11 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bill;
+use App\Models\BillPayment;
 use App\RazorpayPayments;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Razorpay\Api\Test\RazorpayTest;
 
 class BillController extends Controller
 {
@@ -190,8 +193,46 @@ class BillController extends Controller
     public function paymentDetails(Request $request)
     {
         try {
+            $bill = Bill::find($request['bill_id']);
 
-            return $request;
+            if(!$bill){
+                return response()->json([
+                    'status' => false,
+                    'message' => "Bill not found!!",
+                ]);
+            }
+
+            $paymentId = $request['response']['razorpay_payment_id'];
+            $razorpay = new RazorpayPayments();
+            $resp = $razorpay->getPayment($paymentId);
+
+            if(isset($resp['error'])){
+
+            }
+
+            $bill->status = 'paid';
+            $bill->payment_status = 'paid';
+            $bill->payment_date = Carbon::parse($resp['created_at']);
+            $bill->save();
+
+            BillPayment::firstOrCreate([
+                'txn_id' => $paymentId
+            ],[
+                'bill_id' => $bill->id,
+                'user_id' => $bill->user_id,
+                'txn_id' => $paymentId ?? null,
+                'orderId' => $resp['order_id'] ?? null,
+                'amount' => $resp['amount'] / 100,
+                'tax' => $resp['tax'] ?? null,
+                'fee' => $resp['fee'] ?? null,
+                'status' => 'paid',
+                'extra_details' => $resp
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => "Bill succesfully paid."
+            ]);
 
         } catch (\Exception $e) {
             // Handle any exceptions that occur

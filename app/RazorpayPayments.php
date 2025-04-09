@@ -6,6 +6,7 @@ use App\Models\User;
 use Exception;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Razorpay\Api\Api;
 
@@ -16,8 +17,8 @@ class RazorpayPayments {
     public function __construct()
     {
         $this->api = new Api(
-            env("RAZORPAY_KEY_ID"),
-            env("RAZORPAY_SECRET_KEY")
+            Config::get('services.razorpay.key'),
+            Config::get('services.razorpay.secret_key')
         );
     }
 
@@ -118,12 +119,17 @@ class RazorpayPayments {
 
     /**
      * Get Razorpay Payment Status
-     * @param payment_id Razorpay payment id
-     * @return renderable
+     * @param string Razorpay payment id
+     * @return mixed
     */
     public function getPayment($paymentId){
-        $resp = $this->api->payment->fetch($paymentId);
-        return $resp;
+        $key = Config::get('services.razorpay.key');
+        $secret = Config::get('services.razorpay.secret_key');
+
+        $response = Http::withBasicAuth($key, $secret)
+        ->get("https://api.razorpay.com/v1/payments/{$paymentId}");
+
+        return $response->json();
     }
 
 }
