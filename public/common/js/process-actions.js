@@ -6,7 +6,6 @@ function manageAddEditProcess(e){
     console.log('modal', modal);
 
     $.get(route, function(h) {
-
         editModal.modal('show');
         editModal.find('#modal-content-body').html(h);
         initSelect2InModal(modal);
