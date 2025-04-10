@@ -202,37 +202,46 @@ class BillController extends Controller
                 ]);
             }
 
-            $paymentId = $request['response']['razorpay_payment_id'];
-            $razorpay = new RazorpayPayments();
-            $resp = $razorpay->getPayment($paymentId);
+            if($request['status'] == 'success'){
+                $paymentId = $request['response']['razorpay_payment_id'];
+                $razorpay = new RazorpayPayments();
+                $resp = $razorpay->getPayment($paymentId);
 
-            if(isset($resp['error'])){
+                $bill->status = 'paid';
+                $bill->payment_status = 'paid';
+                $bill->payment_date = Carbon::parse($resp['created_at']);
+                $bill->save();
+
+                BillPayment::firstOrCreate([
+                    'txn_id' => $paymentId
+                ],[
+                    'bill_id' => $bill->id,
+                    'user_id' => $bill->user_id,
+                    'txn_id' => $paymentId ?? null,
+                    'orderId' => $resp['order_id'] ?? null,
+                    'amount' => $resp['amount'] / 100,
+                    'tax' => $resp['tax'] ?? null,
+                    'fee' => $resp['fee'] ?? null,
+                    'status' => 'paid',
+                    'extra_details' => $resp
+                ]);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => "Bill succesfully paid."
+                ]);
+            }else{
+                $bill->payment_status = 'failed';
+                $bill->payment_date = Carbon::now();
+                $bill->save();
+
+                return response()->json([
+                    'status' => false,
+                    'message' => "Payment failed."
+                ]);
 
             }
 
-            $bill->status = 'paid';
-            $bill->payment_status = 'paid';
-            $bill->payment_date = Carbon::parse($resp['created_at']);
-            $bill->save();
-
-            BillPayment::firstOrCreate([
-                'txn_id' => $paymentId
-            ],[
-                'bill_id' => $bill->id,
-                'user_id' => $bill->user_id,
-                'txn_id' => $paymentId ?? null,
-                'orderId' => $resp['order_id'] ?? null,
-                'amount' => $resp['amount'] / 100,
-                'tax' => $resp['tax'] ?? null,
-                'fee' => $resp['fee'] ?? null,
-                'status' => 'paid',
-                'extra_details' => $resp
-            ]);
-
-            return response()->json([
-                'status' => true,
-                'message' => "Bill succesfully paid."
-            ]);
 
         } catch (\Exception $e) {
             // Handle any exceptions that occur

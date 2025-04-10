@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CronJobsController;
 use App\Http\Controllers\TestingController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
@@ -91,3 +92,16 @@ Route::get('/run-schedule', function () {
 Route::get('/csrf-refresh', function () {
     return response()->json(['token' => csrf_token()]);
 })->name('csrf.refresh');
+
+
+
+
+
+
+/** WHATSAPP WEBHOOKS & CRON JOBS ROUTES - START **/
+
+    Route::prefix('jobs')->name('cron.jobs')->group(function(){
+        Route::get('/check-bills-and-send-reminders', [CronJobsController::class, 'billReminder'])->name('bill.reminder');
+    });
+
+/** WHATSAPP WEBHOOKS & CRON JOBS ROUTES - END **/
