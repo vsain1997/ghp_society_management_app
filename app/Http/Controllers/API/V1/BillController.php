@@ -223,6 +223,7 @@ class BillController extends Controller
                     'tax' => $resp['tax'] ?? null,
                     'fee' => $resp['fee'] ?? null,
                     'status' => 'paid',
+                    'payment_mood' => $resp['method'] ?? null,
                     'extra_details' => $resp
                 ]);
 

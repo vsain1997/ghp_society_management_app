@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\SendPushNotificationJob;
 use App\Jobs\SendWhatsappMessage;
 use App\Models\Bill;
+use App\Models\BillPayment;
 use App\Models\BillService;
 use App\Models\Member;
 use App\Notifications\DynamicNotification;
@@ -422,6 +423,82 @@ class BillingController extends Controller
                 'message' => 'Failed, please try again!',
             ]);
         }
+    }
+
+
+
+    /**
+     * Collect Cash Payment
+     * @param Request $request
+     * @param integer $id Bill Id
+     * @return mixed
+    */
+    public function collectCashPayment(Request $request, $id){
+        $bill = Bill::find($id);
+
+        if(!$bill){
+            return response()->json([
+                'status' => 'error',
+                'message' => "Bill not found!!"
+            ]);
+        }
+
+
+        if($request->isMethod('post')){
+            try{
+                _dLog(eventType: 'info', activityName: 'Bill Collection Started', description: 'Starting the process of collect bill', modelType: 'Bill', modelId: $id);
+                $validator = Validator::make($request->all(), [
+                    'payment_mood' => 'required',
+                    'amount' => 'required|numeric|min:0'
+                ]);
+
+                if ($validator->fails()) {
+                    _dLog(eventType: 'error', activityName: 'Bill Collection Validation Failed', description: 'Validation error during bill collection', modelType: 'Bill', modelId: $id, status: 'failed');
+
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Validation failed: ' . $validator->errors(),
+                    ]);
+                }
+
+                $bill->update([
+                    'status' => 'paid',
+                    'payment_status' => 'paid',
+                    'payment_date' => Carbon::now(),
+                ]);
+
+                BillPayment::create([
+                    'user_id' => $bill->user_id,
+                    'bill_id' => $bill->id,
+                    'txn_id' => $request->payment_mood. '_'. rand(000000,999999),
+                    'payment_mood' => $request->payment_mood,
+                    'amount' => $request->amount,
+                ]);
+
+                _dLog(eventType: 'info', activityName: 'Bill Collected', description: 'Bill collected ( Title: Bill Collected ) ', modelType: 'Bill', modelId: $id, status: 'success', severityLevel: 1, beforeData: null, afterData: $bill->toArray(), requestData: $request->all());
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => "Bill succesfully collected.."
+                ]);
+
+            } catch (Exception $e) {
+
+                _dLog(eventType: 'error', activityName: 'Bill Collection Failed', description: 'Exception during bill collection: ' . $e->getMessage(), modelType: 'Bill', modelId: $id, status: 'failed', severityLevel: 2);
+
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Failed, please try again!',
+                ]);
+            }
+        }
+
+        _dLog(eventType: 'info', activityName: 'Bill Collection Form Accessed', description: 'Accessing bill collection page for bill ', modelType: 'Bill', modelId: $id, status: 'success', severityLevel: 1);
+
+        return view($this->viewPath.'collect_payment', [
+            'bill' => $bill
+        ]);
     }
 
 

@@ -138,10 +138,16 @@
                                                 <img src="{{ url($thisModule) }}/img/edit.png" alt="edit">
                                             </a>
 
-                                            <a class="view" href="{{ route($thisModule . '.billing.details', ['id' => $billing->id]) }}"
-                                                id="{{ $billing->id }}">
+                                            <a class="view" href="{{ route($thisModule . '.billing.details', ['id' => $billing->id]) }}" id="{{ $billing->id }}">
                                                 <img src="{{ url($thisModule) }}/img/eye.png" alt="view">
                                             </a>
+
+                                            @if($billing->status == 'unpaid')
+                                                <a class="view" href="javascript:void(0)" data-modal="collectCashPayment" data-target="{{ route('superadmin.billing.collect.cash.payment', ['id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
+                                                    <img src="{{ url($thisModule) }}/img/wallet.png" alt="view" width="22px">
+                                                </a>
+                                            @endif
+
                                             @if ($billing->user->role != 'admin')
                                                 <a class="delete delete-icon" href="javascript:void(0)"
                                                     data-id="{{ $billing->id }}">
@@ -178,6 +184,7 @@
 
     <x-comman-modal-component modalId="addBillModal" modalTitle="Add Bill" />
     <x-comman-modal-component modalId="updateBillModal" modalTitle="Update Bill" />
+    <x-comman-modal-component modalId="collectCashPayment" modalTitle="Collect Bill payment" />
 
 @endsection
 

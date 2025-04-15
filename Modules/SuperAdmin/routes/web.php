@@ -264,6 +264,7 @@ Route::prefix('superadmin')->name('superadmin.')->middleware('auth.superadmin')-
 
         // NEW ROUTES
         Route::match(['get', 'post'], '/create-new', [BillingController::class, 'createNewBill'])->name('add');
+        Route::match(['get', 'post'], '/collect-cash-payment/{id?}', [BillingController::class, 'collectCashPayment'])->name('collect.cash.payment');
         Route::match(['get', 'post'], '/update-bill/{bill_id?}', [BillingController::class, 'updateBillingNew'])->name('update.bill');
     });
 

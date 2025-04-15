@@ -19,6 +19,7 @@ class BillPayment extends Model
         'tax',
         'fee',
         'status',
+        'payment_mood',
         'extra_details'
     ];
 
