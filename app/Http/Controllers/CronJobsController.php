@@ -30,7 +30,7 @@ class CronJobsController extends Controller
     public function billReminder(){
         if($this->canSendMessage['status']){
             // Chunk the bills to process them in manageable batches
-            Bill::whereStatus('unpaid')->chunk(env("CHUNK_SIZE"), function ($bills) {
+            Bill::where('society_id', 47)->whereStatus('unpaid')->chunk(env("CHUNK_SIZE"), function ($bills) {
                 foreach ($bills as $bill) {
                     $calculatedDate = $bill->due_date;
 
@@ -113,7 +113,10 @@ class CronJobsController extends Controller
                 }
             });
         }else{
-            dd('hi');
+            return response()->json([
+                'status' => 'error',
+                'message' => $this->canSendMessage['message']
+            ]);
         }
     }
 
