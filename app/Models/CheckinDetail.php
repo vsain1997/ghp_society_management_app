@@ -24,7 +24,9 @@ class CheckinDetail extends Model
         'society_id',
         'by_resident',
         'by_daily_help',
-        'daily_help_for_member'
+        'daily_help_for_member',
+        'checkin_type',
+        'checkout_type'
     ];
 
     /**

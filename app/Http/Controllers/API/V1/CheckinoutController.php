@@ -19,6 +19,7 @@ class CheckinoutController extends Controller
             // rule
             $validator = validator($request->all(), array_merge([
                 'user_id' => 'required',
+                'entry_type' => 'required',
                 // 'type' => 'required|in:resident,daily_help'
             ]));
 
@@ -41,6 +42,7 @@ class CheckinoutController extends Controller
                         'checkin_by' => auth()->id(),//security guard
                         'society_id' => auth()->user()->society_id,
                         'by_daily_help' => $request->user_id,
+                        'checkin_type' => $request->entry_type
                     ]);
 
                     $checkin = CheckinDetail::with([
@@ -62,6 +64,7 @@ class CheckinoutController extends Controller
                         'checkin_by' => auth()->id(),//security guard
                         'society_id' => auth()->user()->society_id,
                         'by_resident' => $request->user_id,
+                        'checkin_type' => $request->entry_type
                     ]);
 
                     $checkin = CheckinDetail::with([
@@ -98,6 +101,7 @@ class CheckinoutController extends Controller
                         'society_id' => auth()->user()->society_id,
                         'by_daily_help' => $request->user_id,
                         'daily_help_for_member' => auth()->id(),
+                        'checkin_type' => $request->entry_type
                     ]);
 
                     $checkin = CheckinDetail::with([
@@ -140,7 +144,8 @@ class CheckinoutController extends Controller
         try {
             // rule
             $validator = validator($request->all(), array_merge([
-                'user_id' => 'required'
+                'user_id' => 'required',
+                'entry_type' => 'required',
             ]));
 
             if ($validator->fails()) {
@@ -168,6 +173,7 @@ class CheckinoutController extends Controller
                     $doCheckout->checkout_at = $currentDateTime;
                     $doCheckout->checkout_by = auth()->id();
                     $doCheckout->society_id = auth()->user()->society_id;
+                    $doCheckout->checkout_type = $request->entry_type;
                     $doCheckout->save();
 
                     $checkout = CheckinDetail::with([
@@ -195,6 +201,7 @@ class CheckinoutController extends Controller
                     $doCheckout->checkout_at = $currentDateTime;
                     $doCheckout->checkout_by = auth()->id();
                     $doCheckout->society_id = auth()->user()->society_id;
+                    $doCheckout->checkout_type = $request->entry_type;
                     $doCheckout->save();
 
                     $checkout = CheckinDetail::with([
@@ -236,6 +243,7 @@ class CheckinoutController extends Controller
                     $doCheckout->checkout_at = $currentDateTime;
                     $doCheckout->checkout_by = auth()->id();
                     $doCheckout->society_id = auth()->user()->society_id;
+                    $doCheckout->checkout_type = $request->entry_type;
                     $doCheckout->save();
 
                     $checkout = CheckinDetail::with([
