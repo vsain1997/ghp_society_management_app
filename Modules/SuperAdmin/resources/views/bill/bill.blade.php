@@ -76,7 +76,7 @@
                         <tr>
                             <th class="text-center">Member</th>
                             <th class="text-center">Bill Type</th>
-                            <th class="text-center">Service</th>
+                            {{--  <th class="text-center">Service</th>  --}}
                             <th class="text-center">Amount</th>
                             <th class="text-center">Due Date</th>
                             <th class="text-center">Status</th>
@@ -95,13 +95,13 @@
                                 @endphp
                                 <tr>
                                     <td class="text-center">{{ $billing->user->name }}</td>
-                                    <td class="text-center">
+                                    {{--  <td class="text-center">
                                         @if ($billing->bill_type == 'my_bill')
                                             Utility Bill
                                         @else
                                             {{ Str::ucfirst(str_replace('_', ' ', $billing->bill_type)) }}
                                         @endif
-                                    </td>
+                                    </td>  --}}
                                     <td class="text-center">{{ $billing->service->name }}</td>
                                     <td class="text-center">{{ $billing->amount }}</td>
                                     <td class="text-center">
@@ -130,6 +130,7 @@
                                             <span class="status_select">
                                                 {{ Str::ucfirst(str_replace('_', ' ', $billing->status)) }}
                                             </span>
+                                            <a href="javascript:void(0)" class="p-2" data-modal="paymentInfoModal" data-target="{{ route('superadmin.billing.payment.info', ['bill_id' => $billing->id]) }}" onclick="manageAddEditProcess(this)"><i class="fa fa-circle-info fa-lg"></i></a>
                                         @endif
                                     </td>
                                     <td class="text-center">
@@ -185,6 +186,7 @@
     <x-comman-modal-component modalId="addBillModal" modalTitle="Add Bill" />
     <x-comman-modal-component modalId="updateBillModal" modalTitle="Update Bill" />
     <x-comman-modal-component modalId="collectCashPayment" modalTitle="Collect Bill payment" />
+    <x-comman-modal-component modalId="paymentInfoModal" modalTitle="Bill Payment Details" />
 
 @endsection
 
@@ -547,7 +549,6 @@
 
     <script>
         function callSelect2(){
-            alert('hi');
             $(".multi-filter-select2").select2();
         }
     </script>

@@ -415,7 +415,53 @@ class BillingController extends Controller
             ]);
         } catch (Exception $e) {
 
-            _dLog(eventType: 'error', activityName: 'Bill Update Failed', description: 'Exception during bill update: ' . $e->getMessage(), modelType: 'Bill', modelId: $id, status: 'failed', severityLevel: 2);
+            _dLog(eventType: 'error', activityName: 'Bill Update Failed', description: 'Exception during bill update: ' . $e->getMessage(), modelType: 'Bill', modelId: $bill_id, status: 'failed', severityLevel: 2);
+
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed, please try again!',
+            ]);
+        }
+    }
+
+    /**
+     * Display Bill Payment Informations
+     * @param integer $bill_id Billing Id
+     * @param Request $request
+     * @return mixed
+    */
+    public function paymentInformations(Request $request , $bill_id){
+        try{
+            $bill = Bill::find($bill_id);
+            $selectedSociety = getSelectedSociety($request);
+
+            if ($selectedSociety instanceof \Illuminate\Http\RedirectResponse) {
+                return $selectedSociety;
+            }
+
+            if(!$bill) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Bill Does Not Exist!!"
+                ]);
+            }
+            if($request->isMethod('post')){
+
+            }
+
+            $payments = $bill->payments;
+
+            _dLog(eventType: 'info', activityName: 'Bill Payment Info Accessed', description: 'Accessing payment info page for bill ', modelType: 'Bill', modelId: $bill_id, status: 'success', severityLevel: 1);
+
+            return view($this->viewPath.'payment_info', [
+                'bill' => $bill,
+                'payments' => $payments
+            ]);
+        }
+        catch (Exception $e) {
+
+            _dLog(eventType: 'error', activityName: 'Bill Payment Info Failed', description: 'Exception during fetch bill details : ' . $e->getMessage(), modelType: 'Bill', modelId: $bill_id, status: 'failed', severityLevel: 2);
 
             DB::rollBack();
             return response()->json([

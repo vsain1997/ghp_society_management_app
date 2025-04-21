@@ -240,7 +240,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth.admin')->group(function
         Route::get('/details/{id}', [TradeController::class, 'show'])->name('details');
     });
 
-    //billing
+    //BILLING - OLD
     Route::prefix('billing')->name('billing.')->group(function () {
 
         Route::get('/', [BillingController::class, 'index'])->name('index');
@@ -251,7 +251,36 @@ Route::prefix('admin')->name('admin.')->middleware('auth.admin')->group(function
         Route::delete('/delete/{id}', [BillingController::class, 'destroy'])->name('delete');
         Route::post('/status-change/{id}/{status}', [BillingController::class, 'changeStatus'])->name('status.change');
 
+
+        //NEW ROUTES
+        Route::match(['get', 'post'], '/create-new', [BillingController::class, 'createNewBill'])->name('add');
+        Route::match(['get', 'post'], '/update-bill/{bill_id?}', [BillingController::class, 'updateBillingNew'])->name('update.bill');
+        Route::match(['get', 'post'], '/collect-cash-payment/{id?}', [BillingController::class, 'collectCashPayment'])->name('collect.cash.payment');
+        Route::match(['get', 'post'], '/payment-info/{bill_id?}', [BillingController::class, 'paymentInformations'])->name('payment.info');
+
+
     });
+
+
+
+    //BILLING - NEW
+    // Route::prefix('billing')->name('billing.')->group(function () {
+    //     Route::get('/', [BillingController::class, 'index'])->name('index');
+    //     Route::post('/create', [BillingController::class, 'store'])->name('store');
+    //     Route::get('/details/{id}', [BillingController::class, 'show'])->name('details');
+    //     Route::get('/edit/{id}', [BillingController::class, 'edit'])->name('edit');
+    //     Route::post('/edit/{id}', [BillingController::class, 'update'])->name('update');
+    //     Route::delete('/delete/{id}', [BillingController::class, 'destroy'])->name('delete');
+    //     Route::post('/status-change/{id}/{status}', [BillingController::class, 'changeStatus'])->name('status.change');
+
+    //     // NEW ROUTES
+    //     Route::match(['get', 'post'], '/create-new', [BillingController::class, 'createNewBill'])->name('add');
+    //     Route::match(['get', 'post'], '/collect-cash-payment/{id?}', [BillingController::class, 'collectCashPayment'])->name('collect.cash.payment');
+    //     Route::match(['get', 'post'], '/update-bill/{bill_id?}', [BillingController::class, 'updateBillingNew'])->name('update.bill');
+    //     Route::match(['get', 'post'], '/payment-info/{bill_id?}', [BillingController::class, 'paymentInformations'])->name('payment.info');
+    // });
+
+
 
     //refer_property
     Route::prefix('refer-property')->name('refer_property.')->group(function () {

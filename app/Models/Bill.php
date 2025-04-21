@@ -100,6 +100,11 @@ class Bill extends Model
         return $this->belongsTo(BillService::class);
     }
 
+    public function payments()
+    {
+        return $this->hasMany(BillPayment::class, 'bill_id', 'id');
+    }
+
     public function society()
     {
         return $this->belongsTo(Society::class);

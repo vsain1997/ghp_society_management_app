@@ -11,9 +11,12 @@
         </div>
         <!-- Button trigger modal -->
         @can('billing.create')
-        <button type="button" class="bg_theme_btn" data-modal="addBillModal" data-target="{{ route('admin.billing.add') }}" onclick="manageAddEditProcess(this)">
+        <button type="button" class="bg_theme_btn" id="addBilingModalOpen" data-bs-toggle="modal"
+            data-bs-target="#addBilingModal">
             <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13.0005 8.5H8.00049V13.5C8.00049 14.05 7.55049 14.5 7.00049 14.5C6.45049 14.5 6.00049 14.05 6.00049 13.5V8.5H1.00049C0.450488 8.5 0.000488281 8.05 0.000488281 7.5C0.000488281 6.95 0.450488 6.5 1.00049 6.5H6.00049V1.5C6.00049 0.95 6.45049 0.5 7.00049 0.5C7.55049 0.5 8.00049 0.95 8.00049 1.5V6.5H13.0005C13.5505 6.5 14.0005 6.95 14.0005 7.5C14.0005 8.05 13.5505 8.5 13.0005 8.5Z" fill="white" />
+                <path
+                    d="M13.0005 8.5H8.00049V13.5C8.00049 14.05 7.55049 14.5 7.00049 14.5C6.45049 14.5 6.00049 14.05 6.00049 13.5V8.5H1.00049C0.450488 8.5 0.000488281 8.05 0.000488281 7.5C0.000488281 6.95 0.450488 6.5 1.00049 6.5H6.00049V1.5C6.00049 0.95 6.45049 0.5 7.00049 0.5C7.55049 0.5 8.00049 0.95 8.00049 1.5V6.5H13.0005C13.5505 6.5 14.0005 6.95 14.0005 7.5C14.0005 8.05 13.5505 8.5 13.0005 8.5Z"
+                    fill="white" />
             </svg>
             Add Bill
         </button>
@@ -70,6 +73,38 @@
                         </div>
                     </div>
                 </form>
+            </div>
+            <div class="right_filters">
+                {{-- <h2>Bills Listing </h2> --}}
+                {{-- <button class="sortby">
+                    <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3.13306 7H21.1331" stroke="#020015" stroke-width="1.5" stroke-linecap="round" />
+                        <path d="M6.13306 12H18.1331" stroke="#020015" stroke-width="1.5" stroke-linecap="round" />
+                        <path d="M10.1331 17H14.1331" stroke="#020015" stroke-width="1.5" stroke-linecap="round" />
+                    </svg>
+                    Sort By
+                </button>
+                <button class="filterbtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 6.5H16" stroke="#020015" stroke-width="1.5" stroke-miterlimit="10"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6 6.5H2" stroke="#020015" stroke-width="1.5" stroke-miterlimit="10"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M10 10C11.933 10 13.5 8.433 13.5 6.5C13.5 4.567 11.933 3 10 3C8.067 3 6.5 4.567 6.5 6.5C6.5 8.433 8.067 10 10 10Z"
+                            stroke="#020015" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M22 17.5H18" stroke="#020015" stroke-width="1.5" stroke-miterlimit="10"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M8 17.5H2" stroke="#020015" stroke-width="1.5" stroke-miterlimit="10"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M14 21C15.933 21 17.5 19.433 17.5 17.5C17.5 15.567 15.933 14 14 14C12.067 14 10.5 15.567 10.5 17.5C10.5 19.433 12.067 21 14 21Z"
+                            stroke="#020015" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    Filter
+                </button> --}}
             </div>
         </div>
         <div class="table-responsive">
@@ -129,87 +164,77 @@
                             @else
                             <span class="status_select">
                                 {{ Str::ucfirst(str_replace('_', ' ', $billing->status)) }}
-                                @if($billing->status == 'paid')
-                                    <a href="javascript:void(0)" class="p-2" data-modal="paymentInfoModal" data-target="{{ route('admin.billing.payment.info', ['bill_id' => $billing->id]) }}" onclick="manageAddEditProcess(this)"><i class="fa fa-circle-info fa-lg"></i></a>
-                                @endif
                             </span>
                             @endif
                         </td>
                         <td class="text-center">
                             <div class="actions">
                                 @if ($billing->user->role != 'admin')
-                                    @can('billing.edit')
-                                        <a class="edit-icon" href="javascript:void(0)" data-modal="updateBillModal" data-target="{{ route('admin.billing.update.bill', ['bill_id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
-                                            <svg width="16" height="17" viewBox="0 0 16 17" fill="none"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <g clip-path="url(#clip0_193_2081)">
-                                                    <path
-                                                        d="M7.33398 3.34825H2.66732C2.3137 3.34825 1.97456 3.48873 1.72451 3.73878C1.47446 3.98882 1.33398 4.32796 1.33398 4.68158V14.0149C1.33398 14.3685 1.47446 14.7077 1.72451 14.9577C1.97456 15.2078 2.3137 15.3483 2.66732 15.3483H12.0007C12.3543 15.3483 12.6934 15.2078 12.9435 14.9577C13.1935 14.7077 13.334 14.3685 13.334 14.0149V9.34825"
-                                                        stroke="white" stroke-width="1.33333" stroke-linecap="round"
-                                                        stroke-linejoin="round" />
-                                                    <path
-                                                        d="M12.334 2.34825C12.5992 2.08303 12.9589 1.93404 13.334 1.93404C13.7091 1.93404 14.0688 2.08303 14.334 2.34825C14.5992 2.61347 14.7482 2.97318 14.7482 3.34825C14.7482 3.72332 14.5992 4.08303 14.334 4.34825L8.00065 10.6816L5.33398 11.3483L6.00065 8.68158L12.334 2.34825Z"
-                                                        stroke="white" stroke-width="1.33333" stroke-linecap="round"
-                                                        stroke-linejoin="round" />
-                                                </g>
-                                                <defs>
-                                                    <clipPath id="clip0_193_2081">
-                                                        <rect width="16" height="16" fill="white"
-                                                            transform="translate(0 0.68158)" />
-                                                    </clipPath>
-                                                </defs>
-                                            </svg>
-                                        </a>
-                                    @endcan
-
+                                @can('billing.edit')
+                                <a class="edit edit-icon" href="javascript:void(0)" id="{{ $billing->id }}">
+                                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_193_2081)">
+                                            <path
+                                                d="M7.33398 3.34825H2.66732C2.3137 3.34825 1.97456 3.48873 1.72451 3.73878C1.47446 3.98882 1.33398 4.32796 1.33398 4.68158V14.0149C1.33398 14.3685 1.47446 14.7077 1.72451 14.9577C1.97456 15.2078 2.3137 15.3483 2.66732 15.3483H12.0007C12.3543 15.3483 12.6934 15.2078 12.9435 14.9577C13.1935 14.7077 13.334 14.3685 13.334 14.0149V9.34825"
+                                                stroke="white" stroke-width="1.33333" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                            <path
+                                                d="M12.334 2.34825C12.5992 2.08303 12.9589 1.93404 13.334 1.93404C13.7091 1.93404 14.0688 2.08303 14.334 2.34825C14.5992 2.61347 14.7482 2.97318 14.7482 3.34825C14.7482 3.72332 14.5992 4.08303 14.334 4.34825L8.00065 10.6816L5.33398 11.3483L6.00065 8.68158L12.334 2.34825Z"
+                                                stroke="white" stroke-width="1.33333" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                        </g>
+                                        <defs>
+                                            <clipPath id="clip0_193_2081">
+                                                <rect width="16" height="16" fill="white"
+                                                    transform="translate(0 0.68158)" />
+                                            </clipPath>
+                                        </defs>
+                                    </svg>
+                                </a>
+                                @endcan
                                 @endif
-                                    @if($billing->status == 'unpaid')
-                                        <a class="view" href="javascript:void(0)" data-modal="collectCashPayment" data-target="{{ route('admin.billing.collect.cash.payment', ['id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
-                                            <svg version="1.0" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="15px" height="15px" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve" fill="#888181" stroke="#888181"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <circle fill="#585656" cx="46" cy="38" r="2"></circle> <path fill="#585656" d="M62,32h-2V16c0-2.211-1.789-4-4-4V8c0-1.343-0.404-2.385-1.205-3.099c-1.186-1.058-2.736-0.91-2.896-0.896 c-0.072,0.007-1.484,0.152-3.789,0.39l-0.641-1.761c-0.756-2.078-3.049-3.147-5.127-2.391L24.131,6.871 C15.535,7.764,7.397,8.616,3.89,9.006C0.951,9.332,0.062,12.908,0,14.97c-0.004,0.134,0.021,0.263,0.065,0.38 C0.031,15.562,0,15.777,0,16v44c0,2.211,1.789,4,4,4h52c2.211,0,4-1.789,4-4V44h2c1.105,0,2-0.895,2-2v-8 C64,32.895,63.105,32,62,32z M55,18c0.553,0,1,0.447,1,1s-0.447,1-1,1h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1H55z M50,19 c0,0.553-0.447,1-1,1h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2C49.553,18,50,18.447,50,19z M7,58H5c-0.553,0-1-0.447-1-1s0.447-1,1-1 h2c0.553,0,1,0.447,1,1S7.553,58,7,58z M7,20H5c-0.553,0-1-0.447-1-1s0.447-1,1-1h2c0.553,0,1,0.447,1,1S7.553,20,7,20z M13,58h-2 c-0.553,0-1-0.447-1-1s0.447-1,1-1h2c0.553,0,1,0.447,1,1S13.553,58,13,58z M13,20h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2 c0.553,0,1,0.447,1,1S13.553,20,13,20z M19,58h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2c0.553,0,1,0.447,1,1S19.553,58,19,58z M19,20 h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2c0.553,0,1,0.447,1,1S19.553,20,19,20z M25,58h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2 c0.553,0,1,0.447,1,1S25.553,58,25,58z M25,20h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2c0.553,0,1,0.447,1,1S25.553,20,25,20z M31,58 h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2c0.553,0,1,0.447,1,1S31.553,58,31,58z M31,20h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2 c0.553,0,1,0.447,1,1S31.553,20,31,20z M31.35,12H15.885l27.141-9.878c1.039-0.378,2.186,0.157,2.564,1.195L48.75,12h-6.098 C41.826,9.672,39.611,8,37,8S32.174,9.672,31.35,12z M44,19c0,0.553-0.447,1-1,1h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2 C43.553,18,44,18.447,44,19z M37,10c1.477,0,2.752,0.81,3.445,2h-6.891C34.248,10.81,35.523,10,37,10z M37,58h-2 c-0.553,0-1-0.447-1-1s0.447-1,1-1h2c0.553,0,1,0.447,1,1S37.553,58,37,58z M37,20h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2 c0.553,0,1,0.447,1,1S37.553,20,37,20z M43,58h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2c0.553,0,1,0.447,1,1S43.553,58,43,58z M49,58 h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2c0.553,0,1,0.447,1,1S49.553,58,49,58z M55,58h-2c-0.553,0-1-0.447-1-1s0.447-1,1-1h2 c0.553,0,1,0.447,1,1S55.553,58,55,58z M62,41c0,0.553-0.447,1-1,1H43c-0.553,0-1-0.447-1-1v-6c0-0.553,0.447-1,1-1h18 c0.553,0,1,0.447,1,1V41z"></path> </g> </g></svg>
-                                        </a>
-                                    @endif
-
-                                    <a class="view"
-                                        href="{{ route($thisModule . '.billing.details', ['id' => $billing->id]) }}"
-                                        id="{{ $billing->id }}">
-                                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M0.625 7.5C0.625 7.5 3.125 2.5 7.5 2.5C11.875 2.5 14.375 7.5 14.375 7.5C14.375 7.5 11.875 12.5 7.5 12.5C3.125 12.5 0.625 7.5 0.625 7.5Z"
-                                                stroke="#8077F5" stroke-width="1.25" stroke-linecap="round"
-                                                stroke-linejoin="round" />
-                                            <path
-                                                d="M7.5 9.375C8.53553 9.375 9.375 8.53553 9.375 7.5C9.375 6.46447 8.53553 5.625 7.5 5.625C6.46447 5.625 5.625 6.46447 5.625 7.5C5.625 8.53553 6.46447 9.375 7.5 9.375Z"
-                                                stroke="#8077F5" stroke-width="1.25" stroke-linecap="round"
-                                                stroke-linejoin="round" />
-                                        </svg>
-                                    </a>
+                                <a class="view"
+                                    href="{{ route($thisModule . '.billing.details', ['id' => $billing->id]) }}"
+                                    id="{{ $billing->id }}">
+                                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M0.625 7.5C0.625 7.5 3.125 2.5 7.5 2.5C11.875 2.5 14.375 7.5 14.375 7.5C14.375 7.5 11.875 12.5 7.5 12.5C3.125 12.5 0.625 7.5 0.625 7.5Z"
+                                            stroke="#8077F5" stroke-width="1.25" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                        <path
+                                            d="M7.5 9.375C8.53553 9.375 9.375 8.53553 9.375 7.5C9.375 6.46447 8.53553 5.625 7.5 5.625C6.46447 5.625 5.625 6.46447 5.625 7.5C5.625 8.53553 6.46447 9.375 7.5 9.375Z"
+                                            stroke="#8077F5" stroke-width="1.25" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                </a>
                                 @if ($billing->user->role != 'admin')
-                                    @can('billing.delete')
-                                        <a class="delete delete-icon" href="javascript:void(0)" data-id="{{ $billing->id }}">
-                                            <svg width="16" height="17" viewBox="0 0 16 17" fill="none"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <g clip-path="url(#clip0_193_2091)">
-                                                    <path d="M2 4.68158H3.33333H14" stroke="#C90202" stroke-width="1.33333"
-                                                        stroke-linecap="round" stroke-linejoin="round" />
-                                                    <path
-                                                        d="M12.6673 4.68157V14.0149C12.6673 14.3685 12.5268 14.7077 12.2768 14.9577C12.0267 15.2078 11.6876 15.3482 11.334 15.3482H4.66732C4.3137 15.3482 3.97456 15.2078 3.72451 14.9577C3.47446 14.7077 3.33398 14.3685 3.33398 14.0149V4.68157M5.33398 4.68157V3.34824C5.33398 2.99462 5.47446 2.65548 5.72451 2.40543C5.97456 2.15538 6.3137 2.01491 6.66732 2.01491H9.33398C9.68761 2.01491 10.0267 2.15538 10.2768 2.40543C10.5268 2.65548 10.6673 2.99462 10.6673 3.34824V4.68157"
-                                                        stroke="#C90202" stroke-width="1.33333" stroke-linecap="round"
-                                                        stroke-linejoin="round" />
-                                                    <path d="M6.66602 8.01491V12.0149" stroke="#C90202" stroke-width="1.33333"
-                                                        stroke-linecap="round" stroke-linejoin="round" />
-                                                    <path d="M9.33398 8.01491V12.0149" stroke="#C90202" stroke-width="1.33333"
-                                                        stroke-linecap="round" stroke-linejoin="round" />
-                                                </g>
-                                                <defs>
-                                                    <clipPath id="clip0_193_2091">
-                                                        <rect width="16" height="16" fill="white"
-                                                            transform="translate(0 0.68158)" />
-                                                    </clipPath>
-                                                </defs>
-                                            </svg>
-                                        </a>
-                                    @endcan
+                                @can('billing.delete')
+                                <a class="delete delete-icon" href="javascript:void(0)" data-id="{{ $billing->id }}">
+                                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_193_2091)">
+                                            <path d="M2 4.68158H3.33333H14" stroke="#C90202" stroke-width="1.33333"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                            <path
+                                                d="M12.6673 4.68157V14.0149C12.6673 14.3685 12.5268 14.7077 12.2768 14.9577C12.0267 15.2078 11.6876 15.3482 11.334 15.3482H4.66732C4.3137 15.3482 3.97456 15.2078 3.72451 14.9577C3.47446 14.7077 3.33398 14.3685 3.33398 14.0149V4.68157M5.33398 4.68157V3.34824C5.33398 2.99462 5.47446 2.65548 5.72451 2.40543C5.97456 2.15538 6.3137 2.01491 6.66732 2.01491H9.33398C9.68761 2.01491 10.0267 2.15538 10.2768 2.40543C10.5268 2.65548 10.6673 2.99462 10.6673 3.34824V4.68157"
+                                                stroke="#C90202" stroke-width="1.33333" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                            <path d="M6.66602 8.01491V12.0149" stroke="#C90202" stroke-width="1.33333"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                            <path d="M9.33398 8.01491V12.0149" stroke="#C90202" stroke-width="1.33333"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </g>
+                                        <defs>
+                                            <clipPath id="clip0_193_2091">
+                                                <rect width="16" height="16" fill="white"
+                                                    transform="translate(0 0.68158)" />
+                                            </clipPath>
+                                        </defs>
+                                    </svg>
+                                </a>
+                                @endcan
                                 @endif
                             </div>
                         </td>
@@ -387,35 +412,9 @@
         </div>
     </div>
 </div>
-
-<x-comman-modal-component modalId="collectCashPayment" modalTitle="Collect Bill payment" />
-<x-comman-modal-component modalId="addBillModal" modalTitle="Add Bill" />
-<x-comman-modal-component modalId="updateBillModal" modalTitle="Update Bill" />
-<x-comman-modal-component modalId="paymentInfoModal" modalTitle="Bill Payment Details" />
-
-
 @endsection
 
 @push('footer-script')
-    <script>
-        function displayUsersList(e){
-            const value = $(e).val();
-            const modal =  $('#addBillModal');
-
-            const residentsDiv = modal.find('#residents_list');
-            const residentsRequired = modal.find('.resident_required');
-
-            residentsDiv.hide();
-            residentsRequired.prop('required', false);
-            residentsRequired.val('');
-
-            if(value == 'single'){
-                residentsDiv.show();
-                residentsRequired.prop('required', true);
-            }
-        }
-
-    </script>
 <script>
 
 

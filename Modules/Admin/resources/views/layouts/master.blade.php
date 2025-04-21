@@ -120,6 +120,10 @@
     <script src="{{ asset($thisModule . '/js/bootstrap.bundle.min.js?' . time()) }}"></script>
     <script src="{{ asset($thisModule . '/js/custom.js?' . time()) }}"></script>
     <script src="{{ asset('common/js/validate.js?' . time()) }}"></script>
+
+    <script src="{{ asset('common/js/process-actions.js?' . time()) }}"></script>
+    <script src="{{ asset('common/js/ajax-error.js?' . time()) }}"></script>
+
     <!-- Select2 JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
 
