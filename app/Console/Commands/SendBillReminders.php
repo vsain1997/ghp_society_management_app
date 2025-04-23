@@ -1,35 +1,40 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Console\Commands;
 
 use App\FacebookApi;
 use App\Models\Bill;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Razorpay\Api\Card;
+use Illuminate\Console\Command;
 
-class CronJobsController extends Controller
+class SendBillReminders extends Command
 {
-    public $fb;
-    public $canSendMessage;
 
     /**
-     * Create a new job instance.
+     * The name and signature of the console command.
+     *
+     * @var string
      */
-    public function __construct()
-    {
-        $this->fb = new FacebookApi();
-        $this->canSendMessage = canSendMessage('whatsapp_message');
-    }
+    protected $signature = 'app:send-bill-reminders';
 
     /**
-     * Check Bills & Send Whatsapp reminder
-     * @return mixed
-    */
-    public function billReminder(){
-        if($this->canSendMessage['status']){
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Command description';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
+    {
+        $fbObj = new FacebookApi();
+        $canSendMessage = canSendMessage('whatsapp_message');
+        if($canSendMessage['status']){
+            $this->line('Can Send Message');
             // Chunk the bills to process them in manageable batches
-            Bill::whereStatus('unpaid')->chunk(env("CHUNK_SIZE"), function ($bills) {
+            Bill::whereStatus('unpaid')->chunk(env("CHUNK_SIZE"), function ($bills) use($fbObj){
                 foreach ($bills as $bill) {
                     $calculatedDate = $bill->due_date;
 
@@ -62,7 +67,7 @@ class CronJobsController extends Controller
 
                         $perameters = generateNormalParameters($messageVeriables);
                         $msgData = createNormalTemplateMessageData($member->phone, $template, 'en', $perameters);
-                        $this->fb->sendMessage($msgData);
+                        $fbObj->sendMessage($msgData);
                     }
 
                     // Reminder on due date
@@ -75,7 +80,7 @@ class CronJobsController extends Controller
                         ];
                         $perameters = generateNormalParameters($messageVeriables);
                         $msgData = createNormalTemplateMessageData($member->phone, $template, 'en', $perameters);
-                        $this->fb->sendMessage($msgData);
+                        $fbObj->sendMessage($msgData);
                     }
 
 
@@ -88,7 +93,7 @@ class CronJobsController extends Controller
                         ];
                         $perameters = generateNormalParameters($messageVeriables);
                         $msgData = createNormalTemplateMessageData($member->phone, $template, 'en', $perameters);
-                        $this->fb->sendMessage($msgData);
+                        $fbObj->sendMessage($msgData);
                     }
 
                     // AFTER OVERDUE - 2 DAY
@@ -99,7 +104,7 @@ class CronJobsController extends Controller
                         ];
                         $perameters = generateNormalParameters($messageVeriables);
                         $msgData = createNormalTemplateMessageData($member->phone, $template, 'en', $perameters);
-                        $this->fb->sendMessage($msgData);
+                        $fbObj->sendMessage($msgData);
                     }
 
                     // AFTER OVERDUE - 3 DAY
@@ -111,16 +116,12 @@ class CronJobsController extends Controller
                         ];
                         $perameters = generateNormalParameters($messageVeriables);
                         $msgData = createNormalTemplateMessageData($member->phone, $template, 'en', $perameters);
-                        $this->fb->sendMessage($msgData);
+                        $fbObj->sendMessage($msgData);
                     }
                 }
             });
         }else{
-            return response()->json([
-                'status' => 'error',
-                'message' => $this->canSendMessage['message']
-            ]);
+            $this->line($canSendMessage['message']);
         }
     }
-
 }
