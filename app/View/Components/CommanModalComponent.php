@@ -10,14 +10,16 @@ class CommanModalComponent extends Component
 {
     public $modalId;
     public $modalTitle;
+    public $togleId;
 
     /**
      * Create a new component instance.
      */
-    public function __construct($modalId, $modalTitle)
+    public function __construct($modalId, $modalTitle, $togleId = null)
     {
         $this->modalId = $modalId;
         $this->modalTitle = $modalTitle;
+        $this->togleId = $togleId;
     }
 
     /**

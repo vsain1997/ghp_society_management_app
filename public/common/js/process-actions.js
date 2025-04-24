@@ -119,3 +119,24 @@ function submitForm(e, formId, modalId='', title = 'You want to update this?', r
         }
     })
 }
+
+
+
+
+function uncheckToggle(e){
+    var modalId = $(e).data('modalid');
+    var togleId = $(e).data('togleid');
+
+    console.log('modalId-1', modalId);
+    console.log('togleId-1', togleId);
+
+    modal = $('#' + modalId);
+    // if(modal && modal != 'undefined'){
+    //     modal.find('#' + togleId).prop('checked', false);
+
+    //     console.log('modalId', modalId);
+    //     console.log('togleId', togleId);
+    // }
+
+    $('#' + togleId).prop('checked', false);
+}

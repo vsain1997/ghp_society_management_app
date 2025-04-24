@@ -4,7 +4,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="text-white" id="{{ $modalId }}Label">{{ $modalTitle }}</h3>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-togleid="{{ $togleId }}" data-modalid="{{ $modalId }}" onclick="uncheckToggle(this)"></button>
             </div>
             <div class="modal-body" id="modal-content-body">
                 <!-- Modal Content Goes Here -->

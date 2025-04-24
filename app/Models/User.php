@@ -13,6 +13,7 @@ use Ramsey\Uuid\Uuid;
 use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -67,7 +68,17 @@ class User extends Authenticatable
 
     public function getImageUrlAttribute()
     {
-        return $this->image ? url('storage/' . $this->image) : null;
+        if($this->image AND Storage::disk('public')->exists($this->image)){
+            return url('storage/'.$this->image);
+        }else{
+            $name = trim(collect(explode(' ', $this->name))->map(function ($segment) {
+                return mb_substr($segment, 0, 1);
+            })->join(' '));
+
+            return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&color=B8EA3F&background=000000&size=128';
+        }
+
+        // return $this->image ? url('storage/' . $this->image) : null;
     }
 
     public function getStaffIdAttribute()

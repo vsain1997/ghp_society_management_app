@@ -94,7 +94,19 @@
                                     $currentDateTime = \Carbon\Carbon::now('Asia/Kolkata');
                                 @endphp
                                 <tr>
-                                    <td class="text-center">{{ $billing->user->name }}</td>
+                                    <td class="text-center py-2">
+                                        <a href="{{ route('superadmin.member.details', ['id' => $billing->user->member->id]) }}" class="text-dark">
+                                            <div class="row item d-flex align-items-center">
+                                                <div class="col-2">
+                                                    <img src="{{ $billing->user->image_url }}" class="img-fluid rounded-circle w-full">
+                                                </div>
+                                                <div class="col-10 px-0">
+                                                    <h6 class="mb-0">{{ ucwords($billing->user->name) }}</h6>
+                                                    <span>{{ $billing->user->phone }}</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </td>
                                     {{--  <td class="text-center">
                                         @if ($billing->bill_type == 'my_bill')
                                             Utility Bill
@@ -102,12 +114,12 @@
                                             {{ Str::ucfirst(str_replace('_', ' ', $billing->bill_type)) }}
                                         @endif
                                     </td>  --}}
-                                    <td class="text-center">{{ $billing->service->name }}</td>
-                                    <td class="text-center">{{ $billing->amount }}</td>
-                                    <td class="text-center">
+                                    <td class="text-center py-2">{{ $billing->service->name }}</td>
+                                    <td class="text-center py-2">{{ $billing->amount }}</td>
+                                    <td class="text-center py-2">
                                         {{ \Carbon\Carbon::parse($billing->due_date)->format('d M Y') }}
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-center py-2">
                                         @php
                                             $stts = '';
                                             if ($billing->status == 'unpaid') {
@@ -118,14 +130,18 @@
                                         @endphp
                                         <input type="hidden" name="statusVal" value="{{ parseStatus($stts, 0) }}">
                                         @if ($billing->status == 'unpaid')
-                                            <div class="status_select">
+                                            <div class="form-check form-switch d-flex justify-content-center">
+                                                <input class="form-check-input" id="collect_payment_toggle" type="checkbox" role="switch" {{ $billing->status == 'unpaid' ? '' : 'checked' }} style="border-radius: 10px !important; width: 30px" data-modal="collectCashPayment" data-target="{{ route('superadmin.billing.collect.cash.payment', ['id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
+                                            </div>
+
+                                            {{--  <div class="status_select">
                                                 <select name="status" data-id="{{ $billing->id }}"
                                                     class="statusOption form-select">
                                                     <option value="paid" {{ parseStatus($stts, 1) }}>Paid
                                                     </option>
                                                     <option value="unpaid" {{ parseStatus($stts, 2) }}>Unpaid</option>
                                                 </select>
-                                            </div>
+                                            </div>  --}}
                                         @else
                                             <span class="status_select">
                                                 {{ Str::ucfirst(str_replace('_', ' ', $billing->status)) }}
@@ -133,7 +149,7 @@
                                             <a href="javascript:void(0)" class="p-2" data-modal="paymentInfoModal" data-target="{{ route('superadmin.billing.payment.info', ['bill_id' => $billing->id]) }}" onclick="manageAddEditProcess(this)"><i class="fa fa-circle-info fa-lg"></i></a>
                                         @endif
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-center py-2 ">
                                         <div class="actions">
                                             <a class="edit-icon" href="javascript:void(0)" data-modal="updateBillModal" data-target="{{ route('superadmin.billing.update.bill', ['bill_id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
                                                 <img src="{{ url($thisModule) }}/img/edit.png" alt="edit">
@@ -142,12 +158,6 @@
                                             <a class="view" href="{{ route($thisModule . '.billing.details', ['id' => $billing->id]) }}" id="{{ $billing->id }}">
                                                 <img src="{{ url($thisModule) }}/img/eye.png" alt="view">
                                             </a>
-
-                                            @if($billing->status == 'unpaid')
-                                                <a class="view" href="javascript:void(0)" data-modal="collectCashPayment" data-target="{{ route('superadmin.billing.collect.cash.payment', ['id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
-                                                    <img src="{{ url($thisModule) }}/img/wallet.png" alt="view" width="22px">
-                                                </a>
-                                            @endif
 
                                             @if ($billing->user->role != 'admin')
                                                 <a class="delete delete-icon" href="javascript:void(0)"
@@ -161,7 +171,7 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="7" class="text-center"> No Data Found </td>
+                                <td colspan="7" class="text-center py-2"> No Data Found </td>
                             </tr>
                         @endif
                     </tbody>
@@ -185,7 +195,7 @@
 
     <x-comman-modal-component modalId="addBillModal" modalTitle="Add Bill" />
     <x-comman-modal-component modalId="updateBillModal" modalTitle="Update Bill" />
-    <x-comman-modal-component modalId="collectCashPayment" modalTitle="Collect Bill payment" />
+    <x-comman-modal-component modalId="collectCashPayment" modalTitle="Collect Bill payment" togleId="collect_payment_toggle" />
     <x-comman-modal-component modalId="paymentInfoModal" modalTitle="Bill Payment Details" />
 
 @endsection

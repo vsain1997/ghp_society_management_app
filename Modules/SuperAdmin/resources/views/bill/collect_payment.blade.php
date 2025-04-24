@@ -24,7 +24,7 @@
             </div>
         </div>
         <div class="save-close-btn">
-            <button type="button" class="border_theme_btn close-btn cancel_btn" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="border_theme_btn close-btn cancel_btn" data-bs-dismiss="modal" data-togleid="collect_payment_toggle" data-modalid="collectCashPayment" onclick="uncheckToggle(this)">Close</button>
             <button type="button" data-formtype="add" class="bg_theme_btn" onclick="submitForm(this, 'collectPaymentForm', 'collectCashPayment', 'You want to collect bill?', false, true)" >Submit</button>
         </div>
     </form>
