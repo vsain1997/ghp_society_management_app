@@ -31,8 +31,30 @@ class CheckinoutController extends Controller
                 );
             }
 
-            if (auth()->user()->role === 'staff_security_guard') {
+            $user = User::find($request->user_id);
+            if(!$user){
+                return res(
+                    status: false,
+                    message: 'User does not exist',
+                    code: HTTP_UNPROCESSABLE_ENTITY
+                );
+            }
 
+            $alreadyCheckedIn = CheckinDetail::where('status', 'checked_in')
+            ->whereNull('checkout_at')
+            ->where('by_resident', $request->user_id)
+            ->orderBy('id', 'desc')->first();
+
+            if($alreadyCheckedIn){
+                return res(
+                    status: false,
+                    message: 'User is already checked in at '.$alreadyCheckedIn->checkin_at,
+                    code: HTTP_UNPROCESSABLE_ENTITY
+                );
+            }
+
+
+            if (auth()->user()->role === 'staff_security_guard') {
                 if ($request->filled('type') && $request->type == 'daily_help') {
 
                     // Create checkin details
@@ -56,7 +78,6 @@ class CheckinoutController extends Controller
                     ])->find($checkin->id);
 
                 } else {
-
                     // Create checkin details
                     $checkin = CheckinDetail::create([
                         'status' => 'checked_in',
@@ -156,12 +177,21 @@ class CheckinoutController extends Controller
                 );
             }
 
+            $user = User::find($request->user_id);
+            if(!$user){
+                return res(
+                    status: false,
+                    message: 'User does not exist',
+                    code: HTTP_UNPROCESSABLE_ENTITY
+                );
+            }
+
             if (auth()->user()->role === 'staff_security_guard') {
 
                 if ($request->filled('type') && $request->type == 'daily_help') {
 
                     // checkout
-                    $doCheckout = CheckinDetail::where('status', 'checked_in')->orderBy('id', 'desc')->first();
+                    $doCheckout = CheckinDetail::where('status', 'checked_in')->where('by_resident', $request->user_id)->orderBy('id', 'desc')->first();
                     if (!$doCheckout) { // If no active check-in is found
                         return res(
                             status: false,
@@ -169,6 +199,16 @@ class CheckinoutController extends Controller
                             code: HTTP_UNPROCESSABLE_ENTITY
                         );
                     }
+
+                    $alreadyCheckout = CheckinDetail::where('status', 'checked_out')->where('by_resident', $request->user_id)->orderBy('id', 'desc')->first();
+                    if($alreadyCheckout){
+                        return res(
+                            status: false,
+                            message: 'User is already checked out',
+                            code: HTTP_UNPROCESSABLE_ENTITY
+                        );
+                    }
+
                     $doCheckout->status = 'checked_out';
                     $doCheckout->checkout_at = $currentDateTime;
                     $doCheckout->checkout_by = auth()->id();
@@ -189,7 +229,8 @@ class CheckinoutController extends Controller
                 } else {
 
                     // checkout
-                    $doCheckout = CheckinDetail::orderBy('id', 'desc')->first();
+                    $doCheckout = CheckinDetail::orderBy('id', 'desc')->where('by_resident', $request->user_id)->first();
+
                     if (!$doCheckout) { // If no active check-in is found
                         return res(
                             status: false,
@@ -197,6 +238,21 @@ class CheckinoutController extends Controller
                             code: HTTP_UNPROCESSABLE_ENTITY
                         );
                     }
+
+                    $alreadyCheckout = CheckinDetail::where('status', 'checked_in')
+                    ->whereNull('checkout_at')
+                    ->where('by_resident', $request->user_id)
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                    if(!$alreadyCheckout){
+                        return res(
+                            status: false,
+                            message: 'User is already checked out at '. $doCheckout->checkout_at,
+                            code: HTTP_UNPROCESSABLE_ENTITY
+                        );
+                    }
+
                     $doCheckout->status = 'checked_out';
                     $doCheckout->checkout_at = $currentDateTime;
                     $doCheckout->checkout_by = auth()->id();
@@ -230,11 +286,20 @@ class CheckinoutController extends Controller
 
                 if ($request->filled('type') && $request->type == 'daily_help') {
 
-                    $doCheckout = CheckinDetail::where('status', 'in')->orderBy('id', 'desc')->first();
+                    $doCheckout = CheckinDetail::where('status', 'in')->orderBy('id', 'desc')->where('by_resident', $request->user_id)->first();
                     if (!$doCheckout) { // If no active check-in is found
                         return res(
                             status: false,
                             message: 'User is not checked in', // More accurate message
+                            code: HTTP_UNPROCESSABLE_ENTITY
+                        );
+                    }
+
+                    $alreadyCheckout = CheckinDetail::where('status', 'out')->where('by_resident', $request->user_id)->orderBy('id', 'desc')->first();
+                    if($alreadyCheckout){
+                        return res(
+                            status: false,
+                            message: 'User is already checked out',
                             code: HTTP_UNPROCESSABLE_ENTITY
                         );
                     }
