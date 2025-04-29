@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
         // })->name('queue-work-schedule') // Add a unique name here
         //     ->everyMinute()->withoutOverlapping();
         // $schedule->command('sos:send-alerts')->everyMinute()->withoutOverlapping();
-        $schedule->command('app:send-bill-reminders')->daily()->at("8:00");
+        $schedule->command('app:send-bill-reminders')->daily()->at("7:30");
         // $schedule->command('app:send-bill-reminders');
     }
 

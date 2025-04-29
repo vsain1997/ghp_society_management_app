@@ -4,8 +4,10 @@ namespace App\Console\Commands;
 
 use App\FacebookApi;
 use App\Models\Bill;
+use App\Models\BillWhatsappLog;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class SendBillReminders extends Command
 {
@@ -32,9 +34,9 @@ class SendBillReminders extends Command
         $fbObj = new FacebookApi();
         $canSendMessage = canSendMessage('whatsapp_message');
         if($canSendMessage['status']){
-            $this->line('Can Send Message');
+            Log::info($this->line('Can Send Message'));
             // Chunk the bills to process them in manageable batches
-            Bill::whereStatus('unpaid')->chunk(env("CHUNK_SIZE"), function ($bills) use($fbObj){
+            Bill::whereSocietyId(47)->whereStatus('unpaid')->chunk(env("CHUNK_SIZE"), function ($bills) use($fbObj){
                 foreach ($bills as $bill) {
                     $calculatedDate = $bill->due_date;
 
@@ -67,7 +69,25 @@ class SendBillReminders extends Command
 
                         $perameters = generateNormalParameters($messageVeriables);
                         $msgData = createNormalTemplateMessageData($member->phone, $template, 'en', $perameters);
-                        $fbObj->sendMessage($msgData);
+                        $resp = $fbObj->sendMessage($msgData);
+
+                        if($resp['status']){
+                            BillWhatsappLog::create([
+                                'user_id' => $member->id,
+                                'bill_id' => $bill->id,
+                                'status' => 'sent',
+                                'details' => json_encode($resp['result'], true),
+                            ]);
+                            Log::info($this->line('Message sent success before 7 or 2 days'));
+                        }else{
+                            BillWhatsappLog::create([
+                                'user_id' => $member->id,
+                                'bill_id' => $bill->id,
+                                'status' => 'failed',
+                                'details' => json_encode($resp['result'], true),
+                            ]);
+                            Log::info($this->line('Message sent failed before 7 or 2 days'));
+                        }
                     }
 
                     // Reminder on due date
@@ -80,7 +100,25 @@ class SendBillReminders extends Command
                         ];
                         $perameters = generateNormalParameters($messageVeriables);
                         $msgData = createNormalTemplateMessageData($member->phone, $template, 'en', $perameters);
-                        $fbObj->sendMessage($msgData);
+                        $resp = $fbObj->sendMessage($msgData);
+
+                        if($resp['status']){
+                            BillWhatsappLog::create([
+                                'user_id' => $member->id,
+                                'bill_id' => $bill->id,
+                                'status' => 'sent',
+                                'details' => json_encode($resp['result'], true),
+                            ]);
+                            Log::info($this->line('Message sent success on same day'));
+                        }else{
+                            BillWhatsappLog::create([
+                                'user_id' => $member->id,
+                                'bill_id' => $bill->id,
+                                'status' => 'failed',
+                                'details' => json_encode($resp['result'], true),
+                            ]);
+                            Log::info($this->line('Message sent failed on same day'));
+                        }
                     }
 
 
@@ -93,7 +131,25 @@ class SendBillReminders extends Command
                         ];
                         $perameters = generateNormalParameters($messageVeriables);
                         $msgData = createNormalTemplateMessageData($member->phone, $template, 'en', $perameters);
-                        $fbObj->sendMessage($msgData);
+                        $resp = $fbObj->sendMessage($msgData);
+
+                        if($resp['status']){
+                            BillWhatsappLog::create([
+                                'user_id' => $member->id,
+                                'bill_id' => $bill->id,
+                                'status' => 'sent',
+                                'details' => json_encode($resp['result'], true),
+                            ]);
+                            Log::info($this->line('Message sent success overdue 1 day'));
+                        }else{
+                            BillWhatsappLog::create([
+                                'user_id' => $member->id,
+                                'bill_id' => $bill->id,
+                                'status' => 'failed',
+                                'details' => json_encode($resp['result'], true),
+                            ]);
+                            Log::info($this->line('Message sent failed overdue 1 day'));
+                        }
                     }
 
                     // AFTER OVERDUE - 2 DAY
@@ -104,7 +160,25 @@ class SendBillReminders extends Command
                         ];
                         $perameters = generateNormalParameters($messageVeriables);
                         $msgData = createNormalTemplateMessageData($member->phone, $template, 'en', $perameters);
-                        $fbObj->sendMessage($msgData);
+                        $resp = $fbObj->sendMessage($msgData);
+
+                        if($resp['status']){
+                            BillWhatsappLog::create([
+                                'user_id' => $member->id,
+                                'bill_id' => $bill->id,
+                                'status' => 'sent',
+                                'details' => json_encode($resp['result'], true),
+                            ]);
+                            Log::info($this->line('Message sent success overdue 2 day'));
+                        }else{
+                            BillWhatsappLog::create([
+                                'user_id' => $member->id,
+                                'bill_id' => $bill->id,
+                                'status' => 'failed',
+                                'details' => json_encode($resp['result'], true),
+                            ]);
+                            Log::info($this->line('Message sent failed overdue 1 day'));
+                        }
                     }
 
                     // AFTER OVERDUE - 3 DAY
@@ -116,7 +190,25 @@ class SendBillReminders extends Command
                         ];
                         $perameters = generateNormalParameters($messageVeriables);
                         $msgData = createNormalTemplateMessageData($member->phone, $template, 'en', $perameters);
-                        $fbObj->sendMessage($msgData);
+                        $resp = $fbObj->sendMessage($msgData);
+
+                        if($resp['status']){
+                            BillWhatsappLog::create([
+                                'user_id' => $member->id,
+                                'bill_id' => $bill->id,
+                                'status' => 'sent',
+                                'details' => json_encode($resp['result'], true),
+                            ]);
+                            Log::info($this->line('Message sent success overdue 3 day'));
+                        }else{
+                            BillWhatsappLog::create([
+                                'user_id' => $member->id,
+                                'bill_id' => $bill->id,
+                                'status' => 'failed',
+                                'details' => json_encode($resp['result'], true),
+                            ]);
+                            Log::info($this->line('Message sent failed overdue 3 day'));
+                        }
                     }
                 }
             });
