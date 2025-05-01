@@ -79,7 +79,7 @@
                             {{--  <th class="text-center">Service</th>  --}}
                             <th class="text-center">Amount</th>
                             <th class="text-center">Due Date</th>
-                            <th class="text-center">Status</th>
+                            <th class="text-center">Bill Status</th>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
@@ -98,7 +98,9 @@
                                         <a href="{{ route('superadmin.member.details', ['id' => $billing->user->member->id]) }}" class="text-dark">
                                             <div class="row item d-flex align-items-center">
                                                 <div class="col-2">
-                                                    <img src="{{ $billing->user->image_url }}" class="img-fluid rounded-circle w-full">
+                                                    <div class="ratio ratio-1x1">
+                                                        <img src="{{ $billing->user->image_url }}" class="img-fluid rounded-circle object-fit-cover">
+                                                    </div>
                                                 </div>
                                                 <div class="col-10 px-0">
                                                     <h6 class="mb-0">{{ ucwords($billing->user->name) }}</h6>

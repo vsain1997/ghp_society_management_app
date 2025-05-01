@@ -54,35 +54,35 @@
                     @endif
                     <li>
                         <p>Employee Id </p>
-                        <h4>{{ $staff->employee_id }}</h4>
+                        <h4>{{ $staff->employee_id ? $staff->employee_id : '--' }}</h4>
                     </li>
                     <li>
                         <p>Assigned Area </p>
-                        <h4>{{ $staff->assigned_area }}</h4>
+                        <h4>{{ $staff->assigned_area ? $staff->assigned_area : '--' }}</h4>
                     </li>
                     <li>
                         <p>Gender </p>
-                        <h4>{{ ucfirst($staff->gender) }}</h4>
+                        <h4>{{ $staff->gender ? ucfirst($staff->gender) : '--' }}</h4>
                     </li>
                     <li>
                         <p>Dob </p>
-                        <h4>{{ date('d M Y',strtotime($staff->dob)) }}</h4>
+                        <h4>{{ $staff->dob ? date('d M Y',strtotime($staff->dob)) : '--' }}</h4>
                     </li>
                     <li>
                         <p>Phone </p>
-                        <h4>{{ $staff->phone }}</h4>
+                        <h4>{{ $staff->phone ? $staff->phone : '--' }}</h4>
                     </li>
                     <li>
                         <p>Email </p>
-                        <h4>{{ $staff->email }}</h4>
+                        <h4>{{ $staff->email ? $staff->email : '--' }}</h4>
                     </li>
                     <li>
                         <p>Address </p>
-                        <h4>{{ $staff->address }}</h4>
+                        <h4>{{ $staff->address ? $staff->address : '--' }}</h4>
                     </li>
                     <li>
                         <p>Status </p>
-                        <h4>{{ Str::ucfirst(str_replace('_','',$staff->status)) }}</h4>
+                        <h4>{{ $staff->status ? Str::ucfirst(str_replace('_','',$staff->status)) : '--' }}</h4>
                     </li>
                 </ul>
                 <p class="text-primary pb-2">Shift Details</p>
@@ -90,56 +90,56 @@
                     <li>
                         <p>Shift From </p>
                         <h4>
-                            {{ date('h:i A',strtotime($staff->shift_from)) }}
+                            {{ $staff->shift_from ? date('h:i A',strtotime($staff->shift_from)) : '--' }}
                         </h4>
                     </li>
                     <li>
                         <p>Shift From </p>
                         <h4>
-                            {{ date('h:i A',strtotime($staff->shift_to)) }}
+                            {{ $staff->shift_to ? date('h:i A',strtotime($staff->shift_to)) : '--' }}
                         </h4>
                     </li>
                     <li>
                         <p>Off Days </p>
-                        <h4>{{ $staff->off_days }}</h4>
+                        <h4>{{ $staff->off_days ? $staff->off_days : '--' }}</h4>
                     </li>
                 </ul>
                 <p class="text-primary pb-2">Emergency Contact</p>
                 <ul>
                     <li>
                         <p>Name</p>
-                        <h4>{{ $staff->emer_name }}</h4>
+                        <h4>{{ $staff->emer_name ? $staff->emer_name : '--' }}</h4>
                     </li>
                     <li>
                         <p>Relation</p>
-                        <h4>{{ $staff->emer_relation }}</h4>
+                        <h4>{{ $staff->emer_relation ? $staff->emer_relation : '--' }}</h4>
                     </li>
                     <li>
                         <p>Phone</p>
-                        <h4>{{ $staff->emer_phone }}</h4>
+                        <h4>{{ $staff->emer_phone ? $staff->emer_phone : '--' }}</h4>
                     </li>
                 </ul>
                 <p class="text-primary pb-2">Employment Details</p>
                 <ul>
                     <li>
                         <p>Date Of Join</p>
-                        <h4>{{ date('d M Y', strtotime($staff->date_of_join)) }}</h4>
+                        <h4>{{ $staff->date_of_join ? date('d M Y', strtotime($staff->date_of_join)) : '--' }}</h4>
                     </li>
                     <li>
                         <p>Contract End Date</p>
-                        <h4>{{ date('d M Y', strtotime($staff->contract_end_date)) }}</h4>
+                        <h4>{{ $staff->contract_end_date ? date('d M Y', strtotime($staff->contract_end_date)) : '--' }}</h4>
                     </li>
                     <li>
                         <p>Monthly Salary</p>
-                        <h4>{{ $staff->monthly_salary }}</h4>
+                        <h4>{{ $staff->monthly_salary != '0.00' ? $staff->monthly_salary : '--' }}</h4>
                     </li>
                     <li>
                         <p>Card Type </p>
-                        <h4>{{ $staff->card_type }}</h4>
+                        <h4>{{ $staff->card_type ? $staff->card_type : '--' }}</h4>
                     </li>
                     <li>
                         <p>Card No </p>
-                        <h4>{{ $staff->card_number }}</h4>
+                        <h4>{{ $staff->card_number ? $staff->card_number : '--' }}</h4>
                     </li>
                     <li>
                         <p>Card File </p>

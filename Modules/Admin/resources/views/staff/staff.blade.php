@@ -315,14 +315,14 @@
                             </div>
                             <div class="col">
                                 <div class="form-group">
-                                    <label for="name">Name</label>
+                                    <label for="name">Name <span class="text-danger">*</span></label>
                                     <input type="text" name="name" id="name" class="form-control">
                                     <span class="text-danger err"></span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="form-grooup">
-                                    <label for="role">Role</label>
+                                    <label for="role">Role <span class="text-danger">*</span></label>
                                     <select name="role" id="role" class="form-select form-control ">
                                         <option value="" selected>--select--</option>
                                         @foreach ($staffRoles as $role)
@@ -365,7 +365,7 @@
                         <div class="row">
                             <div class="col">
                                 <div class="form-grooup">
-                                    <label for="employee_id">Employee Id</label>
+                                    <label for="employee_id">Employee Id <span class="text-danger">*</span></label>
                                     <input type="text" name="employee_id" id="employee_id" class="form-control">
                                     <span class="text-danger err"></span>
                                 </div>
@@ -381,7 +381,7 @@
                         <div class="row">
                             <div class="col">
                                 <div class="form-grooup">
-                                    <label for="gender">Gender</label>
+                                    <label for="gender">Gender <span class="text-danger">*</span></label>
                                     <select name="gender" id="gender" class="form-select form-control ">
                                         <option value="" selected>--select--</option>
                                         <option value="male">Male</option>
@@ -392,7 +392,7 @@
                             </div>
                             <div class="col">
                                 <div class="form-grooup">
-                                    <label for="dob">DOB</label>
+                                    <label for="dob">DOB <span class="text-danger">*</span></label>
                                     <input type="date" name="dob" id="dob" class="form-control">
                                     <span class="text-danger err"></span>
                                 </div>
@@ -401,7 +401,7 @@
                         <div class="row">
                             <div class="col">
                                 <div class="form-group">
-                                    <label for="phone">Phone</label>
+                                    <label for="phone">Phone <span class="text-danger">*</span></label>
                                     <input type="text" name="phone" id="phone"
                                         class="form-control phone-input-restrict">
                                     <span class="text-danger err"></span>
@@ -409,7 +409,7 @@
                             </div>
                             <div class="col">
                                 <div class="form-group">
-                                    <label for="email">Email</label>
+                                    <label for="email">Email <span class="text-danger">*</span></label>
                                     <input type="email" name="email" id="email" class="form-control">
                                     <span class="text-danger err"></span>
                                 </div>
@@ -417,7 +417,7 @@
                         </div>
                         <div class="row">
                             <div class="form-grooup">
-                                <label for="role">Address</label>
+                                <label for="role">Address <span class="text-danger">*</span></label>
                                 <input type="text" name="location" id="location" class="form-control">
                                 <span class="text-danger err"></span>
                             </div>
@@ -517,8 +517,8 @@
                             </div>
                             <div class="col">
                                 <div class="form-grooup">
-                                    <label for="card_type">Card Type</label>
-                                    <select name="card_type" id="card_type" class="form-select form-control ">
+                                    <label for="card_type">Card Type <span class="text-danger">*</span></label>
+                                    <select name="card_type" id="card_type" class="form-select form-control" data-modal="addStaffModal" onchange="cardNumbersValidation(this)">
                                         <option value="" selected>--select--</option>
                                         <option value="Aadhaar Card">Aadhaar Card</option>
                                         <option value="Voter ID Card">Voter ID Card</option>
@@ -530,7 +530,7 @@
                         <div class="row">
                             <div class="col">
                                 <div class="form-grooup">
-                                    <label for="card_number">Card No</label>
+                                    <label for="card_number">Card No <span class="text-danger">*</span></label>
                                     <input type="text" name="card_number" id="card_number" class="form-control">
                                     <span class="text-danger err"></span>
                                 </div>
@@ -538,7 +538,7 @@
 
                             <div class="col">
                                 <div class="form-grooup">
-                                    <label for="card_file">Upload Card</label>
+                                    <label for="card_file">Upload Card <span class="text-danger">*</span></label>
                                     <input type="file" name="card_file" id="card_file" class="form-control"
                                         accept=".jpg,.jpeg,.png" onchange="validateFile(this)">
                                     <span class="text-danger err"></span>
@@ -630,6 +630,37 @@
 
 @push('footer-script')
 <script>
+    function cardNumbersValidation(e) {
+        var type = $(e).val();
+        const modal = $(e).data('modal');
+        const cardInput = $('#' + modal).find('#card_number');
+
+        cardInput.val('');
+        // Set maxlength
+        if (type == 'Aadhaar Card') {
+            cardInput.attr('maxlength', '12');
+        } else if (type == 'Voter ID Card') {
+            cardInput.attr('maxlength', '10');
+        }
+
+        // Remove previous event handlers to avoid stacking
+        cardInput.off('input');
+
+        // Input restriction
+        cardInput.on('input', function () {
+            let value = $(this).val();
+            if (type == 'Aadhaar Card') {
+                // Keep only digits
+                $(this).val(value.replace(/\D/g, ''));
+            } else {
+                // Keep only alphanumeric characters
+                $(this).val(value.replace(/[^a-zA-Z0-9]/g, ''));
+            }
+        });
+    }
+</script>
+
+<script>
     const timePicker_shift_from = flatpickr("#shift_from", {
         enableTime: true,
         noCalendar: true,
@@ -699,7 +730,6 @@
         $('#other_role_name_block').hide();
         $('#addStaffForm').on('change', '#role', function () {
             if ($(this).val() == 'staff') {
-
                 $('#daily_help_block').hide();
                 $('#other_role_name_block').hide();
                 $('#service_category_block').show();

@@ -64,7 +64,7 @@ class BillingController extends Controller
             $bills = Bill::with('user', 'service')
                 ->searchByStatus($status)
                 ->when($search, function ($query) use ($search) {
-                    return $query->whereHas('service', function ($q) use ($search) {
+                    return $query->whereHas('user', function ($q) use ($search) {
                         $q->where('name', 'LIKE', '%' . $search . '%');
                     });
                 })
