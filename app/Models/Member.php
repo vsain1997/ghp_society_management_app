@@ -22,6 +22,7 @@ class Member extends Model
         'floor_number',
         'unit_type',
         'aprt_no',
+        'maintenance_bill',
         'user_id',
         'ownership_type',
         'owner_name',

@@ -148,16 +148,9 @@
                                                 <input class="form-check-input" id="collect_payment_toggle" type="checkbox" role="switch" {{ $billing->status == 'unpaid' ? '' : 'checked' }} style="border-radius: 10px !important; width: 30px" data-modal="collectCashPayment" data-target="{{ route('admin.billing.collect.cash.payment', ['id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
                                             </div>
                                         @else
-                                            <span class="status_select">
-                                                {{ Str::ucfirst(str_replace('_', ' ', $billing->status)) }}
-                                                @if ($billing->status == 'paid')
-                                                    <a href="javascript:void(0)" class="p-2"
-                                                        data-modal="paymentInfoModal"
-                                                        data-target="{{ route('admin.billing.payment.info', ['bill_id' => $billing->id]) }}"
-                                                        onclick="manageAddEditProcess(this)"><i
-                                                            class="fa fa-circle-info fa-lg"></i></a>
-                                                @endif
-                                            </span>
+                                            <div class="form-check form-switch d-flex justify-content-center">
+                                                <input class="form-check-input" id="collect_payment_toggle" type="checkbox" role="switch" {{ $billing->status == 'unpaid' ? '' : 'checked' }} style="border-radius: 10px !important; width: 30px" data-modal="collectCashPayment" data-target="{{ route('admin.billing.collect.cash.payment', ['id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
+                                            </div>
                                         @endif
                                     </td>
                                     <td class="text-center py-2">

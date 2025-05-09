@@ -128,6 +128,7 @@
                             <th class="text-center">Floor</th>
                             <th class="text-center">Property Type</th>
                             <th class="text-center">Property Number</th>
+                            <th class="text-center">Maintenance Bill</th>
                             <th class="text-center">Contact</th>
                             <th class="text-center">Email</th>
                             <th class="text-center">Status</th>
@@ -150,6 +151,7 @@
                                     <td class="text-center">{{ $member->floor_number }}</td>
                                     <td class="text-center">{{ $member->unit_type }}</td>
                                     <td class="text-center">{{ $member->aprt_no }}</td>
+                                    <td class="text-center">{{ toRupeeCurrency($member->maintenance_bill) ?? '--' }}</td>
                                     <td class="text-center">{{ $member->phone }}</td>
                                     <td class="text-center" title="{{ $member->email }}">{{ $member->email }}</td>
                                     <td class="text-center">
@@ -224,14 +226,14 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="name">Name</label>
+                                        <label for="name">Name <span class="text-danger">*</span></label>
                                         <input type="text" name="name" id="name" class="form-control">
                                         <span class="text-danger err"></span>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="role">Role</label>
+                                        <label for="role">Role <span class="text-danger">*</span></label>
                                         <select name="role" id="role" class="form-select form-control ">
                                             <option value="" selected>--select--</option>
                                             <option value="resident">Resident</option>
@@ -244,14 +246,14 @@
                             <div class="row pswd_block">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="password">Password</label>
+                                        <label for="password">Password <span class="text-danger">*</span></label>
                                         <input type="text" name="password" id="password" class="form-control">
                                         <span class="text-danger err"></span>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="password_confirmation">Confirm Password</label>
+                                        <label for="password_confirmation">Confirm Password <span class="text-danger">*</span></label>
                                         <input type="text" name="password_confirmation" id="password_confirmation"
                                             class="form-control">
                                         <span class="text-danger err"></span>
@@ -261,7 +263,7 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="phone">Contact</label>
+                                        <label for="phone">Contact <span class="text-danger">*</span></label>
                                         <input type="text" name="phone" id="phone" value=""
                                             onkeyup="checkDuplicate('phone',this)" class="form-control phone-input-restrict">
                                         <span class="text-danger err"></span>
@@ -269,7 +271,7 @@
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="email">Email</label>
+                                        <label for="email">Email <span class="text-danger">*</span></label>
                                         <input type="text" name="email" id="email" value=""
                                             onkeyup="checkDuplicate('email',this)" class="form-control">
                                         <span class="text-danger err"></span>
@@ -279,7 +281,7 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="society_id">Society</label>
+                                        <label for="society_id">Society <span class="text-danger">*</span></label>
                                         <select name="society_id" id="society_id" class="form-select form-control"
                                             onchange="showBlocks(this)">
                                             {{-- <option value="">--select--</option> --}}
@@ -310,7 +312,7 @@
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="block_id">Tower</label>
+                                        <label for="block_id">Tower <span class="text-danger">*</span></label>
                                         <select id="block_id" class="form-select form-control " onchange="showBlocks(this,null,'blockEvent')">
                                             <option value="" selected>--select--</option>
                                         </select>
@@ -321,7 +323,7 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="aprt_no">Property Number</label>
+                                        <label for="aprt_no">Property Number <span class="text-danger">*</span></label>
                                         <select name="aprt_no" id="aprt_no" class="form-select form-control ">
                                             <option value="" selected>--select--</option>
                                         </select>
@@ -331,7 +333,7 @@
 
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="ownership">Ownership</label>
+                                        <label for="ownership">Ownership <span class="text-danger">*</span></label>
                                         <select name="ownership" id="ownership" class="form-control ">
                                             <option value="" selected>--select--</option>
                                             <option value="owned">Owned</option>
@@ -341,10 +343,21 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="maintenance_bill">Maintenance Bill <span class="text-danger">*</span></label>
+                                        <input type="text" name="maintenance_bill" id="maintenance_bill" class="form-control">
+                                        <span class="text-danger err"></span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="row rentedOwnerBlock">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="owner_name">Owner Name</label>
+                                        <label for="owner_name">Owner Name <span class="text-danger">*</span></label>
                                         <input type="text" name="owner_name" id="owner_name" class="form-control">
                                         <span class="text-danger err"></span>
                                     </div>
@@ -736,6 +749,7 @@
             let blockId = $('#block_id').val();
             let aprtNo = $('#aprt_no').val().trim();
             let ownership = $('#ownership').val().trim();
+            let maintenance_bill = $('#maintenance_bill').val().trim();
             let owner_name = $('#owner_name').val().trim();
             let emer_name = $('#emer_name').val().trim();
             let emer_relation = $('#emer_relation').val().trim();
@@ -854,6 +868,11 @@
             // Validate aprt_no
             if (aprtNo === '') {
                 $('#aprt_no').next('.err').text('Required');
+                hasError = 1;
+            }
+
+            if (maintenance_bill === '') {
+                $('#maintenance_bill').next('.err').text('Required');
                 hasError = 1;
             }
 
@@ -977,11 +996,11 @@
                         $('#emer_relation').val(data.emer_relation);
                         $('#emer_phone').val(data.emer_phone);
                         $('#society_id').val(data.society_id);
-                        if (data.role == 'admin') {
+                        $('#maintenance_bill').val(data.maintenance_bill);
 
+                        if (data.role == 'admin') {
                             $('.pswd_block').show();
                         } else {
-
                             $('.pswd_block').hide();
                         }
 

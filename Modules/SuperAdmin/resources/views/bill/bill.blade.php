@@ -46,14 +46,12 @@
                                 </div>
                                 <div class="filter-secl">
                                     <select name="status" class="form-control">
-
                                         <option value="none" disabled>--Choose Status--</option>
                                         <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>
                                             Unpaid
                                         </option>
                                         <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid
                                         </option>
-
                                     </select>
                                 </div>
 
@@ -132,7 +130,7 @@
                                         @endphp
                                         <input type="hidden" name="statusVal" value="{{ parseStatus($stts, 0) }}">
                                         @if ($billing->status == 'unpaid')
-                                            <div class="form-check form-switch d-flex justify-content-center">
+                                            <div class="form-check form-switch d-flex justify-content-center{{ $billing->id }}">
                                                 <input class="form-check-input" id="collect_payment_toggle" type="checkbox" role="switch" {{ $billing->status == 'unpaid' ? '' : 'checked' }} style="border-radius: 10px !important; width: 30px" data-modal="collectCashPayment" data-target="{{ route('superadmin.billing.collect.cash.payment', ['id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
                                             </div>
 
@@ -149,6 +147,11 @@
                                                 {{ Str::ucfirst(str_replace('_', ' ', $billing->status)) }}
                                             </span>
                                             <a href="javascript:void(0)" class="p-2" data-modal="paymentInfoModal" data-target="{{ route('superadmin.billing.payment.info', ['bill_id' => $billing->id]) }}" onclick="manageAddEditProcess(this)"><i class="fa fa-circle-info fa-lg"></i></a>
+
+                                            <div class="form-check form-switch d-flex justify-content-center">
+                                                <input class="form-check-input" id="collect_payment_toggle{{ $billing->id }}" type="checkbox" role="switch" {{ $billing->status == 'unpaid' ? '' : 'checked' }} style="border-radius: 10px !important; width: 30px" data-modal="collectCashPayment" data-target="{{ route('superadmin.billing.collect.cash.payment', ['id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
+                                            </div>
+
                                         @endif
                                     </td>
                                     <td class="text-center py-2 ">

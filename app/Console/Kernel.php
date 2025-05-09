@@ -29,6 +29,7 @@ class Kernel extends ConsoleKernel
         //     ->everyMinute()->withoutOverlapping();
         // $schedule->command('sos:send-alerts')->everyMinute()->withoutOverlapping();
         $schedule->command('app:send-bill-reminders')->daily()->at("7:30");
+        $schedule->command('app:create-maintenance-bills')->everySecond();
         // $schedule->command('app:send-bill-reminders');
     }
 

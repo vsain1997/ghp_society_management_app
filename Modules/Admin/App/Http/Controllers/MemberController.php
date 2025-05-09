@@ -88,6 +88,7 @@ class MemberController extends Controller
                 'society_id' => 'required|integer',
                 'aprt_no' => 'required|integer',
                 'ownership' => 'required|string',
+                'maintenance_bill' => 'required'
             ]);
 
             if ($validator->fails()) {
@@ -156,6 +157,7 @@ class MemberController extends Controller
             $member->emer_name = $request->input('emer_name');
             $member->emer_relation = $request->input('emer_relation');
             $member->emer_phone = $request->input('emer_phone');
+            $member->maintenance_bill = $request->input('maintenance_bill');
             $member->save();
 
             // save notification defaults values
@@ -239,6 +241,7 @@ class MemberController extends Controller
                 'aprt_no' => 'required|integer',
                 'ownership' => 'required',
                 'user_id' => 'required|integer',
+                'maintenance_bill' => 'required'
             ]);
             if ($validator->fails()) {
                 return response()->json(
@@ -299,6 +302,7 @@ class MemberController extends Controller
             $member->emer_name = $request->input('emer_name');
             $member->emer_relation = $request->input('emer_relation');
             $member->emer_phone = $request->input('emer_phone');
+            $member->maintenance_bill = $request->input('maintenance_bill');
             $member->save();
 
             DB::commit();

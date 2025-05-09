@@ -113,6 +113,7 @@
                         <th class="text-center">Property Type</th>
                         <th class="text-center">Floor</th>
                         <th class="text-center">Property Number</th>
+                        <th class="text-center">Maintenance Bill</th>
                         <th class="text-center">Contact</th>
                         <th class="text-center">Email</th>
                         <th class="text-center">Status</th>
@@ -135,6 +136,7 @@
                         <td class="text-center">{{ $member->unit_type }}</td>
                         <td class="text-center">{{ $member->floor_number }}</td>
                         <td class="text-center">{{ $member->aprt_no }}</td>
+                        <td class="text-center">{{ toRupeeCurrency($member->maintenance_bill) ?? '--' }}</td>
                         <td class="text-center">{{ $member->phone }}</td>
                         <td class="text-center" title="{{ $member->email }}">{{ $member->email }}</td>
                         <td class="text-center status-td">
@@ -391,6 +393,17 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="maintenance_bill">Maintenance Bill <span class="text-danger">*</span></label>
+                                    <input type="text" name="maintenance_bill" id="maintenance_bill" class="form-control">
+                                    <span class="text-danger err"></span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="row rentedOwnerBlock">
                             <div class="col">
                                 <div class="form-group">
@@ -779,6 +792,8 @@
         let emer_name = $('#emer_name').val().trim();
         let emer_relation = $('#emer_relation').val().trim();
         let emer_phone = $('#emer_phone').val().trim();
+        let maintenance_bill = $('#maintenance_bill').val().trim();
+
 
 
         // console.log(formType);
@@ -879,6 +894,11 @@
         // Validate aprt_no
         if (aprtNo === '') {
             $('#aprt_no').next('.err').text('Required');
+            hasError = 1;
+        }
+
+        if (maintenance_bill === '') {
+            $('#maintenance_bill').next('.err').text('Required');
             hasError = 1;
         }
 
@@ -990,6 +1010,7 @@
                     $('#emer_relation').val(data.emer_relation);
                     $('#emer_phone').val(data.emer_phone);
                     $('#society_id').val(data.society_id);
+                    $('#maintenance_bill').val(data.maintenance_bill);
 
                     // Remove all existing options
                     $('#role').empty();
