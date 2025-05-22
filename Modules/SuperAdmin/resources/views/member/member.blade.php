@@ -10,8 +10,20 @@
                 <h2>Members</h2>
                 <p>Add or manage members of the society</p>
             </div>
-            <!-- Button trigger modal -->
-            <button type="button" id="openModal" class="bg_theme_btn" data-bs-toggle="modal" data-bs-target="#addMemberModal">
+            <div class="memberBx">
+                <form action="{{ route($thisModule . '.member.import') }}" method="POST" enctype="multipart/form-data" >
+                    @csrf
+                    <div class="choosefile flex">
+                        <div class="">
+                            <!-- <label for="fileInput" class="form-label">Choose File</label> -->
+                            <input class="form-control" type="file" id="fileInput" name="importedFile" accept=".csv, .xlsx, .xls, .txt" required>
+                            <input type="hidden" name="society_id" id="society_id" value="{{ session('__selected_society__') }}">
+                        </div>
+                        <button type="submit" class="btn btn-success">Upload</button>
+                    </div>
+                </form>
+
+                 <button type="button" id="openModal" class="bg_theme_btn" data-bs-toggle="modal" data-bs-target="#addMemberModal">
                 <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M13.0005 8.5H8.00049V13.5C8.00049 14.05 7.55049 14.5 7.00049 14.5C6.45049 14.5 6.00049 14.05 6.00049 13.5V8.5H1.00049C0.450488 8.5 0.000488281 8.05 0.000488281 7.5C0.000488281 6.95 0.450488 6.5 1.00049 6.5H6.00049V1.5C6.00049 0.95 6.45049 0.5 7.00049 0.5C7.55049 0.5 8.00049 0.95 8.00049 1.5V6.5H13.0005C13.5505 6.5 14.0005 6.95 14.0005 7.5C14.0005 8.05 13.5505 8.5 13.0005 8.5Z"
@@ -19,6 +31,9 @@
                 </svg>
                 Add New Member
             </button>
+            </div>
+
+           
         </div>
         <div class="custom_table_wrapper">
             <div class="filter_table_head">

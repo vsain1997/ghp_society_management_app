@@ -442,8 +442,26 @@ li.item-list { position: relative; }
 span.date-plac.none-plac,span.none-plac.time-plac { display: block; }
 .custom-plac { position: relative; } 
 .custom-plac span.none-plac.date-plac,.custom-plac span.none-plac.time-plac { position: absolute; top: 15px; left: 16px; width: 90px; background: #f8f8f8; color: #626262; line-height: 19px; }
+.choosefile {
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+}
 
+.choosefile button.btn.btn-success {
+    background: #6459cc;
+    border: none;
+    padding: 7px 22px;
+}
+.memberBx {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
 
+.choosefile input#fileInput {
+    max-width: 250px;
+}
 
 /* Responsive */
 @media (max-width: 1399px){
@@ -560,6 +578,7 @@ span.date-plac.none-plac,span.none-plac.time-plac { display: block; }
     .blocks_table table td { padding-left: 10px; padding-right: 10px; }
     .blocks_table .table-responsive > table { width: 350px; }
     .blocks_table .block-field { font-size: 13px; }
+    .memberBx {flex-wrap: wrap;}
 }
 @media (max-width: 575px){
     /* society detail */

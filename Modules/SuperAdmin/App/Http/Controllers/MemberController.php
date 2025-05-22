@@ -3,6 +3,7 @@
 namespace Modules\SuperAdmin\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Imports\MembersImport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,6 +20,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MemberController extends Controller
 {
@@ -240,6 +242,23 @@ class MemberController extends Controller
             ]);
         }
     }
+
+
+    //Import file data
+     public function importFile(Request $request)
+    {
+        $societyId = $request->input('society_id');
+        $request->validate([
+            'importedFile' => 'required|mimes:csv,xlsx,xls|max:5048',
+        ]);
+
+        if ($request->hasFile('importedFile')) {
+            Excel::import(new MembersImport($societyId), $request->file('importedFile'));
+        }
+
+        return back()->with('success', 'Members imported successfully.');
+    }
+
     public function edit($id)
     {
         try {
