@@ -11,7 +11,7 @@ class Member extends Model
     use HasFactory;
 
     use SoftDeletes;
-
+    protected $table = 'members';
     protected $fillable = [
         'name',
         'role',
@@ -29,7 +29,10 @@ class Member extends Model
         'emer_name',
         'emer_relation',
         'emer_phone',
+        
+        
     ];
+    public $timestamps = false;
 
     protected $dates = ['deleted_at'];//treat as date
 

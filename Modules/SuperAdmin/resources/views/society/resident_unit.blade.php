@@ -29,7 +29,7 @@
                                 <span class="text-primary err" id="aprtNoShowData"></span>
                             </div>
                             <div class="filter-secl">
-                                <label for="tower">Tower</label>
+                                <label for="tower">Tower/Block</label>
                                 <select name="tower" id="tower" class=" form-select form-control">
                                     <option value="">--Select--</option>
                                     @foreach($blocks as $block)
@@ -42,7 +42,7 @@
                                 </select>
                                 <span class="text-danger" id="tower_error"></span>
                             </div>
-                            <div class="filter-secl">
+                            <!-- <div class="filter-secl">
                                 <label for="floor">Floor</label>
                                 <select name="floor" id="floor" class=" form-select form-control">
                                     <option value="">--Select--</option>
@@ -55,7 +55,7 @@
                                     @endforeach
                                 </select>
                                 <span class="text-danger" id="floor_error"></span>
-                            </div>
+                            </div> -->
                         </div>
                         <div class="search-full-box">
                             <input type="search" name="search" id="search" placeholder="Search.."
@@ -83,11 +83,11 @@
             <table width="100%" cellpadding="0" cellspacing="0">
                 <thead>
                     <tr>
-                        <th class="text-center">Tower</th>
+                        <th class="text-center">Tower/Block</th>
                         <th class="text-center">Property Number</th>
-                        <th class="text-center">Property Type</th>
-                        <th class="text-center">Floor</th>
-                        <th class="text-center">Size (Sq. Ft.)</th>
+                        <th class="text-center">Property Type/Unit Type</th>
+                        <!-- <th class="text-center">Floor</th> -->
+                        <th class="text-center">Size (Sq.Yard)</th>
                         <th class="text-center">Ownership </th>
                         <th class="text-center">Name of Occupant </th>
                         <th class="text-center">Number</th>
@@ -111,21 +111,21 @@
                     <td class="text-center">
                         {{ !empty($data->unit_type) ? ucfirst($data->unit_type) : '' }}
                     </td>
-                    <td class="text-center">
+                    <!-- <td class="text-center">
                         {{ !empty($data->floor) ? ucfirst($data->floor) : '' }}
-                    </td>
+                    </td> -->
                     <td class="text-center">
                         {{ !empty($data->unit_size) ? ucfirst($data->unit_size) : '' }}
                     </td>
                     <td class="text-center">
-                        {{ !empty($data->member_info->ownership_type) ? ucfirst($data->member_info->ownership_type) : ''
+                        {{ !empty($data->member_info->ownership_type) ? ucfirst($data->member_info->ownership_type) : 'N/A'
                         }}
                     </td>
                     <td class="text-center">
-                        {{ !empty($data->member_info->name) ? ucfirst($data->member_info->name) : '' }}
+                        {{ !empty($data->member_info->name) ? ucfirst($data->member_info->name) : 'N/A' }}
                     </td>
                     <td class="text-center">
-                        {{ !empty($data->member_info->phone) ? ucfirst($data->member_info->phone) : '' }}
+                        {{ !empty($data->member_info->phone) ? ucfirst($data->member_info->phone) : 'N/A' }}
                     </td>
                     @if (empty($data->member_info))
                     <td class="text-center exp-status-btn"><button>Vacant</button></td>

@@ -65,10 +65,6 @@
                         <h4>{{ $member->unit_type }}</h4>
                     </li>
                     <li>
-                        <p>Maintenance Bill </p>
-                        <h4>{{ toRupeeCurrency($member->maintenance_bill) ?? '--' }}</h4>
-                    </li>
-                    <li>
                         <p>Floor </p>
                         <h4>{{ $member->floor_number }}</h4>
                     </li>

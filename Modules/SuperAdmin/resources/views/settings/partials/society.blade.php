@@ -511,7 +511,7 @@
                                                                     </div>
                                                                     <div class="col">
                                                                         <div class="form-group">
-                                                                            <label>Total Floors/Total Units </label>
+                                                                            <label>Total Floors/Total Units</label>
                                                                             <input type="text" name="totalFloors[1]"
                                                                                 class="form-control">
 
@@ -554,7 +554,7 @@
                                                                                 <span class="text-danger err"></span>
                                                                             </td>
                                                                             <td>
-                                                                                <select name="property_type[1][]" class="block-field" id="">
+                                                                                <select name="property_type[1][]" class="block-field piyush3" id="">
                                                                                     <option value="residential">Residential</option>
                                                                                     <option value="commercial">Commercial</option>
                                                                                 </select>
@@ -873,7 +873,7 @@
                         method: 'POST',
                         data: formData,
                         headers: {
-                            'X-CSRF-TOKEN': csrfToken
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         success: function(response) {
                             toastr[response.status](response.message);
@@ -1294,7 +1294,7 @@
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="form-group">
-                                                        <label>Tower Name/Block Name</label>
+                                                       <label>Tower Name/Block Name</label>
                                                         <input type="text" name="bname[1]" class="form-control">
                                                         <span class="text-danger err"></span>
                                                     </div>
@@ -1337,7 +1337,7 @@
                                                             <span class="text-danger err"></span>
                                                         </td>
                                                         <td>
-                                                            <select name="property_type[1][]" class="block-field">
+                                                            <select name="property_type[1][]" class="block-field piyush1">
                                                                 <option value="commercial">Commercial</option>
                                                                 <option value="residential">Residential</option>
                                                             </select>
@@ -1443,7 +1443,7 @@
                         .replace(':societyId', societyId),
                     method: 'GET',
                     headers: {
-                        'X-CSRF-TOKEN': csrfToken
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     dataType: 'json',
                     processData: false,
@@ -1602,7 +1602,7 @@
                                                                 </div>
                                                                 <div class="col">
                                                                     <div class="form-group">
-                                                                        <label>Total Floors/Total Units </label>
+                                                                        <label>Total Floors/Total Units</label>
                                                                         <input type="text" name="totalFloors[${blockIndex}]"
                                                                             class="form-control" value="${totalfloors}">
 
@@ -1681,7 +1681,7 @@
                                             <span class="text-danger err"></span>
                                         </td>
                                         <td>
-                                            <select name="property_type[${blockIndex}][]" class="block-field" id="">
+                                            <select name="property_type[${blockIndex}][]" class="block-field piyush2" id="">
                                                 <option value="residential" ${block.unit_type === 'residential' ? 'selected' : ''}>Residential</option>
                                                 <option value="commercial" ${block.unit_type === 'commercial' ? 'selected' : ''}>Commercial</option>
                                             </select>

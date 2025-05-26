@@ -785,7 +785,6 @@ class SocietyController extends Controller
                     $occupiedQuery->where('property_number', 'like', '%' . $searchText . '%');
                 }
             }
-
             // Paginate with a fixed limit of 10 items per page
             $members = $occupiedQuery->paginate(25);
 

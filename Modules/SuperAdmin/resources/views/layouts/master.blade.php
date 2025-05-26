@@ -197,27 +197,27 @@
                 $('#adminEmailError').text('');
                 $.ajax({
                     {{-- url: '{{ route($thisModule .'.check.email') }}', --}}
-                    url: '',
-                        type: 'GET',
-                            data: {
-                        adminEmail: adminEmail,
-                            adminId: adminId
-                    }, headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-            `    success: function(response) {
-                    console.log(response);
-                    if (response.message === 'yes') {
-                        $('#adminEmailError').text('This email already exists.');
-                        isValidadminEmail = false;
-                    } else if (response.message === 'no') {
-                        $('#adminEmailError').text('Email not found.');
-                    }
-                },
-                async: true,
-                    });
+            url: '',
+                type: 'GET',
+                    data: {
+                adminEmail: adminEmail,
+                    adminId: adminId
+            }, headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                console.log(response);
+                if (response.message === 'yes') {
+                    $('#adminEmailError').text('This email already exists.');
+                    isValidadminEmail = false;
+                } else if (response.message === 'no') {
+                    $('#adminEmailError').text('Email not found.');
+                }
+            },
+            async: true,
+                });
 
-                r`eturn isValidadminEmail;
+            return isValidadminEmail;
             }
         </script>
         <script>

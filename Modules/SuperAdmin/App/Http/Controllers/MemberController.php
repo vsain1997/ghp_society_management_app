@@ -41,7 +41,11 @@ class MemberController extends Controller
         //     session(['__selected_society__' => $request->society_id]);
         // }
         $selectedSociety = getSelectedSociety($request);
-
+        $blocks = Block::where('society_id', $selectedSociety)
+            ->select('name')
+            ->distinct()
+            ->orderBy('name')
+            ->get();
         if ($selectedSociety instanceof \Illuminate\Http\RedirectResponse) {
             return $selectedSociety; // Redirect if necessary
         }
@@ -67,6 +71,7 @@ class MemberController extends Controller
 
         $status = $request->input(key: 'status', default: 'active');
         $search = $request->input(key: 'search', default: '');
+        $tower = $request->input(key: 'tower', default: '');
         $search_col = $request->input(key: 'search_for', default: '');
 
         $members = Member::with('block')
@@ -74,6 +79,12 @@ class MemberController extends Controller
             ->when($search && $search_col, function ($query) use ($search, $search_col) {
                 // Apply dynamic column search
                 return $query->where($search_col, 'LIKE', '%' . $search . '%');
+            })
+            ->when($tower,function($query) use ($tower) {
+                // Apply tower filter
+                return $query->whereHas('block', function ($q) use ($tower) {
+                    $q->where('name', 'LIKE', '%' . $tower . '%');
+                });
             })
             ->where('society_id', $selectedSociety)
             ->orderBy('id', 'desc')
@@ -85,6 +96,7 @@ class MemberController extends Controller
             [
                 'members' => $members,
                 'search' => $search,
+                'blocks' => $blocks,
             ]
         );
     }

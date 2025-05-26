@@ -78,6 +78,19 @@
                                         Property Number
                                     </option>
                                 </select>
+                                 
+                                <select name="tower" id="tower" class=" form-select form-control">
+                                    <option value="">--Select--</option>
+                                    @foreach($blocks as $block)
+                                    @if (request('tower') && request('tower') == $block->name)
+                                    <option value="{{ $block->name }}" selected>{{ $block->name }}</option>
+                                    @else
+                                    <option value="{{ $block->name }}">{{ $block->name }}</option>
+                                    @endif
+                                    @endforeach
+                                </select>
+                                <span class="text-danger" id="tower_error"></span>
+                                
                             </div>
 
                             <div class="search-full-box">
@@ -95,6 +108,8 @@
                                     </svg> --}}
                                     Filter
                                 </button>
+                                <a href="{{ route($thisModule . '.member.index') }}" class="resetbtn" style="font-size: 18px; background: #4b40b5; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
+
                             </div>
                         </div>
                     </form>
@@ -137,12 +152,13 @@
                 <table width="100%" cellpadding="0" cellspacing="0">
                     <thead>
                         <tr>
+                            <th class="text-center">Tower/Block</th>
+                            <th class="text-center">Property Number</th>
                             <th class="text-center">Name</th>
                             <th class="text-center">Role</th>
-                            <th class="text-center">Tower/Block</th>
-                            <th class="text-center">Floor</th>
-                            <th class="text-center">Property Type/Unit Type</th>
-                            <th class="text-center">Property Number</th>
+                            
+                            <!-- <th class="text-center">Floor</th> -->
+                            <th class="text-center">Property Type/Unit Type</th>                            
                             <th class="text-center">Maintenance Bill</th>
                             <th class="text-center">Contact</th>
                             <th class="text-center">Email</th>
@@ -160,12 +176,12 @@
                                     $sl++;
                                 @endphp
                                 <tr>
-                                    <td class="text-center">{{ $member->name }}</td>
-                                    <td class="text-center">{{ $member->role }}</td>
                                     <td class="text-center">{{ $member->block->name ?? '' }}</td>
-                                    <td class="text-center">{{ $member->floor_number }}</td>
-                                    <td class="text-center">{{ $member->unit_type }}</td>
                                     <td class="text-center">{{ $member->aprt_no }}</td>
+                                    <td class="text-center">{{ $member->name }}</td>
+                                    <td class="text-center"><?= ucfirst($member->role)?></td>
+                                    <!-- <td class="text-center">{{ $member->floor_number }}</td> -->
+                                    <td class="text-center"><?= ucfirst($member->unit_type) ?></td>                                    
                                     <td class="text-center">{{ toRupeeCurrency($member->maintenance_bill) ?? '--' }}</td>
                                     <td class="text-center">{{ $member->phone }}</td>
                                     <td class="text-center" title="{{ $member->email }}">{{ $member->email }}</td>
