@@ -502,7 +502,7 @@
                                                                     <div class="col">
                                                                         <div class="form-group">
 
-                                                                            <label>Tower Name</label>
+                                                                            <label>Tower Name/Block Name</label>
                                                                             <input type="text" name="bname[1]"
                                                                                 class="form-control">
 
@@ -511,7 +511,7 @@
                                                                     </div>
                                                                     <div class="col">
                                                                         <div class="form-group">
-                                                                            <label>Total Floors </label>
+                                                                            <label>Total Floors/Total Units </label>
                                                                             <input type="text" name="totalFloors[1]"
                                                                                 class="form-control">
 
@@ -529,7 +529,7 @@
                                                                     <thead>
                                                                         <tr>
                                                                             <th>Property Number</th>
-                                                                            <th>Floor</th>
+                                                                            <th>Floor/Unit No.</th>
                                                                             <th>Property Type</th>
                                                                             <th class="d-none">Ownership</th>
                                                                             <th>Size (sq.ft) </th>
@@ -555,10 +555,8 @@
                                                                             </td>
                                                                             <td>
                                                                                 <select name="property_type[1][]" class="block-field" id="">
-                                                                                    <option value="shop">Shop</option>
-                                                                                    <option value="plot">Plot</option>
-                                                                                    <option value="villa">Villa</option>
-
+                                                                                    <option value="residential">Residential</option>
+                                                                                    <option value="commercial">Commercial</option>
                                                                                 </select>
                                                                                 <br>
                                                                                 <span class="text-danger err"></span>
@@ -1303,7 +1301,7 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="form-group">
-                                                        <label>Total Floors/Total Unit</label>
+                                                        <label>Total Floors/Total Units</label>
                                                         <input type="text" name="totalFloors[1]" class="form-control">
                                                         <span class="text-danger err"></span>
                                                     </div>
@@ -1340,9 +1338,8 @@
                                                         </td>
                                                         <td>
                                                             <select name="property_type[1][]" class="block-field">
-                                                               <option value="shop">Shop</option>
-                                                                <option value="plot">Plot</option>
-                                                                <option value="villa">Villa</option>
+                                                                <option value="commercial">Commercial</option>
+                                                                <option value="residential">Residential</option>
                                                             </select>
                                                             <br>
                                                             <span class="text-danger err"></span>
@@ -1596,7 +1593,7 @@
                                                             <div class="row">
                                                                 <div class="col">
                                                                     <div class="form-group">
-                                                                        <label>Tower Name/Block Name </label>
+                                                                        <label>Tower Name/Block Name</label>
                                                                         <input type="text" name="bname[${blockIndex}]"
                                                                             class="form-control" value="${blockName}">
 
@@ -1685,9 +1682,8 @@
                                         </td>
                                         <td>
                                             <select name="property_type[${blockIndex}][]" class="block-field" id="">
-                                                <option value="shop" ${block.unit_type === 'shop' ? 'selected' : ''}>Shop</option>
-                                                <option value="plot" ${block.unit_type === 'plot' ? 'selected' : ''}>Plot</option>
-                                                <option value="villa" ${block.unit_type === 'villa' ? 'selected' : ''}>Villa</option>
+                                                <option value="residential" ${block.unit_type === 'residential' ? 'selected' : ''}>Residential</option>
+                                                <option value="commercial" ${block.unit_type === 'commercial' ? 'selected' : ''}>Commercial</option>
                                             </select>
                                             <br>
                                             <span class="text-danger err"></span>

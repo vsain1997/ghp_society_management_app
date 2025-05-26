@@ -141,7 +141,7 @@ class MembersImport implements ToCollection, WithHeadingRow
             
             } catch (\Exception $e) {
                 superAdminLog('error', 'Exception::', $e->getMessage());
-                DB::rollBack();
+                // DB::rollBack();
                 $this->errors[] = 'Error in row: ' . json_encode($row) . ' - ' . $e->getMessage();
             }
 
