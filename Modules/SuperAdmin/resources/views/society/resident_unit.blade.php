@@ -63,6 +63,8 @@
                             <button type="submit" class="bg_theme_btn">
                                 Filter
                             </button>
+                             <a href="{{ route($thisModule . '.society.resident_unit.index') }}" class="resetbtn" style="font-size: 18px; background: #4b40b5; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
+
                         </div>
                     </div>
                 </form>

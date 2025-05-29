@@ -65,14 +65,14 @@ jQuery(document).on('click', '.add_block_field', function(){
                             <div class="row">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label>Tower Name</label>
+                                        <label>Tower Name/Block Name</label>
                                         <input type="text" name="bname[${serial}]" class="form-control">
                                         <span class="text-danger err"></span>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
-                                        <label>Total Floors</label>
+                                        <label>Total Floors/Total Units</label>
                                         <input type="text" name="totalFloors[${serial}]" class="form-control">
                                         <span class="text-danger err"></span>
                                     </div>
@@ -86,10 +86,10 @@ jQuery(document).on('click', '.add_block_field', function(){
                                 <thead>
                                     <tr>
                                         <th>Property Number</th>
-                                        <th>Floor</th>
+                                        <th>Floor/Unit No.</th>
                                         <th>Property Type</th>
                                         <th class="d-none">Ownership</th>
-                                        <th>Size (sq.ft) </th>
+                                        <th>Size (Sq.Yard) </th>
                                         <th>BHK</th>
                                         <th>&nbsp; </th>
                                     </tr>

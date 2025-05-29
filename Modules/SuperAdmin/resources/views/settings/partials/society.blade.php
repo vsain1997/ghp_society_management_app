@@ -60,6 +60,8 @@
                                     </svg> --}}
                             Filter
                         </button>
+                        <a href="{{ route($thisModule . '.settings') }}" class="resetbtn" style="font-size: 18px; background: #4b40b5; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
+
                     </div>
                 </div>
             </form>
@@ -328,7 +330,7 @@
                                         <div class="row">
                                             <div class="col">
                                                 <div class="form-group">
-                                                    <label for="societyArea">Total Area (sq. ft)</label>
+                                                    <label for="societyArea">Total Area (Sq.Yard)</label>
                                                     <input type="text" name="societyArea" id="societyArea"
                                                         class="form-control">
                                                     <span id="societyAreaErr" class="text-danger"></span>
@@ -338,7 +340,7 @@
                                         <div class="row">
                                             <div class="col">
                                                 <div class="form-group">
-                                                    <label for="totalTowers">Total Number Of Towers</label>
+                                                    <label for="totalTowers">Total Number Of Towers/Total Number Of Blocks</label>
                                                     <input type="text" name="totalTowers" id="totalTowers"
                                                         class="form-control">
                                                     <span id="totalTowersErr" class="text-danger"></span>
@@ -501,7 +503,6 @@
                                                                 <div class="row">
                                                                     <div class="col">
                                                                         <div class="form-group">
-
                                                                             <label>Tower Name/Block Name</label>
                                                                             <input type="text" name="bname[1]"
                                                                                 class="form-control">
@@ -532,7 +533,7 @@
                                                                             <th>Floor/Unit No.</th>
                                                                             <th>Property Type</th>
                                                                             <th class="d-none">Ownership</th>
-                                                                            <th>Size (sq.ft) </th>
+                                                                            <th>Size (Sq.Yard) </th>
                                                                             <th>BHK</th>
                                                                             <th>&nbsp; </th>
                                                                         </tr>
@@ -554,7 +555,7 @@
                                                                                 <span class="text-danger err"></span>
                                                                             </td>
                                                                             <td>
-                                                                                <select name="property_type[1][]" class="block-field piyush3" id="">
+                                                                                <select name="property_type[1][]" class="block-field" id="">
                                                                                     <option value="residential">Residential</option>
                                                                                     <option value="commercial">Commercial</option>
                                                                                 </select>
@@ -1318,7 +1319,7 @@
                                                         <th>Floor/Unit No.</th>
                                                         <th>Property Type</th>
                                                         <th class="d-none">Ownership</th>
-                                                        <th>Size (sq.ft)</th>
+                                                        <th>Size (Sq.Yard)</th>
                                                         <th>BHK</th>
                                                         <th>&nbsp;</th>
                                                     </tr>
@@ -1337,7 +1338,7 @@
                                                             <span class="text-danger err"></span>
                                                         </td>
                                                         <td>
-                                                            <select name="property_type[1][]" class="block-field piyush1">
+                                                            <select name="property_type[1][]" class="block-field">
                                                                 <option value="commercial">Commercial</option>
                                                                 <option value="residential">Residential</option>
                                                             </select>
@@ -1621,7 +1622,7 @@
                                                                         <th>Floor/Unit No.</th>
                                                                         <th>Property Type</th>
                                                                         <th class="d-none">Ownership</th>
-                                                                        <th>Size (sq.ft) </th>
+                                                                        <th>Size (Sq.Yard) </th>
                                                                         <th>BHK</th>
                                                                         <th>&nbsp; </th>
                                                                     </tr>
@@ -1681,7 +1682,7 @@
                                             <span class="text-danger err"></span>
                                         </td>
                                         <td>
-                                            <select name="property_type[${blockIndex}][]" class="block-field piyush2" id="">
+                                            <select name="property_type[${blockIndex}][]" class="block-field " id="">
                                                 <option value="residential" ${block.unit_type === 'residential' ? 'selected' : ''}>Residential</option>
                                                 <option value="commercial" ${block.unit_type === 'commercial' ? 'selected' : ''}>Commercial</option>
                                             </select>

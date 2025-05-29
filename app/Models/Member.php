@@ -23,6 +23,7 @@ class Member extends Model
         'unit_type',
         'aprt_no',
         'maintenance_bill',
+        'maintenance_bill_due_date',
         'user_id',
         'ownership_type',
         'owner_name',

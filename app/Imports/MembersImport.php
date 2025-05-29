@@ -6,6 +6,9 @@ use App\Models\Block;
 use App\Models\Member;
 use App\Models\Society;
 use App\Models\User;
+use App\Jobs\SendWhatsappMessage;
+use App\Models\Bill;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -64,7 +67,7 @@ class MembersImport implements ToCollection, WithHeadingRow
                 ]);
 
                 superAdminLog('info', 'start::user created');                
-
+                $due_date = Carbon::createFromFormat('d/m/Y', $row['due_date'])->format('Y-m-d');
                 $member = Member::create([
                     'name'      => $row['name_of_resident'],
                     'role'      => $row['role'],
@@ -77,9 +80,38 @@ class MembersImport implements ToCollection, WithHeadingRow
                     'unit_type' => $block->unit_type,
                     'aprt_no'   => $block->property_number,
                     'ownership_type' => $row['ownership'],
-                    'maintenance_bill' => $row['due'],                     
+                    'maintenance_bill' => $row['due'],    
+                    'maintenance_bill_due_date' => $due_date ?? null, // Assuming 'due_date' is a column in the import    
                     // Add more member fields from $row if needed
-                ]);
+                ]);                
+                if($member){
+                    _dLog(eventType: 'info', activityName: 'Bill Creation Started', description: 'Starting the process of creating a new bill');
+                    DB::beginTransaction();
+                    $isBillExist = Bill::whereNull('deleted_at')->where(function ($query) use ($user, $due_date) {
+                        $query->whereUserId($user->id)
+                              ->whereMonth('due_date', '=', date('m', strtotime($due_date)));
+                    })->first();
+
+                    if($isBillExist){
+                       continue;
+                    }
+                     $bill = Bill::create([
+                        'user_id' => $user->id,
+                        'amount' => $row['due'],
+                        'due_date' => $due_date,
+                        'status' => 'unpaid',
+                        'created_by' => auth()->id(),
+                        'service_id' => 2, // Assuming '2' is the ID for 'Maintenance' service
+                        'society_id' => $society->id,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ]);
+                    $this->sendBillNotification((object) $bill);
+                    $canSend = canSendMessage('whatsapp_message');
+                    if ($canSend['status']) {
+                        SendWhatsappMessage::dispatch($bill, 'new_bill_create');
+                    }
+                }
                 
                 if ($user->role == 'admin') {
                     // Assign the 'admin' role to the user
@@ -149,7 +181,27 @@ class MembersImport implements ToCollection, WithHeadingRow
             'message' => 'Added successfully'
         ]);
     }
+    private function sendBillNotification($bill) {
+        $checkSett = 'bill_notifications';
 
+        $user = User::whereHas('notificationSettings', function ($query) use ($checkSett, $bill) {
+            $query->where('name', $checkSett)
+                ->where('user_id', $bill->user_id)
+                ->where('status', 'enabled')
+                ->where('user_of_system', 'app')
+                ->where('society_id', $bill->society_id);
+        })->select('id', 'device_id')->first();
+
+        if ($user && $user->device_id) {
+            $deviceId = $user->device_id;
+            $notificationMessageArray = [
+                'title' => 'New Bill Added',
+                'body' => "A bill of ₹ " . $bill->amount . " has been added",
+            ];
+
+            sendAppPushNotification($user->id, $deviceId, $notificationMessageArray);
+        }
+    }
     public function getErrors()
     {
         return $this->errors;
