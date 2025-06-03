@@ -72,7 +72,7 @@ jQuery(document).on('click', '.add_block_field', function(){
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
-                                        <label>Total Floors/Total Units</label>
+                                        <label>Total Units</label>
                                         <input type="text" name="totalFloors[${serial}]" class="form-control">
                                         <span class="text-danger err"></span>
                                     </div>

@@ -74,6 +74,7 @@
                         <tr>
                             <th class="text-center">Member</th>
                             <th class="text-center">Bill Type</th>
+                            <th class="text-center">Property Number</th>
                             {{--  <th class="text-center">Service</th>  --}}
                             <th class="text-center">Amount</th>
                             <th class="text-center">Due Date</th>
@@ -115,6 +116,7 @@
                                         @endif
                                     </td>  --}}
                                     <td class="text-center py-2">{{ $billing->service->name }}</td>
+                                    <td class="text-center py-2">{{ $billing->member ? $billing->member->aprt_no : '-' }}</td>
                                     <td class="text-center py-2">{{ $billing->amount }}</td>
                                     <td class="text-center py-2">
                                         {{ \Carbon\Carbon::parse($billing->due_date)->format('d M Y') }}

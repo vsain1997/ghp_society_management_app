@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\Member;
 
 class Bill extends Model
 {
@@ -20,6 +21,7 @@ class Bill extends Model
         'amount',
         'due_date',
         'society_id',
+        'member_id',
         'created_by',
         'invoice_number',
         'status',
@@ -157,5 +159,11 @@ class Bill extends Model
     {
         return $this->attributes['due_date_delay_days'];
     }
+
+    public function member()
+    {
+        return $this->belongsTo(Member::class, 'member_id');
+    }
+
 
 }

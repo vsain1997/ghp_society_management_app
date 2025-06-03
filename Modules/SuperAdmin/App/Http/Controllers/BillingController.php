@@ -51,7 +51,7 @@ class BillingController extends Controller
             $search = $request->input(key: 'search', default: '');
             $search_col = $request->input(key: 'search_for', default: '');
 
-            $bills = Bill::with('user', 'service')
+            $bills = Bill::with('user', 'service','member')
                 ->searchByStatus($status)
                 // ->when($search && $search_col, function ($query) use ($search, $search_col) {
                 //     return $query->where($search_col, 'LIKE', '%' . $search . '%');
@@ -65,6 +65,7 @@ class BillingController extends Controller
             if ($request->filled('user_id')) {
                 $bills = $bills->searchByResident($request->user_id);
             }
+            
             $bills = $bills->orderBy('id', 'desc')
                 ->paginate(25);
 

@@ -14,6 +14,8 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -34,78 +36,89 @@ class MembersImport implements ToCollection, WithHeadingRow
 
 
     public function collection(Collection $rows)
-    {
-       
+    {    
         $society = Society::find($this->society_id);
         if($society == null){
             return response()->json(['error' => 'Society not found'], 404);
         }
         foreach ($rows as $row) {
             try {               
-                if (User::where('email', $row['e_mail'])->exists()) { 
-                    continue;
-                }               
+                if (User::where('email', trim($row['e_mail']))->exists()) { 
+                    $user = User::where('email', trim($row['e_mail']))->first();
+                }else{
+                     $user = User::create([
+                        'name'     => trim($row['name_of_resident']),
+                        'email'    => trim($row['e_mail']),
+                        'phone'    => trim($row['mobile']),
+                        'role'     => trim($row['role']),
+                        'status'   => 'active',
+                        'password' => bcrypt('12345678'),
+                    ]);
+                } 
+
                 $block = Block::where('society_id', $society->id)
-                ->where('name', $row['block'])
-                ->where('property_number', $row['property_number'])
+                ->where('name', trim($row['block']))
+                ->where('property_number', trim($row['property_number']))
                 ->first();
                 if (!$block) {
                     continue;
                 }
                 
                 $memberExists = Member::where('block_id', $block->id)->exists();
-                if ($memberExists) {
+                if ($memberExists) { 
                     continue;
                 }
-                $user = User::create([
-                    'name'     => $row['name_of_resident'],
-                    'email'    => $row['e_mail'],
-                    'phone'    => $row['mobile'],
-                    'role'     => $row['role'],
-                    'status'   => 'active',
-                    'password' => bcrypt('12345678'),
-                ]);
+                superAdminLog('info', 'start::user created');    
+                $due_date = Carbon::createFromFormat('d/m/Y', trim($row['due_date']))->format('Y-m-d');
+                $member = new Member();
+                $member->name = trim($row['name_of_resident']);
+                $member->role = trim($row['role']);
+                $member->phone = trim($row['mobile']);
+                $member->email = trim($row['e_mail']);
+                $member->user_id = $user->id;
+                $member->society_id = $society->id;
+                $member->block_id = $block->id;
+                $member->floor_number = $block->floor;
+                $member->unit_type = $block->unit_type;
+                $member->aprt_no = $block->property_number;
+                $member->ownership_type = trim($row['ownership']);
+                $member->maintenance_bill = trim($row['due']);
+                $member->maintenance_bill_due_date = $due_date ?? null;
+  
+                if($member->save()){
+                    Log::info('Inserted member', $member->toArray());
 
-                superAdminLog('info', 'start::user created');                
-                $due_date = Carbon::createFromFormat('d/m/Y', $row['due_date'])->format('Y-m-d');
-                $member = Member::create([
-                    'name'      => $row['name_of_resident'],
-                    'role'      => $row['role'],
-                    'phone'     => $row['mobile'],
-                    'email'     => $row['e_mail'],
-                    'user_id'   => $user->id,
-                    'society_id'=> $society->id,
-                    'block_id'  => $block->id,
-                    'floor_number' => $block->floor,
-                    'unit_type' => $block->unit_type,
-                    'aprt_no'   => $block->property_number,
-                    'ownership_type' => $row['ownership'],
-                    'maintenance_bill' => $row['due'],    
-                    'maintenance_bill_due_date' => $due_date ?? null, // Assuming 'due_date' is a column in the import    
-                    // Add more member fields from $row if needed
-                ]);                
-                if($member){
                     _dLog(eventType: 'info', activityName: 'Bill Creation Started', description: 'Starting the process of creating a new bill');
                     DB::beginTransaction();
-                    $isBillExist = Bill::whereNull('deleted_at')->where(function ($query) use ($user, $due_date) {
-                        $query->whereUserId($user->id)
-                              ->whereMonth('due_date', '=', date('m', strtotime($due_date)));
-                    })->first();
+                    $isBillExist = Bill::where('society_id', $society->id)
+                    ->where('member_id',$member->id)
+                        ->where('user_id', $user->id)
+                        ->whereMonth('due_date', date('m', strtotime($due_date)))
+                        ->whereNull('deleted_at')
+                        ->first();
 
-                    if($isBillExist){
-                       continue;
+                    if ($isBillExist) {
+                        $isBillExist->update([
+                            'amount' => trim($row['due']),
+                            'due_date' => $due_date,
+                        ]);
+                        $bill = $isBillExist;
+                    } else {
+                        $bill = Bill::create([
+                            'user_id'     => $user->id,
+                            'amount'      => trim($row['due']),
+                            'due_date'    => $due_date,
+                            'status'      => 'unpaid',
+                            'created_by'  => auth()->id(),
+                            'service_id'  => 2, // Assuming 2 is Maintenance Service
+                            'society_id'  => $society->id,
+                            'member_id'   => $member->id,
+                            'created_at'  => now(),
+                            'updated_at'  => now(),
+                        ]);
                     }
-                     $bill = Bill::create([
-                        'user_id' => $user->id,
-                        'amount' => $row['due'],
-                        'due_date' => $due_date,
-                        'status' => 'unpaid',
-                        'created_by' => auth()->id(),
-                        'service_id' => 2, // Assuming '2' is the ID for 'Maintenance' service
-                        'society_id' => $society->id,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
-                    ]);
+
+                    
                     $this->sendBillNotification((object) $bill);
                     $canSend = canSendMessage('whatsapp_message');
                     if ($canSend['status']) {
@@ -181,6 +194,7 @@ class MembersImport implements ToCollection, WithHeadingRow
             'message' => 'Added successfully'
         ]);
     }
+    
     private function sendBillNotification($bill) {
         $checkSett = 'bill_notifications';
 

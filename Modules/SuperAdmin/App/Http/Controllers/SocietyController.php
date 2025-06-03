@@ -228,6 +228,7 @@ class SocietyController extends Controller
 
     public function update(Request $request, $societyId)
     {
+        // dd("update");
         $validator = Validator::make($request->all(), [
             'sname' => 'required|string|max:255',
             'location' => 'required|string|max:255',
@@ -244,23 +245,23 @@ class SocietyController extends Controller
             // 'floors' => 'required|integer|min:1',
             // 'floorUnits' => 'required|integer|min:1',
             // 'assignAdmin' => 'required|integer|min:1',
-            'bname' => 'required|array',
-            'bname.*' => 'required|string|max:255',
-            'totalFloors' => 'required|array',
-            'totalFloors.*' => 'required|integer',
+            // 'bname' => 'required|array',
+            // 'bname.*' => 'required|string|max:255',
+            // 'totalFloors' => 'required|array',
+            // 'totalFloors.*' => 'required|integer',
 
-            'property_number' => 'required|array',
-            'property_number.*.*' => 'required|string',
-            'property_floor' => 'required|array',
-            'property_floor.*.*' => 'required',
-            'property_type' => 'required|array',
-            'property_type.*.*' => 'required|string',
-            'ownership' => 'required|array',
-            'ownership.*.*' => 'required|string',
-            'unit_size' => 'required|array',
-            'unit_size.*.*' => 'required|numeric',
-            'bhk' => 'nullable|array',
-            'bhk.*.*' => 'nullable',
+            // 'property_number' => 'required|array',
+            // 'property_number.*.*' => 'required|string',
+            // 'property_floor' => 'required|array',
+            // 'property_floor.*.*' => 'required',
+            // 'property_type' => 'required|array',
+            // 'property_type.*.*' => 'required|string',
+            // 'ownership' => 'required|array',
+            // 'ownership.*.*' => 'required|string',
+            // 'unit_size' => 'required|array',
+            // 'unit_size.*.*' => 'required|numeric',
+            // 'bhk' => 'nullable|array',
+            // 'bhk.*.*' => 'nullable',
             'block_id' => 'nullable|array',
             'block_id.*.*' => 'nullable',
 
@@ -275,6 +276,7 @@ class SocietyController extends Controller
         ]);
 
         if ($validator->fails()) {
+            dd("here");
             superAdminLog('error', $validator->errors()->first());
             return response()->json(
                 [

@@ -87,7 +87,6 @@ class MemberController extends Controller
                 });
             })
             ->where('society_id', $selectedSociety)
-            ->orderBy('id', 'desc')
             ->paginate(25);
 
 

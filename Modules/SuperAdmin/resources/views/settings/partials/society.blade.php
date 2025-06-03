@@ -484,6 +484,19 @@
                             </div>
                             <div class="tab-pane fade" id="societyTab2" role="tabpanel"
                                 aria-labelledby="societyTab2-tab">
+                               <div class="memberBx">
+                                    <form action="{{ route($thisModule . '.member.import') }}" method="POST" enctype="multipart/form-data" >
+                                        @csrf
+                                        <div class="choosefile flex">
+                                            <div class="">
+                                                <!-- <label for="fileInput" class="form-label">Choose File</label> -->
+                                                <input class="form-control" type="file" id="fileInput" name="importedFile" accept=".csv, .xlsx, .xls, .txt" required>
+                                                <input type="hidden" name="society_id" id="society_id" value="{{ session('__selected_society__') }}">
+                                            </div>
+                                            <button type="submit" class="btn btn-success">Upload</button>
+                                        </div>
+                                    </form>                
+                                </div>
                                 <div class="block_wrapper">
                                     <div class="accordion" id="accordionBlock">
                                         <div class="accordion-item" data-serial="1">
@@ -512,7 +525,7 @@
                                                                     </div>
                                                                     <div class="col">
                                                                         <div class="form-group">
-                                                                            <label>Total Floors/Total Units</label>
+                                                                            <label>Total Units</label>
                                                                             <input type="text" name="totalFloors[1]"
                                                                                 class="form-control">
 
@@ -847,10 +860,10 @@
             // check form2 validation and submit
             $("#societyAddForm2").click(function(event) {
                 event.preventDefault();
-                if ($('.accordion-item').length === 0) {
-                    toastr.error('Please add atleast one Block !');
-                    return 'returned';
-                }
+                // if ($('.accordion-item').length === 0) {
+                //     toastr.error('Please add atleast one Block !');
+                //     return 'returned';
+                // }
                 let getFlag = validate_society_blocks('submit');
                 if (getFlag) {
                     if (getFlag != 5) {
@@ -1302,7 +1315,7 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="form-group">
-                                                        <label>Total Floors/Total Units</label>
+                                                        <label>Total Units</label>
                                                         <input type="text" name="totalFloors[1]" class="form-control">
                                                         <span class="text-danger err"></span>
                                                     </div>
@@ -1603,7 +1616,7 @@
                                                                 </div>
                                                                 <div class="col">
                                                                     <div class="form-group">
-                                                                        <label>Total Floors/Total Units</label>
+                                                                        <label>Total Units</label>
                                                                         <input type="text" name="totalFloors[${blockIndex}]"
                                                                             class="form-control" value="${totalfloors}">
 
