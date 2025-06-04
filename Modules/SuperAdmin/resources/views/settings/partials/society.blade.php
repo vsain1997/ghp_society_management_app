@@ -485,7 +485,7 @@
                             <div class="tab-pane fade" id="societyTab2" role="tabpanel"
                                 aria-labelledby="societyTab2-tab">
                                <div class="memberBx">
-                                    <form action="{{ route($thisModule . '.member.import') }}" method="POST" enctype="multipart/form-data" >
+                                    <form action="{{ route($thisModule . '.society.import') }}" method="POST" enctype="multipart/form-data" >
                                         @csrf
                                         <div class="choosefile flex">
                                             <div class="">
@@ -543,7 +543,7 @@
                                                                     <thead>
                                                                         <tr>
                                                                             <th>Property Number</th>
-                                                                            <th>Floor/Unit No.</th>
+                                                                            <th>Floor</th>
                                                                             <th>Property Type</th>
                                                                             <th class="d-none">Ownership</th>
                                                                             <th>Size (Sq.Yard) </th>
@@ -1139,103 +1139,103 @@
                 let societyType = $(`select[name="societyTypeSelect"]`).val();
 
                 // Validate Block Name
-                let bnameVal = $(`input[name="bname[${serial}]"]`).val();
-                if (!bnameVal.trim()) {
+                // let bnameVal = $(`input[name="bname[${serial}]"]`).val();
+                // if (!bnameVal.trim()) {
 
-                    $(`input[name="bname[${serial}]"]`).siblings('.err').text('Required');
-                    setflag = 1;
-                    hasError = true;
-                } else {
-                    $(`input[name="bname[${serial}]"]`).siblings('.err').text('');
-                }
+                //     $(`input[name="bname[${serial}]"]`).siblings('.err').text('Required');
+                //     setflag = 1;
+                //     hasError = true;
+                // } else {
+                //     $(`input[name="bname[${serial}]"]`).siblings('.err').text('');
+                // }
 
                 // Validate Total Units
-                let totalFloorsVal = $(`input[name="totalFloors[${serial}]"]`).val();
-                if (!totalFloorsVal.trim()) {
-                    $(`input[name="totalFloors[${serial}]"]`).siblings('.err').text(
-                        'Required');
-                    setflag = 1;
-                    hasError = true;
-                } else if(isNaN(totalFloorsVal) || totalFloorsVal == 0){
-                    $(`input[name="totalFloors[${serial}]"]`).siblings('.err').text(
-                        'Invalid');
-                    setflag = 1;
-                    hasError = true;
-                }
-                else {
-                    $(`input[name="totalFloors[${serial}]"]`).siblings('.err').text('');
-                }
+                // let totalFloorsVal = $(`input[name="totalFloors[${serial}]"]`).val();
+                // if (!totalFloorsVal.trim()) {
+                //     $(`input[name="totalFloors[${serial}]"]`).siblings('.err').text(
+                //         'Required');
+                //     setflag = 1;
+                //     hasError = true;
+                // } else if(isNaN(totalFloorsVal) || totalFloorsVal == 0){
+                //     $(`input[name="totalFloors[${serial}]"]`).siblings('.err').text(
+                //         'Invalid');
+                //     setflag = 1;
+                //     hasError = true;
+                // }
+                // else {
+                //     $(`input[name="totalFloors[${serial}]"]`).siblings('.err').text('');
+                // }
 
                 let totalQty = 0;
                 $(this).find('tbody tr').each(function() {
                     // Validate property number
-                    let property_numberVal = $(this).find(`input[name="property_number[${serial}][]"]`).val();
-                    if (!property_numberVal.trim()) {
-                        $(this).find(`input[name="property_number[${serial}][]"]`).siblings('.err').text(
-                            'Required');
-                        setflag = 1;
-                        hasError = true;
-                    } else if(property_numberVal == 0){
-                        $(this).find(`input[name="property_number[${serial}][]"]`).siblings('.err').text(
-                            'Invalid');
-                        setflag = 1;
-                        hasError = true;
-                    } else {
-                        $(this).find(`input[name="property_number[${serial}][]"]`).siblings('.err').text(
-                            '');
-                    }
+                    // let property_numberVal = $(this).find(`input[name="property_number[${serial}][]"]`).val();
+                    // if (!property_numberVal.trim()) {
+                    //     $(this).find(`input[name="property_number[${serial}][]"]`).siblings('.err').text(
+                    //         'Required');
+                    //     setflag = 1;
+                    //     hasError = true;
+                    // } else if(property_numberVal == 0){
+                    //     $(this).find(`input[name="property_number[${serial}][]"]`).siblings('.err').text(
+                    //         'Invalid');
+                    //     setflag = 1;
+                    //     hasError = true;
+                    // } else {
+                    //     $(this).find(`input[name="property_number[${serial}][]"]`).siblings('.err').text(
+                    //         '');
+                    // }
 
                     // Validate floor
-                    let property_floorVal = $(this).find(`input[name="property_floor[${serial}][]"]`).val();
-                    if (!property_floorVal.trim()) {
-                        $(this).find(`input[name="property_floor[${serial}][]"]`).siblings('.err').text(
-                            'Required');
-                        setflag = 1;
-                        hasError = true;
-                    } else if(!isNaN(property_floorVal) && property_floorVal > Number(totalFloorsVal) ){
-                        $(this).find(`input[name="property_floor[${serial}][]"]`).siblings('.err').text(
-                            'Invalid');
-                        setflag = 1;
-                        hasError = true;
-                    } else {
-                        $(this).find(`input[name="property_floor[${serial}][]"]`).siblings('.err').text(
-                            '');
-                    }
+                    // let property_floorVal = $(this).find(`input[name="property_floor[${serial}][]"]`).val();
+                    // if (!property_floorVal.trim()) {
+                    //     $(this).find(`input[name="property_floor[${serial}][]"]`).siblings('.err').text(
+                    //         'Required');
+                    //     setflag = 1;
+                    //     hasError = true;
+                    // } else if(!isNaN(property_floorVal) && property_floorVal > Number(totalFloorsVal) ){
+                    //     $(this).find(`input[name="property_floor[${serial}][]"]`).siblings('.err').text(
+                    //         'Invalid');
+                    //     setflag = 1;
+                    //     hasError = true;
+                    // } else {
+                    //     $(this).find(`input[name="property_floor[${serial}][]"]`).siblings('.err').text(
+                    //         '');
+                    // }
 
                     // Validate size
-                    let unit_sizeVal = $(this).find(`input[name="unit_size[${serial}][]"]`).val();
-                    if (!unit_sizeVal.trim()) {
-                        $(this).find(`input[name="unit_size[${serial}][]"]`).siblings('.err').text(
-                            'Required');
-                        setflag = 1;
-                        hasError = true;
-                    } else if(isNaN(unit_sizeVal) || unit_sizeVal == 0){
-                        $(this).find(`input[name="unit_size[${serial}][]"]`).siblings('.err').text(
-                            'Invalid');
-                        setflag = 1;
-                        hasError = true;
-                    } else {
-                        $(this).find(`input[name="unit_size[${serial}][]"]`).siblings('.err').text(
-                            '');
-                    }
+                    // let unit_sizeVal = $(this).find(`input[name="unit_size[${serial}][]"]`).val();
+                    // if (!unit_sizeVal.trim()) {
+                    //     $(this).find(`input[name="unit_size[${serial}][]"]`).siblings('.err').text(
+                    //         'Required');
+                    //     setflag = 1;
+                    //     hasError = true;
+                    // } else if(isNaN(unit_sizeVal) || unit_sizeVal == 0){
+                    //     $(this).find(`input[name="unit_size[${serial}][]"]`).siblings('.err').text(
+                    //         'Invalid');
+                    //     setflag = 1;
+                    //     hasError = true;
+                    // } else {
+                    //     $(this).find(`input[name="unit_size[${serial}][]"]`).siblings('.err').text(
+                    //         '');
+                    // }
 
                     //check property type
                     let property_type = $(this).find(`select[name="property_type[${serial}][]"]`).val();
 
                     // console.log(property_type ,societyType);
 
-                    if(societyType != 'mixed'){
+                    // if(societyType != 'mixed'){
 
-                        if(societyType != property_type){
-                            $(this).find(`select[name="property_type[${serial}][]"]`).siblings('.err').text(
-                                'Invalid');
-                            setflag = 1;
-                            hasError = true;
-                        }else{
-                            $(this).find(`select[name="property_type[${serial}][]"]`).siblings('.err').text(
-                                '');
-                        }
-                    }
+                    //     if(societyType != property_type){
+                    //         $(this).find(`select[name="property_type[${serial}][]"]`).siblings('.err').text(
+                    //             'Invalid');
+                    //         setflag = 1;
+                    //         hasError = true;
+                    //     }else{
+                    //         $(this).find(`select[name="property_type[${serial}][]"]`).siblings('.err').text(
+                    //             '');
+                    //     }
+                    // }
 
                 });
 
@@ -1329,7 +1329,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th>Property Number</th>
-                                                        <th>Floor/Unit No.</th>
+                                                        <th>Floor</th>
                                                         <th>Property Type</th>
                                                         <th class="d-none">Ownership</th>
                                                         <th>Size (Sq.Yard)</th>
@@ -1632,7 +1632,7 @@
                                                                 <thead>
                                                                     <tr>
                                                                         <th>Property Number</th>
-                                                                        <th>Floor/Unit No.</th>
+                                                                        <th>Floor</th>
                                                                         <th>Property Type</th>
                                                                         <th class="d-none">Ownership</th>
                                                                         <th>Size (Sq.Yard) </th>

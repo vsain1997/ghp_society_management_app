@@ -1,7 +1,7 @@
 <?php
 
 namespace Modules\SuperAdmin\App\Http\Controllers;
-
+use App\Imports\SocietyImport;
 use App\Http\Controllers\Controller;
 use App\Models\Sos;
 use App\Models\Complaint;
@@ -20,11 +20,10 @@ class SocietyController extends Controller
 {
     public function store(Request $request)
     {
-        // dd($request->all());
         try {
             superAdminLog('info', 'start::store');
             DB::beginTransaction();
-
+            
             $validator = Validator::make($request->all(), [
                 'sname' => 'required|string|max:255',
                 'location' => 'required|string|max:255',
@@ -41,26 +40,26 @@ class SocietyController extends Controller
                 // 'floors' => 'required|integer',
                 // 'floorUnits' => 'required|integer',
                 // 'assignAdmin' => 'required|integer',
-                'bname' => 'required|array',
-                'bname.*' => 'required|string|max:255',
-                'totalFloors' => 'required|array',
-                'totalFloors.*' => 'required|integer',
-
-                'property_number' => 'required|array',
-                'property_number.*.*' => 'required|string',
-                'property_floor' => 'required|array',
-                'property_floor.*.*' => 'required',
-                'property_type' => 'required|array',
-                'property_type.*.*' => 'required|string',
-                'ownership' => 'required|array',
-                'ownership.*.*' => 'required|string',
-                'unit_size' => 'required|array',
-                'unit_size.*.*' => 'required|numeric',
-                'bhk' => 'nullable|array',
-                'bhk.*.*' => 'nullable',
-                'block_id' => 'nullable|array',
-                'block_id.*.*' => 'nullable',
-
+                // 'bname' => 'required|array',
+                // 'bname.*' => 'required|string|max:255',
+                // 'totalFloors' => 'required|array',
+                // 'totalFloors.*' => 'required|integer',
+                
+                // 'property_number' => 'required|array',
+                // 'property_number.*.*' => 'required|string',
+                // 'property_floor' => 'required|array',
+                // 'property_floor.*.*' => 'required',
+                // 'property_type' => 'required|array',
+                // 'property_type.*.*' => 'required|string',
+                // 'ownership' => 'required|array',
+                // 'ownership.*.*' => 'required|string',
+                // 'unit_size' => 'required|array',
+                // 'unit_size.*.*' => 'required|numeric',
+                // 'bhk' => 'nullable|array',
+                // 'bhk.*.*' => 'nullable',
+                // 'block_id' => 'nullable|array',
+                // 'block_id.*.*' => 'nullable',
+                
                 'emr_name' => 'required|array',
                 'emr_name.*' => 'required|string',
                 'emr_designation' => 'required|array',
@@ -70,6 +69,9 @@ class SocietyController extends Controller
                 'emr_id' => 'nullable|array',
                 'emr_id.*' => 'integer',
             ]);
+            // echo "validator fails = ";dd($validator->fails());
+            // dd("Adfas");
+            // dd($request->all());
 
             if ($validator->fails()) {
                 superAdminLog('error', 'Validation failed: ' . $validator->errors()->first());
@@ -80,7 +82,7 @@ class SocietyController extends Controller
                         'message' => $validator->errors()->first(),
                     ]);
             }
-
+            
             $insData = [
                 'name' => $request->input('sname'),
                 'location' => $request->input('location'),
@@ -88,7 +90,7 @@ class SocietyController extends Controller
                 'status' => $request->input('statusSelect'),
                 'floor_units' => 0,
                 'member_id' => NULL,//$request->input('assignAdmin'),
-
+                
                 'city' => $request->input('city'),
                 'state' => $request->input('state'),
                 'pin' => $request->input('pin'),
@@ -101,15 +103,15 @@ class SocietyController extends Controller
                 'amenities' => implode(',', $request->input('amenities'))
             ];
             $society = Society::create($insData);
-
+            
             superAdminLog('info', 'Society::created');
             $societyId = $society->id;
-
+            
             $bnameArray = $request->input('bname');
             $totalUnitsArray = $request->input('totalUnits');
             $unitTypeArray = $request->input('unit_type');
             $unitQtyArray = $request->input('unit_qty');
-
+            
             $totalFloorsArray = $request->input('totalFloors');
             $property_numberArray = $request->input('property_number');
             $property_floorArray = $request->input('property_floor');
@@ -117,32 +119,34 @@ class SocietyController extends Controller
             $ownershipArray = $request->input('ownership');
             $unitSizeArray = $request->input('unit_size');
             $bhkArray = $request->input('bhk');
+            
+            if($bnameArray){
+                foreach ($bnameArray as $blockKey => $blockName) {
 
-
-            foreach ($bnameArray as $blockKey => $blockName) {
-
-                foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
-                    Block::create([
-                        'name' => $blockName,
-                        'total_floor' => $totalFloorsArray[$blockKey],
-                        'property_number' => $property_number,
-                        'floor' => $property_floorArray[$blockKey][$unitIndex],
-                        'unit_type' => $property_typeArray[$blockKey][$unitIndex],
-                        'ownership' => $ownershipArray[$blockKey][$unitIndex],
-                        'unit_size' => !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '',
-                        'bhk' => !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '',
-                        'society_id' => $societyId,
-                        'total_units' => 0,
-                    ]);
+                    foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
+                        Block::create([
+                            'name' => $blockName,
+                            'total_floor' => $totalFloorsArray[$blockKey],
+                            'property_number' => $property_number,
+                            'floor' => $property_floorArray[$blockKey][$unitIndex],
+                            'unit_type' => $property_typeArray[$blockKey][$unitIndex],
+                            'ownership' => $ownershipArray[$blockKey][$unitIndex],
+                            'unit_size' => !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '',
+                            'bhk' => !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '',
+                            'society_id' => $societyId,
+                            'total_units' => 0,
+                        ]);
+                    }
                 }
+                superAdminLog('info', 'Block::created');
             }
-
-            superAdminLog('info', 'Block::created');
+            
+            
             // emergency contact
             $emrNameArray = $request->input('emr_name');
             $emrDesignationArray = $request->input('emr_designation');
             $emrPhoneArray = $request->input('emr_phone');
-
+            
             foreach ($emrNameArray as $emKey => $emrName) {
                 SocietyContact::create([
                     'name' => $emrName,
@@ -160,6 +164,7 @@ class SocietyController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            dd("catch");
             superAdminLog('error', 'Exception::', $e->getMessage());
             DB::rollBack();
             return redirect()->back()->with([
@@ -262,8 +267,8 @@ class SocietyController extends Controller
             // 'unit_size.*.*' => 'required|numeric',
             // 'bhk' => 'nullable|array',
             // 'bhk.*.*' => 'nullable',
-            'block_id' => 'nullable|array',
-            'block_id.*.*' => 'nullable',
+            // 'block_id' => 'nullable|array',
+            // 'block_id.*.*' => 'nullable',
 
             'emr_name' => 'required|array',
             'emr_name.*' => 'required|string',
@@ -342,28 +347,114 @@ class SocietyController extends Controller
             $bhkArray = $request->input('bhk');
 
             $blockIdsToKeep = [];
+            if($bnameArray){
 
-            foreach ($bnameArray as $blockKey => $blockName) {
-                // Check if block IDs exist for this block
-                if (isset($blockIdArray[$blockKey])) {
-                    // foreach ($blockIdArray[$blockKey] as $blockId) {
-                    // echo $blockId;
-                    // dd($blockIdArray[$blockKey]);
-                    //Update existing blocks
-                    // if (isset($existingBlocks[$blockId])) {
-                    if (1 === 1) {
-                        // Update for each unit type and its corresponding size and quantity
-                        foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
-
-                            // echo $unitIndex;
-                            // echo '--' . $property_number;
-                            // dd($property_numberArray[$blockKey]);
-
-                            // If the block already has unit data, update it
-                            // $block = Block::find($blockIdArray[$blockKey][$unitIndex]);
-                            // if ($block) {
-                            //     // Update the block record
-                            //     $block->update([
+                foreach ($bnameArray as $blockKey => $blockName) {
+                    // Check if block IDs exist for this block
+                    if (isset($blockIdArray[$blockKey])) {
+                        // foreach ($blockIdArray[$blockKey] as $blockId) {
+                        // echo $blockId;
+                        // dd($blockIdArray[$blockKey]);
+                        //Update existing blocks
+                        // if (isset($existingBlocks[$blockId])) {
+                        if (1 === 1) {
+                            // Update for each unit type and its corresponding size and quantity
+                            foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
+    
+                                // echo $unitIndex;
+                                // echo '--' . $property_number;
+                                // dd($property_numberArray[$blockKey]);
+    
+                                // If the block already has unit data, update it
+                                // $block = Block::find($blockIdArray[$blockKey][$unitIndex]);
+                                // if ($block) {
+                                //     // Update the block record
+                                //     $block->update([
+                                //         'name' => $blockName,
+                                //         'total_floor' => $totalFloorsArray[$blockKey],
+                                //         'property_number' => $property_number,
+                                //         'floor' => $property_floorArray[$blockKey][$unitIndex],
+                                //         'unit_type' => $property_typeArray[$blockKey][$unitIndex],
+                                //         'ownership' => $ownershipArray[$blockKey][$unitIndex],
+                                //         'unit_size' => !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '',
+                                //         'bhk' => !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '',
+                                //         'society_id' => $societyId,
+                                //         'total_units' => 0,
+                                //     ]);
+                                // }
+                                Block::updateOrCreate(
+                                    ['id' => $blockIdArray[$blockKey][$unitIndex]],
+                                    [
+                                        'name' => $blockName,
+                                        'total_floor' => $totalFloorsArray[$blockKey],
+                                        'property_number' => $property_number,
+                                        'floor' => $property_floorArray[$blockKey][$unitIndex],
+                                        'unit_type' => $property_typeArray[$blockKey][$unitIndex],
+                                        'ownership' => $ownershipArray[$blockKey][$unitIndex],
+                                        'unit_size' => !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '',
+                                        'bhk' => !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '',
+                                        'society_id' => $societyId,
+                                        'total_units' => 0,
+                                    ]
+                                );
+    
+                                if (!empty($blockIdArray[$blockKey][$unitIndex])) {
+                                    $blockIdsToKeep[] = $blockIdArray[$blockKey][$unitIndex];
+    
+                                    $existsBlockInMember = Member::where('block_id', $blockIdArray[$blockKey][$unitIndex])->exists();
+    
+                                    if ($existsBlockInMember) {
+                                        $member = Member::where('block_id', $blockIdArray[$blockKey][$unitIndex])->first();
+                                        if ($member) {
+                                            $member->floor_number = $property_floorArray[$blockKey][$unitIndex];
+                                            $member->unit_type = $property_typeArray[$blockKey][$unitIndex];
+                                            $member->aprt_no = $property_number;
+                                            $member->save();
+                                        }
+    
+                                    }
+                                    // ------------ Complaints
+                                    Complaint::whereIn('block_id', array_column($blockIdArray, $unitIndex))
+                                        ->chunk(100, function ($complaints) use ($blockIdArray, $blockKey, $unitIndex, $blockName, $property_floorArray, $property_typeArray, $property_number) {
+                                            foreach ($complaints as $complaint) {
+                                                $complaint->block_name = $blockName;
+                                                $complaint->floor_number = $property_floorArray[$blockKey][$unitIndex];
+                                                $complaint->unit_type = $property_typeArray[$blockKey][$unitIndex];
+                                                $complaint->aprt_no = $property_number;
+                                                $complaint->save();
+                                            }
+                                        });
+    
+                                    // ------------ SOS
+                                    Sos::whereIn('block_id', array_column($blockIdArray, $unitIndex))
+                                        ->chunk(100, function ($sosRecords) use ($blockIdArray, $blockKey, $unitIndex, $property_floorArray, $property_typeArray, $property_number) {
+                                            foreach ($sosRecords as $sos) {
+                                                $sos->floor = $property_floorArray[$blockKey][$unitIndex];
+                                                $sos->unit_type = $property_typeArray[$blockKey][$unitIndex];
+                                                $sos->unit_no = $property_number;
+                                                $sos->save();
+                                            }
+                                        });
+    
+                                    // ------------ Trade Property (Rent/Sell)
+                                    TradeProperty::whereIn('block_id', array_column($blockIdArray, $unitIndex))
+                                        ->chunk(100, function ($tradeProperties) use ($blockIdArray, $blockKey, $unitIndex, $property_floorArray, $property_typeArray, $property_number, $bhkArray, $unitSizeArray) {
+                                            foreach ($tradeProperties as $tradeProperty) {
+                                                $tradeProperty->floor = $property_floorArray[$blockKey][$unitIndex];
+                                                $tradeProperty->unit_type = $property_typeArray[$blockKey][$unitIndex];
+                                                $tradeProperty->unit_number = $property_number;
+                                                $tradeProperty->bhk = !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '';
+                                                $tradeProperty->area = !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '';
+                                                $tradeProperty->save();
+                                            }
+                                        });
+                                }
+                            }
+                        } else {
+                            // dd($property_numberArray);
+                            //If block ID doesn't exist, create a new block
+                            // foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
+                            //     Block::create([
                             //         'name' => $blockName,
                             //         'total_floor' => $totalFloorsArray[$blockKey],
                             //         'property_number' => $property_number,
@@ -376,116 +467,32 @@ class SocietyController extends Controller
                             //         'total_units' => 0,
                             //     ]);
                             // }
-                            Block::updateOrCreate(
-                                ['id' => $blockIdArray[$blockKey][$unitIndex]],
-                                [
-                                    'name' => $blockName,
-                                    'total_floor' => $totalFloorsArray[$blockKey],
-                                    'property_number' => $property_number,
-                                    'floor' => $property_floorArray[$blockKey][$unitIndex],
-                                    'unit_type' => $property_typeArray[$blockKey][$unitIndex],
-                                    'ownership' => $ownershipArray[$blockKey][$unitIndex],
-                                    'unit_size' => !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '',
-                                    'bhk' => !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '',
-                                    'society_id' => $societyId,
-                                    'total_units' => 0,
-                                ]
-                            );
-
-                            if (!empty($blockIdArray[$blockKey][$unitIndex])) {
-                                $blockIdsToKeep[] = $blockIdArray[$blockKey][$unitIndex];
-
-                                $existsBlockInMember = Member::where('block_id', $blockIdArray[$blockKey][$unitIndex])->exists();
-
-                                if ($existsBlockInMember) {
-                                    $member = Member::where('block_id', $blockIdArray[$blockKey][$unitIndex])->first();
-                                    if ($member) {
-                                        $member->floor_number = $property_floorArray[$blockKey][$unitIndex];
-                                        $member->unit_type = $property_typeArray[$blockKey][$unitIndex];
-                                        $member->aprt_no = $property_number;
-                                        $member->save();
-                                    }
-
-                                }
-                                // ------------ Complaints
-                                Complaint::whereIn('block_id', array_column($blockIdArray, $unitIndex))
-                                    ->chunk(100, function ($complaints) use ($blockIdArray, $blockKey, $unitIndex, $blockName, $property_floorArray, $property_typeArray, $property_number) {
-                                        foreach ($complaints as $complaint) {
-                                            $complaint->block_name = $blockName;
-                                            $complaint->floor_number = $property_floorArray[$blockKey][$unitIndex];
-                                            $complaint->unit_type = $property_typeArray[$blockKey][$unitIndex];
-                                            $complaint->aprt_no = $property_number;
-                                            $complaint->save();
-                                        }
-                                    });
-
-                                // ------------ SOS
-                                Sos::whereIn('block_id', array_column($blockIdArray, $unitIndex))
-                                    ->chunk(100, function ($sosRecords) use ($blockIdArray, $blockKey, $unitIndex, $property_floorArray, $property_typeArray, $property_number) {
-                                        foreach ($sosRecords as $sos) {
-                                            $sos->floor = $property_floorArray[$blockKey][$unitIndex];
-                                            $sos->unit_type = $property_typeArray[$blockKey][$unitIndex];
-                                            $sos->unit_no = $property_number;
-                                            $sos->save();
-                                        }
-                                    });
-
-                                // ------------ Trade Property (Rent/Sell)
-                                TradeProperty::whereIn('block_id', array_column($blockIdArray, $unitIndex))
-                                    ->chunk(100, function ($tradeProperties) use ($blockIdArray, $blockKey, $unitIndex, $property_floorArray, $property_typeArray, $property_number, $bhkArray, $unitSizeArray) {
-                                        foreach ($tradeProperties as $tradeProperty) {
-                                            $tradeProperty->floor = $property_floorArray[$blockKey][$unitIndex];
-                                            $tradeProperty->unit_type = $property_typeArray[$blockKey][$unitIndex];
-                                            $tradeProperty->unit_number = $property_number;
-                                            $tradeProperty->bhk = !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '';
-                                            $tradeProperty->area = !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '';
-                                            $tradeProperty->save();
-                                        }
-                                    });
-                            }
                         }
-                    } else {
-                        // dd($property_numberArray);
-                        //If block ID doesn't exist, create a new block
-                        // foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
-                        //     Block::create([
-                        //         'name' => $blockName,
-                        //         'total_floor' => $totalFloorsArray[$blockKey],
-                        //         'property_number' => $property_number,
-                        //         'floor' => $property_floorArray[$blockKey][$unitIndex],
-                        //         'unit_type' => $property_typeArray[$blockKey][$unitIndex],
-                        //         'ownership' => $ownershipArray[$blockKey][$unitIndex],
-                        //         'unit_size' => !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '',
-                        //         'bhk' => !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '',
-                        //         'society_id' => $societyId,
-                        //         'total_units' => 0,
-                        //     ]);
+                        // $blockIdsToKeep[] = $blockId;
                         // }
                     }
-                    // $blockIdsToKeep[] = $blockId;
+    
+                    // else {
+                    //     dd($property_numberArray);
+                    //     //Create new block if no IDs provided
+                    //     foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
+                    //         $newBlock = Block::create([
+                    //             'name' => $blockName,
+                    //             'total_floor' => $totalFloorsArray[$blockKey],
+                    //             'property_number' => $property_number,
+                    //             'floor' => $property_floorArray[$blockKey][$unitIndex],
+                    //             'unit_type' => $property_typeArray[$blockKey][$unitIndex],
+                    //             'ownership' => $ownershipArray[$blockKey][$unitIndex],
+                    //             'unit_size' => !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '',
+                    //             'bhk' => !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '',
+                    //             'society_id' => $societyId,
+                    //             'total_units' => 0,
+                    //         ]);
+    
+                    //
+                    //     }
                     // }
                 }
-
-                // else {
-                //     dd($property_numberArray);
-                //     //Create new block if no IDs provided
-                //     foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
-                //         $newBlock = Block::create([
-                //             'name' => $blockName,
-                //             'total_floor' => $totalFloorsArray[$blockKey],
-                //             'property_number' => $property_number,
-                //             'floor' => $property_floorArray[$blockKey][$unitIndex],
-                //             'unit_type' => $property_typeArray[$blockKey][$unitIndex],
-                //             'ownership' => $ownershipArray[$blockKey][$unitIndex],
-                //             'unit_size' => !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '',
-                //             'bhk' => !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '',
-                //             'society_id' => $societyId,
-                //             'total_units' => 0,
-                //         ]);
-
-                //
-                //     }
-                // }
             }
 
             // Step 5: Delete blocks that are no longer associated with the society
@@ -568,6 +575,19 @@ class SocietyController extends Controller
         }
     }
 
+    public function importFile(Request $request)
+    {
+        $societyId = $request->input('society_id');
+        $request->validate([
+            'importedFile' => 'required|mimes:csv,xlsx,xls|max:5048',
+        ]);
+
+        if ($request->hasFile('importedFile')) {
+            Excel::import(new SocietyImport($societyId), $request->file('importedFile'));
+        }
+
+        return back()->with('success', 'Members imported successfully.');
+    }
     public function destroy($id)
     {
         try {

@@ -86,7 +86,7 @@ jQuery(document).on('click', '.add_block_field', function(){
                                 <thead>
                                     <tr>
                                         <th>Property Number</th>
-                                        <th>Floor/Unit No.</th>
+                                        <th>Floor</th>
                                         <th>Property Type</th>
                                         <th class="d-none">Ownership</th>
                                         <th>Size (Sq.Yard) </th>
