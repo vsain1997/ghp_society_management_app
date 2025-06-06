@@ -485,17 +485,13 @@
                             <div class="tab-pane fade" id="societyTab2" role="tabpanel"
                                 aria-labelledby="societyTab2-tab">
                                <div class="memberBx">
-                                    <form action="{{ route($thisModule . '.society.import') }}" method="POST" enctype="multipart/form-data" >
-                                        @csrf
-                                        <div class="choosefile flex">
-                                            <div class="">
-                                                <!-- <label for="fileInput" class="form-label">Choose File</label> -->
-                                                <input class="form-control" type="file" id="fileInput" name="importedFile" accept=".csv, .xlsx, .xls, .txt" required>
-                                                <input type="hidden" name="society_id" id="society_id" value="{{ session('__selected_society__') }}">
-                                            </div>
-                                            <button type="submit" class="btn btn-success">Upload</button>
+                                    <div class="choosefile flex">
+                                        <div>
+                                            <input class="form-control" type="file" id="fileInput" accept=".csv, .xlsx, .xls, .txt" required>
+                                            <input type="hidden" id="society_id" value="{{ session('__selected_society__') }}">
                                         </div>
-                                    </form>                
+                                        <button id="uploadBtn" class="btn btn-success">Upload</button>
+                                    </div>                
                                 </div>
                                 <div class="block_wrapper">
                                     <div class="accordion" id="accordionBlock">
@@ -1794,6 +1790,42 @@
                                 toastr.error('Failed please try again.');
                             }
                         });
+                    }
+                });
+            });
+        });
+        $(document).ready(function () {
+            $('#uploadBtn').on('click', function (e) {
+                e.preventDefault();
+
+                var fileInput = $('#fileInput')[0].files[0];
+                if (!fileInput) {
+                    alert("Please select a file.");
+                    return;
+                }
+
+                var formData = new FormData();
+                formData.append('importedFile', fileInput);
+
+                $.ajax({
+                    url: "{{ route($thisModule . '.society.import') }}",
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function (response) {
+                        $('#accordionBlock').append();
+                        alert("File uploaded successfully.");
+                        console.log(response);
+                        $('#accordionBlock').html(response.html);
+                        // Optionally, refresh a part of the page or reset input
+                    },
+                    error: function (xhr) {
+                        alert("An error occurred while uploading the file.");
+                        console.error(xhr.responseText);
                     }
                 });
             });

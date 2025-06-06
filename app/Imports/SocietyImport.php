@@ -2,27 +2,49 @@
 
 namespace App\Imports;
 
-use App\Models\Society;
-use Maatwebsite\Excel\Concerns\ToModel;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\ToCollection;
-use App\Imports\MembersImport;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-
-
-class SocietyImport implements ToCollection, WithHeadingRow
+class SocietyImport implements ToCollection,WithHeadingRow
 {
-    /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
-    public function collection(Collection $rows)
+    public $data;
+   public function collection(Collection $rows)
     {
-        dd($rows);
+        $flattenedData = [];
+
+        foreach ($rows as $row) {
+            $blockName = trim($row['block_name'] ?? '');
+            $totalUnit = trim($row['total_unit'] ?? '');
+            $propertyDetailsRaw = trim($row['propery_details'] ?? '');
+
+            $properties = [];
+
+            // Separate each property line by line (split by newline)
+            $propertyLines = preg_split('/\r\n|\r|\n/', $propertyDetailsRaw);
+
+            foreach ($propertyLines as $line) {
+                $props = array_map('trim', explode(',', $line));
+
+                if (count($props) >= 5) {
+                    $properties[] = [
+                        'property_number' => $props[0],
+                        'floor'           => $props[1],
+                        'type'            => $props[2],
+                        'size'            => $props[3],
+                        'bhk'             => $props[4],
+                    ];
+                }
+            }
+
+            $flattenedData[] = [
+                'block_name'      => $blockName,
+                'total_unit'      => $totalUnit,
+                'property_number' => $properties,
+            ];
+        }
+
+        $this->data = collect($flattenedData);
     }
+
 }

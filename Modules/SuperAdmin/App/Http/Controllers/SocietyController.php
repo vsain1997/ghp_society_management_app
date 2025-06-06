@@ -8,13 +8,12 @@ use App\Models\Complaint;
 use App\Models\Member;
 use App\Models\SocietyContact;
 use App\Models\TradeProperty;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use App\Models\Society;
 use App\Models\Block;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SocietyController extends Controller
 {
@@ -122,7 +121,7 @@ class SocietyController extends Controller
             
             if($bnameArray){
                 foreach ($bnameArray as $blockKey => $blockName) {
-
+                    
                     foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
                         Block::create([
                             'name' => $blockName,
@@ -162,9 +161,9 @@ class SocietyController extends Controller
                 'status' => 'success',
                 'message' => 'Added successfully'
             ]);
-
+            // dd('eee');
+            
         } catch (\Exception $e) {
-            dd("catch");
             superAdminLog('error', 'Exception::', $e->getMessage());
             DB::rollBack();
             return redirect()->back()->with([
@@ -233,7 +232,6 @@ class SocietyController extends Controller
 
     public function update(Request $request, $societyId)
     {
-        // dd("update");
         $validator = Validator::make($request->all(), [
             'sname' => 'required|string|max:255',
             'location' => 'required|string|max:255',
@@ -281,7 +279,6 @@ class SocietyController extends Controller
         ]);
 
         if ($validator->fails()) {
-            dd("here");
             superAdminLog('error', $validator->errors()->first());
             return response()->json(
                 [
@@ -334,10 +331,11 @@ class SocietyController extends Controller
 
             $bnameArray = $request->input('bname');
             $blockIdArray = $request->input('block_id');
+           
             $totalUnitsArray = $request->input('totalUnits');
             $unitTypeArray = $request->input('unit_type');
             $unitQtyArray = $request->input('unit_qty');
-
+            
             $totalFloorsArray = $request->input('totalFloors');
             $property_numberArray = $request->input('property_number');
             $property_floorArray = $request->input('property_floor');
@@ -345,10 +343,9 @@ class SocietyController extends Controller
             $ownershipArray = $request->input('ownership');
             $unitSizeArray = $request->input('unit_size');
             $bhkArray = $request->input('bhk');
-
             $blockIdsToKeep = [];
             if($bnameArray){
-
+                
                 foreach ($bnameArray as $blockKey => $blockName) {
                     // Check if block IDs exist for this block
                     if (isset($blockIdArray[$blockKey])) {
@@ -357,10 +354,11 @@ class SocietyController extends Controller
                         // dd($blockIdArray[$blockKey]);
                         //Update existing blocks
                         // if (isset($existingBlocks[$blockId])) {
+                        
                         if (1 === 1) {
                             // Update for each unit type and its corresponding size and quantity
                             foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
-    
+
                                 // echo $unitIndex;
                                 // echo '--' . $property_number;
                                 // dd($property_numberArray[$blockKey]);
@@ -471,7 +469,7 @@ class SocietyController extends Controller
                         // $blockIdsToKeep[] = $blockId;
                         // }
                     }
-    
+                    
                     // else {
                     //     dd($property_numberArray);
                     //     //Create new block if no IDs provided
@@ -497,10 +495,13 @@ class SocietyController extends Controller
 
             // Step 5: Delete blocks that are no longer associated with the society
             $blockIdsToDelete = $existingBlocks->keys()->diff($blockIdsToKeep);
+
             // Block::destroy($blockIdsToDelete);
             Block::whereIn('id', $blockIdsToDelete)->delete();
             Block::whereIn('id', $blockIdsToDelete)->forceDelete();
-            superAdminLog('info', 'society updated');
+            superAdminLog('info', 'society updated');//
+
+            
 
             //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             // emergency conotacts
@@ -575,19 +576,148 @@ class SocietyController extends Controller
         }
     }
 
+  
+
     public function importFile(Request $request)
     {
-        $societyId = $request->input('society_id');
         $request->validate([
             'importedFile' => 'required|mimes:csv,xlsx,xls|max:5048',
         ]);
 
         if ($request->hasFile('importedFile')) {
-            Excel::import(new SocietyImport($societyId), $request->file('importedFile'));
+            $import = new SocietyImport();
+            Excel::import($import, $request->file('importedFile'));
+
+            $parsedHtml = '';
+            foreach ($import->data as $index => $block) {
+
+                $blockName = $block['block_name'] ?? '';
+                $totalUnit = $block['total_unit'] ?? '';
+                $propertyDetailsRaw = $block['property_number'] ?? '';
+                $propertyRows = '';
+                // Build property rows
+                foreach ($propertyDetailsRaw as $prop) {
+                   
+                    // BHK Options
+                    $bhkOptions = '';
+                    for ($i = 1; $i <= 5; $i++) {
+                        $selected = ($i . 'BHK' === $prop['bhk']) ? 'selected' : '';
+                        $bhkOptions .= "<option value=\"$i\" $selected>$i BHK</option>";
+                    }
+
+                    $typeOptions = '
+                        <option value="residential" ' . ($prop['type'] == 'resident' ? 'selected' : '') . '>Residential</option>
+                        <option value="commercial" ' . ($prop['type'] == 'commercial' ? 'selected' : '') . '>Commercial</option>
+                    ';
+
+                    $propertyRows .= "
+                        <tr>
+                            <td>
+                                <input type=\"hidden\" name=\"block_id[" . ($index + 1) . "][]\">
+                                <input type=\"text\" name=\"property_number[" . ($index + 1) . "][]\" class=\"block-field\" value=\"{$prop['property_number']}\">
+                            </td>
+                            <td>
+                                <input type=\"text\" name=\"property_floor[" . ($index + 1) . "][]\" class=\"block-field\" value=\"{$prop['floor']}\">
+                            </td>
+                            <td>
+                                <select name=\"property_type[" . ($index + 1) . "][]\" class=\"block-field\">
+                                    {$typeOptions}
+                                </select>
+                            </td>
+                            <td class=\"d-none\">
+                                <select name=\"ownership[" . ($index + 1) . "][]\" class=\"block-field\">
+                                    <option value=\"vacant\">Vacant</option>
+                                    <option value=\"occupied\">Occupied</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type=\"text\" name=\"unit_size[" . ($index + 1) . "][]\" class=\"block-field\" value=\"{$prop['size']}\">
+                            </td>
+                            <td>
+                                <select name=\"bhk[" . ($index + 1) . "][]\" class=\"block-field\">
+                                    {$bhkOptions}
+                                </select>
+                            </td>
+                            <td>
+                                <a href=\"javascript:void(0)\" class=\"btn btn-primary btn-sm add_property_row\">+</a>
+                            </td>
+                        </tr>
+                        ";
+
+                }
+
+                $parsedHtml .= "
+                    <div class=\"accordion-item\" data-serial=\"" . ($index + 1) . "\">
+                        <h2 class=\"accordion-header\" id=\"blockHeading" . ($index + 1) . "\">
+                            <button class=\"accordion-button\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#blockCollapse" . ($index + 1) . "\" aria-expanded=\"true\" aria-controls=\"blockCollapse" . ($index + 1) . "\">
+                                <span class=\"showBlockName\">$blockName</span>
+                            </button>
+                        </h2>
+                        <div id=\"blockCollapse" . ($index + 1) . "\" class=\"accordion-collapse collapse show\" aria-labelledby=\"blockHeading" . ($index + 1) . "\" data-bs-parent=\"#accordionBlock\">
+                            <div class=\"accordion-body\">
+                                <div class=\"block_fields\">
+                                    <div class=\"custom_form\">
+                                        <div class=\"form\">
+                                            <div class=\"row\">
+                                                <div class=\"col\">
+                                                    <div class=\"form-group\">
+                                                        <label>Tower Name/Block Name</label>
+                                                        <input type=\"text\" name=\"bname[" . ($index + 1) . "]\" class=\"form-control\" value=\"$blockName\">
+                                                    </div>
+                                                </div>
+                                                <div class=\"col\">
+                                                    <div class=\"form-group\">
+                                                        <label>Total Units</label>
+                                                        <input type=\"text\" name=\"totalFloors[" . ($index + 1) . "]\" class=\"form-control\" value=\"$totalUnit\">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=\"blocks_table\">
+                                        <div class=\"table-responsive\">
+                                            <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Property Number</th>
+                                                        <th>Floor</th>
+                                                        <th>Property Type</th>
+                                                        <th class=\"d-none\">Ownership</th>
+                                                        <th>Size (Sq.Yard)</th>
+                                                        <th>BHK</th>
+                                                        <th>&nbsp;</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id=\"tower_property_" . ($index + 1) . "\">
+                                                    $propertyRows
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan=\"7\">
+                                                            <button type=\"button\" class=\"deleteBlock btn btn-danger mt-2\" style=\"width:100%\">Delete</button>
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ";
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'html' => $parsedHtml,
+            ]);
         }
 
-        return back()->with('success', 'Members imported successfully.');
+        return back()->with('error', 'File upload failed');
     }
+
+
     public function destroy($id)
     {
         try {
