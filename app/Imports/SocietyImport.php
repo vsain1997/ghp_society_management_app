@@ -25,24 +25,24 @@ class SocietyImport implements ToCollection,WithHeadingRow
 
             foreach ($propertyLines as $line) {
                 $props = array_map('trim', explode(',', $line));
-
-                if (count($props) >= 5) {
+                if (count($props) <= 5) {
                     $properties[] = [
                         'property_number' => $props[0],
                         'floor'           => $props[1],
                         'type'            => $props[2],
                         'size'            => $props[3],
-                        'bhk'             => $props[4],
+                        'bhk'             => $props[4] ?? null,
                     ];
                 }
             }
-
+            
             $flattenedData[] = [
                 'block_name'      => $blockName,
                 'total_unit'      => $totalUnit,
                 'property_number' => $properties,
             ];
         }
+        // dd($flattenedData);
 
         $this->data = collect($flattenedData);
     }

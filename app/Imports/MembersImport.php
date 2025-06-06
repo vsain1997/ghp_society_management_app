@@ -43,10 +43,10 @@ class MembersImport implements ToCollection, WithHeadingRow
         }
         foreach ($rows as $row) {
             try {               
-                if (User::where('email', trim($row['e_mail']))->exists()) { 
-                    $user = User::where('email', trim($row['e_mail']))->first();
+                if (User::where('phone', trim($row['mobile']))->exists()) { 
+                    $user = User::where('phone', trim($row['mobile']))->first();
                 }else{
-                     $user = User::create([
+                    $user = User::create([
                         'name'     => trim($row['name_of_resident']),
                         'email'    => trim($row['e_mail']),
                         'phone'    => trim($row['mobile']),

@@ -585,24 +585,29 @@ class SocietyController extends Controller
         ]);
 
         if ($request->hasFile('importedFile')) {
+            $totalTower = $request->input('totalTower');
             $import = new SocietyImport();
             Excel::import($import, $request->file('importedFile'));
-
             $parsedHtml = '';
-            foreach ($import->data as $index => $block) {
-
+            $decodedData = json_decode($import->data, true);
+            $totalImportedTowers = count($decodedData);
+            $skippedTowers = $totalImportedTowers - $totalTower;
+            foreach (array_slice($decodedData, 0, $totalTower) as $index => $block) {
+                
                 $blockName = $block['block_name'] ?? '';
                 $totalUnit = $block['total_unit'] ?? '';
                 $propertyDetailsRaw = $block['property_number'] ?? '';
                 $propertyRows = '';
                 // Build property rows
                 foreach ($propertyDetailsRaw as $prop) {
-                   
+                
                     // BHK Options
                     $bhkOptions = '';
-                    for ($i = 1; $i <= 5; $i++) {
-                        $selected = ($i . 'BHK' === $prop['bhk']) ? 'selected' : '';
-                        $bhkOptions .= "<option value=\"$i\" $selected>$i BHK</option>";
+                    if($prop['bhk']){
+                        for ($i = 1; $i <= 5; $i++) {
+                            $selected = ($i . 'BHK' === $prop['bhk']) ? 'selected' : '';
+                            $bhkOptions .= "<option value=\"$i\" $selected>$i BHK</option>";
+                        }
                     }
 
                     $typeOptions = '
@@ -632,7 +637,7 @@ class SocietyController extends Controller
                             </td>
                             <td>
                                 <input type=\"text\" name=\"unit_size[" . ($index + 1) . "][]\" class=\"block-field\" value=\"{$prop['size']}\">
-                            </td>
+                            </td>                          
                             <td>
                                 <select name=\"bhk[" . ($index + 1) . "][]\" class=\"block-field\">
                                     {$bhkOptions}
@@ -706,11 +711,13 @@ class SocietyController extends Controller
                         </div>
                     </div>
                 ";
+                
             }
 
             return response()->json([
                 'status' => 'success',
                 'html' => $parsedHtml,
+                'skipped_towers' => $skippedTowers,
             ]);
         }
 

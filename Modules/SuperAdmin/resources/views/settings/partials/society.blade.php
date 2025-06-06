@@ -1797,7 +1797,7 @@
         $(document).ready(function () {
             $('#uploadBtn').on('click', function (e) {
                 e.preventDefault();
-
+                var totalTower = $(this).parent().parent().parent().parent().find("#totalTowers").val();
                 var fileInput = $('#fileInput')[0].files[0];
                 if (!fileInput) {
                     alert("Please select a file.");
@@ -1806,7 +1806,7 @@
 
                 var formData = new FormData();
                 formData.append('importedFile', fileInput);
-
+                formData.append('totalTower', totalTower);
                 $.ajax({
                     url: "{{ route($thisModule . '.society.import') }}",
                     type: 'POST',
@@ -1818,7 +1818,14 @@
                     },
                     success: function (response) {
                         $('#accordionBlock').append();
-                        alert("File uploaded successfully.");
+                        Swal.fire({
+                            title: 'Upload Successful',
+                            text: response.skipped_towers > 0 
+                                ? `${response.skipped_towers} tower(s) were skipped.` 
+                                : 'All towers processed successfully.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
                         console.log(response);
                         $('#accordionBlock').html(response.html);
                         // Optionally, refresh a part of the page or reset input
