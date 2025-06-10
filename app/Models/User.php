@@ -58,6 +58,8 @@ class User extends Authenticatable
         'otp_verified_at' => 'datetime',
     ];
 
+
+
     protected $appends = ['member_id', 'society_id', 'staff_id', 'image_url', 'last_checkin_detail'];
 
     public function getMemberIdAttribute()

@@ -31,6 +31,19 @@
                             <div class="filter-box">
                                 <input type="hidden" name="sid" value="{{ session('__selected_society__') }}">
                                 <div class="filter-secl">
+                                    <select name="property_number" id="property_number" class="property_number form-select form-control">
+                                        <option value="">--select Propery--</option>
+                                         @if (!empty($societyResidents))
+                                            @foreach ($societyResidents as $resident)
+                                                <option 
+                                                    data-block="{{ $resident->block_name }}"
+                                                    data-aprtNo="{{ $resident->aprt_no }}" value="{{ $resident->aprt_no }}" {{ request('property_number') == $resident->aprt_no ? 'selected' : '' }}>{{ $resident->aprt_no }}</option>                                                 
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <span class="text-primary err" id="aprtNoShowData"></span>
+                                </div>
+                                <div class="filter-secl">
                                     <select name="user_id" id="user_id2" class="residentsList form-select form-control">
                                         <option value="">--select Resident--</option>
                                         @if (!empty($societyResidents))
@@ -69,6 +82,8 @@
                                 <button type="submit" class="bg_theme_btn">
                                     Filter
                                 </button>
+                                <a href="{{ route($thisModule . '.billing.index') }}" class="resetbtn" style="font-size: 18px; background: #6459cc; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
+
                             </div>
                         </div>
                     </form>
@@ -80,6 +95,7 @@
                         <tr>
                             <th class="text-center">Member</th>
                             <th class="text-center">Bill Type</th>
+                            <th class="text-center">Property Number</th>
                             <th class="text-center">Service</th>
                             <th class="text-center">Amount</th>
                             <th class="text-center">Due Date</th>
@@ -120,6 +136,7 @@
                                             {{ Str::ucfirst(str_replace('_', ' ', $billing->bill_type)) }}
                                         @endif
                                     </td>
+                                    <td class="text-center py-2">{{ $billing->member ? $billing->member->aprt_no : '-' }}</td>
                                     <td class="text-center py-2">{{ $billing->service->name }}</td>
                                     <td class="text-center py-2">{{ $billing->amount }}</td>
                                     <td class="text-center py-2">

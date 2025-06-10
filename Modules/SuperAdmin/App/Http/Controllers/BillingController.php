@@ -43,12 +43,13 @@ class BillingController extends Controller
                 ->where('members.status', 'active')
                 ->where('members.society_id', $selectedSociety)
                 ->get();
-
+            // dd($societyResidents);
             // get $billServices
             $billServices = BillService::all();
 
             $status = $request->input(key: 'status', default: 'unpaid');
             $search = $request->input(key: 'search', default: '');
+            $property_number = $request->input(key: 'property_number', default: '');
             $search_col = $request->input(key: 'search_for', default: '');
 
             $bills = Bill::with('user', 'service','member')
@@ -59,6 +60,11 @@ class BillingController extends Controller
                 ->when($search, function ($query) use ($search) {
                     return $query->whereHas('user', function ($q) use ($search) {
                         $q->where('name', 'LIKE', '%' . $search . '%');
+                    });
+                })
+                ->when($property_number, function ($query) use ($property_number) {
+                    $query->whereHas('member', function ($q) use ($property_number) {
+                        $q->where('aprt_no', 'LIKE', '%' . $property_number . '%');
                     });
                 })
                 ->where('society_id', $selectedSociety);

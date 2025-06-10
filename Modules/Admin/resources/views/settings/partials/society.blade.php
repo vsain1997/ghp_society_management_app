@@ -55,6 +55,8 @@
                                     </svg> --}}
                             Filter
                         </button>
+                        <a href="{{ route($thisModule . '.settings') }}" class="resetbtn" style="font-size: 18px; background: #6459cc; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
+
                     </div>
                 </div>
             </form>

@@ -14,6 +14,7 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 use Spatie\Permission\Models\Role;
@@ -52,7 +53,7 @@ class MembersImport implements ToCollection, WithHeadingRow
                         'phone'    => trim($row['mobile']),
                         'role'     => trim($row['role']),
                         'status'   => 'active',
-                        'password' => bcrypt('12345678'),
+                        'password' => Hash::make('12345678'),
                     ]);
                 } 
 

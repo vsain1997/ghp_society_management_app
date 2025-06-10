@@ -47,25 +47,39 @@ class BillingController extends Controller
                 $selectedSociety = auth()->user()->member->society_id;
             }
             //get all society residents
-            $societyResidents = Member::select('members.user_id', 'members.name', 'members.aprt_no', 'members.floor_number', 'members.unit_type', 'members.phone', 'blocks.name as block_name')
+            // $societyResidents = Member::select('members.user_id', 'members.name', 'members.aprt_no', 'members.floor_number', 'members.unit_type', 'members.phone', 'blocks.name as block_name')
+            //     ->join('blocks', 'members.block_id', '=', 'blocks.id')
+            //     ->where('members.status', 'active')
+            //     ->where('members.role', 'resident')
+            //     ->where('members.society_id', $selectedSociety)
+            //     ->get();
+
+                $societyResidents = Member::select('members.user_id', 'members.name', 'members.aprt_no', 'members.floor_number', 'members.unit_type', 'members.phone', 'blocks.name as block_name')
                 ->join('blocks', 'members.block_id', '=', 'blocks.id')
                 ->where('members.status', 'active')
-                ->where('members.role', 'resident')
                 ->where('members.society_id', $selectedSociety)
                 ->get();
-
             // get $billServices
             $billServices = BillService::all();
 
             $status = $request->input(key: 'status', default: 'unpaid');
             $search = $request->input(key: 'search', default: '');
             $search_col = $request->input(key: 'search_for', default: '');
+            $property_number = $request->input(key: 'property_number', default: '');
 
-            $bills = Bill::with('user', 'service')
+            $bills = Bill::with('user', 'service','member')
                 ->searchByStatus($status)
+                // ->when($search && $search_col, function ($query) use ($search, $search_col) {
+                //     return $query->where($search_col, 'LIKE', '%' . $search . '%');
+                // })
                 ->when($search, function ($query) use ($search) {
                     return $query->whereHas('user', function ($q) use ($search) {
                         $q->where('name', 'LIKE', '%' . $search . '%');
+                    });
+                })
+                ->when($property_number, function ($query) use ($property_number) {
+                    $query->whereHas('member', function ($q) use ($property_number) {
+                        $q->where('aprt_no', 'LIKE', '%' . $property_number . '%');
                     });
                 })
                 ->where('society_id', $selectedSociety);

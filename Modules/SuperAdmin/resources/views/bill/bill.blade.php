@@ -27,6 +27,19 @@
                             <div class="filter-box">
                                 <input type="hidden" name="sid" value="{{ session('__selected_society__') }}">
                                 <div class="filter-secl">
+                                    <select name="property_number" id="property_number" class="property_number form-select form-control">
+                                        <option value="">--select Propery--</option>
+                                         @if (!empty($societyResidents))
+                                            @foreach ($societyResidents as $resident)
+                                                <option 
+                                                    data-block="{{ $resident->block_name }}"
+                                                    data-aprtNo="{{ $resident->aprt_no }}" value="{{ $resident->aprt_no }}" {{ request('property_number') == $resident->aprt_no ? 'selected' : '' }}>{{ $resident->aprt_no }}</option>                                                 
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <span class="text-primary err" id="aprtNoShowData"></span>
+                                </div>
+                                <div class="filter-secl">
                                     <select name="user_id" id="user_id2" class="residentsList form-select form-control">
                                         <option value="">--select Resident--</option>
                                         @if (!empty($societyResidents))
@@ -63,6 +76,8 @@
                                 <button type="submit" class="bg_theme_btn">
                                     Filter
                                 </button>
+                                <a href="{{ route($thisModule . '.billing.index') }}" class="resetbtn" style="font-size: 18px; background: #6459cc; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
+
                             </div>
                         </div>
                     </form>
@@ -132,7 +147,7 @@
                                         @endphp
                                         <input type="hidden" name="statusVal" value="{{ parseStatus($stts, 0) }}">
                                         @if ($billing->status == 'unpaid')
-                                            <div class="form-check form-switch d-flex justify-content-center{{ $billing->id }}">
+                                            <div class="form-check form-switch d-flex justify-content-center {{ $billing->id }}">
                                                 <input class="form-check-input" id="collect_payment_toggle" type="checkbox" role="switch" {{ $billing->status == 'unpaid' ? '' : 'checked' }} style="border-radius: 10px !important; width: 30px" data-modal="collectCashPayment" data-target="{{ route('superadmin.billing.collect.cash.payment', ['id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
                                             </div>
 

@@ -109,6 +109,8 @@ Route::prefix('superadmin')->name('superadmin.')->middleware('auth.superadmin')-
         Route::get('/edit/{id}', [SocietyController::class, 'edit'])->name('edit');
          Route::post('/import', [SocietyController::class, 'importFile'])->name('import');
         Route::post('/edit/{id}', [SocietyController::class, 'update'])->name('update');
+        Route::post('/example/{id}', [SocietyController::class, 'example'])->name('example');
+
         Route::delete('/delete/{id}', [SocietyController::class, 'destroy'])->name('delete');
         Route::post('/status-change/{id}/{status}', [SocietyController::class, 'changeStatus'])->name('status.change');
         Route::get('/properties', [SocietyController::class, 'memberList'])->name('resident_unit.index');

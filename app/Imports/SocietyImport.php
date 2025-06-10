@@ -9,42 +9,39 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class SocietyImport implements ToCollection,WithHeadingRow
 {
     public $data;
-   public function collection(Collection $rows)
-    {
-        $flattenedData = [];
+    public function collection(Collection $rows){
+    $groupedData = [];
 
-        foreach ($rows as $row) {
-            $blockName = trim($row['block_name'] ?? '');
-            $totalUnit = trim($row['total_unit'] ?? '');
-            $propertyDetailsRaw = trim($row['propery_details'] ?? '');
+    foreach ($rows as $row) {
+        $blockName = trim($row['block_name'] ?? '');
+        if (!$blockName) continue; // skip if block name is empty
 
-            $properties = [];
-
-            // Separate each property line by line (split by newline)
-            $propertyLines = preg_split('/\r\n|\r|\n/', $propertyDetailsRaw);
-
-            foreach ($propertyLines as $line) {
-                $props = array_map('trim', explode(',', $line));
-                if (count($props) <= 5) {
-                    $properties[] = [
-                        'property_number' => $props[0],
-                        'floor'           => $props[1],
-                        'type'            => $props[2],
-                        'size'            => $props[3],
-                        'bhk'             => $props[4] ?? null,
-                    ];
-                }
-            }
-            
-            $flattenedData[] = [
-                'block_name'      => $blockName,
-                'total_unit'      => $totalUnit,
-                'property_number' => $properties,
+        // Prepare property detail
+            $property = [
+                'property_number' => trim($row['property_number'] ?? ''),
+                'floor'           => trim($row['floor'] ?? ''),
+                'type'            => trim($row['type'] ?? ''),
+                'area'            => trim($row['area'] ?? ''),
+                'bhk'             => trim($row['bhk'] ?? ''),
             ];
-        }
-        // dd($flattenedData);
 
+            // Initialize block if not already
+            if (!isset($groupedData[$blockName])) {
+                $groupedData[$blockName] = [
+                    'block_name' => $blockName,
+                    'properties' => [],
+                ];
+            }
+
+            // Append property to the respective block
+            $groupedData[$blockName]['properties'][] = $property;
+        }
+        // Optional: Re-index the array (if you want a clean list instead of associative keys)
+        $flattenedData = array_values($groupedData);
+
+        // Store the flattened data into the class property
         $this->data = collect($flattenedData);
     }
+
 
 }

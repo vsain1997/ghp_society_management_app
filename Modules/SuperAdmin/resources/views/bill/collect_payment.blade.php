@@ -8,9 +8,9 @@
         <div class="row my-3">
             <div class="col-md-6" id="payment_mood">
                 <div class="form-group d-flex flex-column">
-                    <label class="form-check-label" for="payment_mood">Payment Mood <span class="text-danger">*</span></label>
+                    <label class="form-check-label" for="payment_mood">Payment Mode <span class="text-danger">*</span></label>
                     <select name="payment_mood" id="payment_mood" class="form-select form-control select2" required>
-                        <option value="">-- Select Resident *--</option>
+                        <option value="">-- Payment Mode *--</option>
                         <option value="cash">CASH</option>
                         <option value="neft">NEFT</option>
                         <option value="cheque">Cheque</option>

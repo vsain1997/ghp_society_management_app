@@ -4,23 +4,17 @@ namespace Modules\SuperAdmin\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Imports\MembersImport;
-use Illuminate\Http\RedirectResponse;
+
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use App\Models\Society;
 use App\Models\Block;
 use App\Models\Member;
 use App\Models\MemberDailyHelpStaff;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Exception;
 use Illuminate\Support\Facades\Validator;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Spatie\Permission\Models\Role;
 
 class MemberController extends Controller
 {
@@ -258,17 +252,22 @@ class MemberController extends Controller
     //Import file data
      public function importFile(Request $request)
     {
-        $societyId = $request->input('society_id');
         $request->validate([
-            'importedFile' => 'required|mimes:csv,xlsx,xls|max:5048',
+            'importedFile' => 'required|file|mimes:xlsx,xls,csv|max:2048',
         ]);
 
-        if ($request->hasFile('importedFile')) {
+        try {
+            $societyId = $request->input('society_id');
             Excel::import(new MembersImport($societyId), $request->file('importedFile'));
-        }
 
-        return back()->with('success', 'Members imported successfully.');
+            return back()->with('success', 'Members imported successfully.');
+        } catch (Exception $e) {
+            dd($e->getMessage());
+            return back()->with('error', 'Import failed: ' . $e->getMessage());
+        }
     }
+
+
 
     public function edit($id)
     {

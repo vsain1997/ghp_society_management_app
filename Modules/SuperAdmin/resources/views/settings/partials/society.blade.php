@@ -60,7 +60,7 @@
                                     </svg> --}}
                             Filter
                         </button>
-                        <a href="{{ route($thisModule . '.settings') }}" class="resetbtn" style="font-size: 18px; background: #4b40b5; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
+                        <a href="{{ route($thisModule . '.settings') }}" class="resetbtn" style="font-size: 18px; background: #6459cc; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
 
                     </div>
                 </div>
@@ -1818,15 +1818,8 @@
                     },
                     success: function (response) {
                         $('#accordionBlock').append();
-                        Swal.fire({
-                            title: 'Upload Successful',
-                            text: response.skipped_towers > 0 
-                                ? `${response.skipped_towers} tower(s) were skipped.` 
-                                : 'All towers processed successfully.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        });
-                        console.log(response);
+                        
+                        // console.log(response.html);
                         $('#accordionBlock').html(response.html);
                         // Optionally, refresh a part of the page or reset input
                     },

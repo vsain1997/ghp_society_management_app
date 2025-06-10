@@ -121,19 +121,16 @@ Route::prefix('admin')->name('admin.')->middleware('auth.admin')->group(function
 
     //visitor
     Route::prefix('visitor')->name('visitor.')->group(function () {
-
         Route::get('/', [VisitorController::class, 'index'])->name('index');
         Route::get('/details/{id}', [VisitorController::class, 'show'])->name('details');
     });
     Route::prefix('visitor-other')->name('visitor-other.')->group(function () {
-
         Route::get('/', [VisitorController::class, 'indexOtherVisitor'])->name('index');
         Route::get('/details/{id}', [VisitorController::class, 'showOtherVisitor'])->name('details');
     });
 
     //event
     Route::prefix('event')->name('event.')->group(function () {
-
         Route::get('/', [EventController::class, 'index'])->name('index');
         Route::post('/create', [EventController::class, 'store'])->name('store');
         Route::get('/details/{id}', [EventController::class, 'show'])->name('details');
