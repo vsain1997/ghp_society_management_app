@@ -126,6 +126,8 @@ Route::prefix('superadmin')->name('superadmin.')->middleware('auth.superadmin')-
         Route::get('/', [MemberController::class, 'index'])->name('index');
         Route::post('/create', [MemberController::class, 'store'])->name('store');
         Route::post('/import', [MemberController::class, 'importFile'])->name('import');
+        Route::post('/import-members', [MemberController::class, 'importMembers'])->name('import.excel');
+
         // Route::get('/show/{id}', [MemberController::class, 'show'])->name('show');
         Route::get('/details/{id}', [MemberController::class, 'show'])->name('details');
         Route::get('/edit/{id}', [MemberController::class, 'edit'])->name('edit');

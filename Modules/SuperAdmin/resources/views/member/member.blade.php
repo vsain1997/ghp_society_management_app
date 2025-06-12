@@ -11,7 +11,7 @@
                 <p>Add or manage members of the society</p>
             </div>
             <div class="memberBx">
-                <form action="{{ route($thisModule . '.member.import') }}" method="POST" enctype="multipart/form-data" >
+                <form action="{{ route($thisModule . '.member.import.excel') }}" method="POST" enctype="multipart/form-data" >
                     @csrf
                     <div class="choosefile flex">
                         <div class="">

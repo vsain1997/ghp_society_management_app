@@ -474,7 +474,9 @@ span.date-plac.none-plac,span.none-plac.time-plac { display: block; }
     vertical-align: middle;
 }
 
-
+.table_bottom_box span svg {
+    width: 30px;
+}
 
 /* Responsive */
 @media (max-width: 1399px){

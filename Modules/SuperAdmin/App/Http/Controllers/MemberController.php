@@ -74,7 +74,7 @@ class MemberController extends Controller
                 // Apply dynamic column search
                 return $query->where($search_col, 'LIKE', '%' . $search . '%');
             })
-            ->when($tower,function($query) use ($tower) {
+            ->when($tower, function ($query) use ($tower) {
                 // Apply tower filter
                 return $query->whereHas('block', function ($q) use ($tower) {
                     $q->where('name', 'LIKE', '%' . $tower . '%');
@@ -156,7 +156,7 @@ class MemberController extends Controller
 
             superAdminLog('info', 'start::user created');
             //get block info
-            $blockInfo = Block::find($request->input('aprt_no'));//dont be confuse , it is block id
+            $blockInfo = Block::find($request->input('aprt_no')); //dont be confuse , it is block id
 
             // create member
             $member = new Member();
@@ -187,7 +187,7 @@ class MemberController extends Controller
                 $adminPermissions = $adminRole->permissions;
 
                 // Assign all permissions of the 'admin' role directly to the user
-                $user->syncPermissions($adminPermissions);//seeder is Used
+                $user->syncPermissions($adminPermissions); //seeder is Used
             }
 
             // =================================================
@@ -250,7 +250,23 @@ class MemberController extends Controller
 
 
     //Import file data
-     public function importFile(Request $request)
+    public function importMembers(Request $request)
+    {
+        $request->validate([
+            'importedFile' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+        ]);
+
+        try {
+            $societyId = $request->input('society_id');
+            Excel::import(new MembersImport($societyId), $request->file('importedFile'));
+
+            return back()->with('success', 'Members imported successfully.');
+        } catch (Exception $e) {
+            dd($e->getMessage());
+            return back()->with('error', 'Import failed: ' . $e->getMessage());
+        }
+    }
+    public function importFile(Request $request)
     {
         $request->validate([
             'importedFile' => 'required|file|mimes:xlsx,xls,csv|max:2048',
@@ -285,7 +301,6 @@ class MemberController extends Controller
                 'status' => 'success',
                 'data' => $member
             ]);
-
         } catch (Exception $e) {
             // 'error' => $e->getMessage(),
             return response()->json([
@@ -341,7 +356,7 @@ class MemberController extends Controller
                     // Remove the 'admin' role from the user
                     $user->removeRole('admin');
                     // Revoke all permissions assigned to the user
-                    $user->syncPermissions([]);//seeder is Used
+                    $user->syncPermissions([]); //seeder is Used
                     // =================================================
                     // delete old notification settings
                     DB::table('notification_settings')
@@ -364,7 +379,6 @@ class MemberController extends Controller
                     if (!empty($insertDefaultNotification)) {
                         DB::table('notification_settings')->insert($insertDefaultNotification);
                     }
-
                 } elseif ($previousRole == 'resident' && $changeRequestRole == 'admin') {
                     // Assign the 'admin' role to the user
                     $user->assignRole('admin');
@@ -374,7 +388,7 @@ class MemberController extends Controller
                     $adminPermissions = $adminRole->permissions;
 
                     // Assign all permissions of the 'admin' role directly to the user
-                    $user->syncPermissions($adminPermissions);//seeder is Used
+                    $user->syncPermissions($adminPermissions); //seeder is Used
 
                     // =================================================
                     // delete old notification settings
@@ -431,7 +445,6 @@ class MemberController extends Controller
                             'phone' => $request->input('phone'),
                             'role' => $request->input('role'),
                         ]);
-
                     } else {
 
                         $user->update([
@@ -441,7 +454,6 @@ class MemberController extends Controller
                             'role' => $request->input('role'),
                         ]);
                     }
-
                 } else {
 
                     $user->update([

@@ -150,18 +150,23 @@
                     </tr>
                     @endif
                 </tbody>
-            </table>
+            </table>           
+            </div>
             <div class="table_bottom_box">
                 {{-- Pagination Links --}}
-                {{-- <div class="d-flex justify-content-between p-2 mt-2 mb-2">
-                    <div>
-                        Showing {{ $datas->firstItem() }} to {{ $datas->lastItem() }} of
-                        {{ $datas->total() }} results
-                    </div>
-                    <div>
-                    </div>
-                </div> --}}
+                <div class="d-flex justify-content-between p-2 mt-2 mb-2">
+                    @if ($datas && !$datas->isEmpty())
+                        <div>
+                            Showing {{ $datas->firstItem() }} to {{ $datas->lastItem() }} of
+                            {{ $datas->total() }} results
 
+                        </div>
+                        <div>
+                            {{ $datas->links('vendor.pagination.bootstrap-5') }}
+                        </div>
+                    @endif
+
+                </div>
             </div>
         </div>
     </div>

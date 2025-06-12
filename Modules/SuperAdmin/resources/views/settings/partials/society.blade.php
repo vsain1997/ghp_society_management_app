@@ -508,15 +508,17 @@
                                             <div class="col text-end">
                                                 <button type="button" class="border_theme_btn cancel_btn"
                                                     data-bs-dismiss="modal">Close</button>
-                                                <button type="button" data-type="add"
-                                                    class="societyAddForm1 bg_theme_btn next_btn">Next</button>
+                                                <!-- <button type="button" data-type="add"
+                                                    class="societyAddForm1 bg_theme_btn next_btn">Next</button> -->
+                                                    <button type="button" data-formtype="add" id="societyAddForm2"
+                                                    class="bg_theme_btn">Save And Publish</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="societyTab2" role="tabpanel"
-                                aria-labelledby="societyTab2-tab">
+                            <!-- <div class="tab-pane fade" id="societyTab2" role="tabpanel"
+                                aria-labelledby="societyTab2-tab"> -->
                                <!-- <div class="memberBx">
                                     <div class="choosefile flex">
                                         <div>
@@ -526,7 +528,7 @@
                                         <button id="uploadBtn" class="btn btn-success">Upload</button>
                                     </div>                
                                 </div> -->
-                                <div class="block_wrapper">
+                                <!-- <div class="block_wrapper">
                                     <div class="accordion" id="accordionBlock">
                                         <div class="accordion-item" data-serial="1">
                                             <h2 class="accordion-header" id="blockHeading1">
@@ -681,7 +683,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </form>

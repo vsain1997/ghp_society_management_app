@@ -97,6 +97,7 @@ class SocietyImport implements ToCollection,WithHeadingRow
 
     // Store in session
     session()->put('import_response', $responseData);
+    return response()->json(['data'=>1]);
 
 }
 }

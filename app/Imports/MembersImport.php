@@ -35,167 +35,169 @@ class MembersImport implements ToCollection, WithHeadingRow
 
     protected $errors = [];
 
+    
+    public function chunkSize(): int
+    {
+        return 100; // Adjust based on memory capacity
+    }
 
     public function collection(Collection $rows)
-    {    
+    {
         $society = Society::find($this->society_id);
-        if($society == null){
-            return response()->json(['error' => 'Society not found'], 404);
+        if (!$society) {
+            return;
         }
-        foreach ($rows as $row) {
-            try {               
-                if (User::where('phone', trim($row['mobile']))->exists()) { 
+        // dd();`
+        
+        // Process rows in chunks
+        $rows->chunk($this->chunkSize())->each(function ($chunk) use ($society) {
+            DB::beginTransaction();
+            try {
+                foreach ($chunk as $row) {
+                    // Handle User creation or fetching
                     $user = User::where('phone', trim($row['mobile']))->first();
-                }else{
-                    $user = User::create([
-                        'name'     => trim($row['name_of_resident']),
-                        'email'    => trim($row['e_mail']),
-                        'phone'    => trim($row['mobile']),
-                        'role'     => trim($row['role']),
-                        'status'   => 'active',
-                        'password' => Hash::make('12345678'),
-                    ]);
-                } 
+                    if (!$user) {
+                        $user = User::create([
+                            'name'     => trim($row['name_of_resident']),
+                            'email'    => trim($row['e_mail']) ?? null,
+                            'phone'    => trim($row['mobile']),
+                            'role'     => trim($row['role']),
+                            'status'   => 'active',
+                            'password' => '123456',
+                        ]);
+                    }
 
-                $block = Block::where('society_id', $society->id)
-                ->where('name', trim($row['block']))
-                ->where('property_number', trim($row['property_number']))
-                ->first();
-                if (!$block) {
-                    continue;
-                }
-                
-                $memberExists = Member::where('block_id', $block->id)->exists();
-                if ($memberExists) { 
-                    continue;
-                }
-                superAdminLog('info', 'start::user created');    
-                $due_date = Carbon::createFromFormat('d/m/Y', trim($row['due_date']))->format('Y-m-d');
-                $member = new Member();
-                $member->name = trim($row['name_of_resident']);
-                $member->role = trim($row['role']);
-                $member->phone = trim($row['mobile']);
-                $member->email = trim($row['e_mail']);
-                $member->user_id = $user->id;
-                $member->society_id = $society->id;
-                $member->block_id = $block->id;
-                $member->floor_number = $block->floor;
-                $member->unit_type = $block->unit_type;
-                $member->aprt_no = $block->property_number;
-                $member->ownership_type = trim($row['ownership']);
-                $member->maintenance_bill = trim($row['due']);
-                $member->maintenance_bill_due_date = $due_date ?? null;
-  
-                if($member->save()){
-                    Log::info('Inserted member', $member->toArray());
-
-                    _dLog(eventType: 'info', activityName: 'Bill Creation Started', description: 'Starting the process of creating a new bill');
-                    DB::beginTransaction();
-                    $isBillExist = Bill::where('society_id', $society->id)
-                    ->where('member_id',$member->id)
-                        ->where('user_id', $user->id)
-                        ->whereMonth('due_date', date('m', strtotime($due_date)))
-                        ->whereNull('deleted_at')
+                    // Find Block
+                    $block = Block::where('society_id', $society->id)
+                        ->where('name', trim($row['block']))
+                        ->where('property_number', trim($row['property_number']))
                         ->first();
 
-                    if ($isBillExist) {
-                        $isBillExist->update([
-                            'amount' => trim($row['due']),
-                            'due_date' => $due_date,
-                        ]);
-                        $bill = $isBillExist;
-                    } else {
-                        $bill = Bill::create([
-                            'user_id'     => $user->id,
-                            'amount'      => trim($row['due']),
-                            'due_date'    => $due_date,
-                            'status'      => 'unpaid',
-                            'created_by'  => auth()->id(),
-                            'service_id'  => 2, // Assuming 2 is Maintenance Service
-                            'society_id'  => $society->id,
-                            'member_id'   => $member->id,
-                            'created_at'  => now(),
-                            'updated_at'  => now(),
-                        ]);
+                    if (!$block) {
+                        continue;
                     }
 
-                    
-                    $this->sendBillNotification((object) $bill);
-                    $canSend = canSendMessage('whatsapp_message');
-                    if ($canSend['status']) {
-                        SendWhatsappMessage::dispatch($bill, 'new_bill_create');
+                    // Skip if member already exists
+                    if (Member::where('block_id', $block->id)->exists()) {
+                        continue;
                     }
-                }
-                
-                if ($user->role == 'admin') {
-                    // Assign the 'admin' role to the user
-                    $user->assignRole('admin');
 
-                    // Fetch all permissions assigned to the 'admin' role
-                    $adminRole = Role::findByName('admin');
-                    $adminPermissions = $adminRole->permissions;
+                    $due_date = Carbon::createFromFormat('d/m/Y', trim($row['due_date']))->format('Y-m-d');
 
-                    // Assign all permissions of the 'admin' role directly to the user
-                    $user->syncPermissions($adminPermissions);//seeder is Used
-                }
+                    // Create Member
+                    $member = new Member();
+                    $member->name = trim($row['name_of_resident']);
+                    $member->role = trim($row['role']);
+                    $member->phone = trim($row['mobile']);
+                    $member->email = trim($row['e_mail']) ?? '';
+                    $member->user_id = $user->id;
+                    $member->society_id = $society->id;
+                    $member->block_id = $block->id;
+                    $member->floor_number = $block->floor;
+                    $member->unit_type = $block->unit_type;
+                    $member->aprt_no = $block->property_number;
+                    $member->ownership_type = trim($row['ownership']);
+                    $member->maintenance_bill = trim($row['due']);
+                    $member->maintenance_bill_due_date = $due_date ?? null;
+                    $member->save();
 
-                // =================================================
-                // save notification defaults values
-                // resident app for resident + admin role
-                $insertDefaultNotification = [];
-                $residentAppNotifications = config('notification_settings.resident_app');
-                foreach ($residentAppNotifications as $defaultSettingName) {
-                    $insertDefaultNotification[] = [
-                        'name' => $defaultSettingName,
-                        'status' => 'enabled',
-                        'user_of_system' => 'app',
-                        'user_id' => $user->id,
-                        'role' => $user->role,
-                        'society_id' => $society->id
-                    ];
-                }
-                if (!empty($insertDefaultNotification)) {
-                    DB::table('notification_settings')->insert($insertDefaultNotification);
-                }
+                    // Create or update Bill
+                    if ($member->save()) {
 
-                if ($user->role == 'admin') {
-                    //for admin panel notification settings
-                    $residentAppNotifications = config('notification_settings.admin_panel');
-                    $insertDefaultNotificationPanel = [];
-                    foreach ($residentAppNotifications as $defaultSettingName) {
-                        $insertDefaultNotificationPanel[] = [
-                            'name' => $defaultSettingName,
-                            'status' => 'enabled',
-                            'user_of_system' => 'panel',
-                            'user_id' => $user->id,
-                            'role' => $user->role,
-                            'society_id' => $society->id
+                        Log::info('Inserted member', $member->toArray());
+
+                        _dLog(eventType: 'info', activityName: 'Bill Creation Started', description: 'Starting the process of creating a new bill');
+
+                        $isBillExist = Bill::where('society_id', $society->id)
+                            ->where('member_id', $member->id)
+                            ->where('user_id', $user->id)
+                            ->whereMonth('due_date', date('m', strtotime($due_date)))
+                            ->whereNull('deleted_at')
+                            ->first();
+
+                        if ($isBillExist) {
+                            $isBillExist->update([
+                                'amount' => trim($row['due']),
+                                'due_date' => $due_date,
+                            ]);
+                            $bill = $isBillExist;
+                        } else {
+                            $bill = Bill::create([
+                                'user_id'     => $user->id,
+                                'amount'      => trim($row['due']),
+                                'due_date'    => $due_date,
+                                'status'      => 'unpaid',
+                                'created_by'  => auth()->id(),
+                                'service_id'  => 2, // Assuming 2 is Maintenance Service
+                                'society_id'  => $society->id,
+                                'member_id'   => $member->id,
+                                'created_at'  => now(),
+                                'updated_at'  => now(),
+                            ]);
+                        }
+
+                        $this->sendBillNotification((object) $bill);
+
+                        $canSend = canSendMessage('whatsapp_message');
+                        if ($canSend['status']) {
+                            SendWhatsappMessage::dispatch($bill, 'new_bill_create');
+                        }
+                        // dd($bill);         
+
+                    }
+
+                    // Assign role if admin
+                    if ($user->role == 'admin') {
+                        $user->assignRole('admin');
+                        $adminRole = Role::findByName('admin');
+                        $user->syncPermissions($adminRole->permissions);
+                    }
+
+                    // Save notification settings
+                    $insertDefaultNotification = [];
+                    $residentNotifications = config('notification_settings.resident_app');
+                    foreach ($residentNotifications as $setting) {
+                        $insertDefaultNotification[] = [
+                            'name'           => $setting,
+                            'status'         => 'enabled',
+                            'user_of_system' => 'app',
+                            'user_id'        => $user->id,
+                            'role'           => $user->role,
+                            'society_id'     => $society->id
                         ];
                     }
-                    if (!empty($insertDefaultNotificationPanel)) {
-                        DB::table('notification_settings')->insert($insertDefaultNotificationPanel);
+
+                    if (!empty($insertDefaultNotification)) {
+                        DB::table('notification_settings')->insert($insertDefaultNotification);
+                    }
+
+                    if ($user->role == 'admin') {
+                        $panelNotifications = config('notification_settings.admin_panel');
+                        $panelData = [];
+                        foreach ($panelNotifications as $setting) {
+                            $panelData[] = [
+                                'name'           => $setting,
+                                'status'         => 'enabled',
+                                'user_of_system' => 'panel',
+                                'user_id'        => $user->id,
+                                'role'           => $user->role,
+                                'society_id'     => $society->id
+                            ];
+                        }
+                        if (!empty($panelData)) {
+                            DB::table('notification_settings')->insert($panelData);
+                        }
                     }
                 }
-                // =====================================================
 
-                superAdminLog('info', 'start::member created');
                 DB::commit();
-                superAdminLog('info', 'end::store');
-
-            
             } catch (\Exception $e) {
-                superAdminLog('error', 'Exception::', $e->getMessage());
                 // DB::rollBack();
-                $this->errors[] = 'Error in row: ' . json_encode($row) . ' - ' . $e->getMessage();
+                Log::error('Import Error: ' . $e->getMessage());
+                $this->errors[] = 'Chunk error: ' . $e->getMessage();
             }
-
-        }
-        return redirect()->back()->with([
-            'status' => 'success',
-            'message' => 'Added successfully'
-        ]);
+        });
     }
-    
     private function sendBillNotification($bill) {
         $checkSett = 'bill_notifications';
 

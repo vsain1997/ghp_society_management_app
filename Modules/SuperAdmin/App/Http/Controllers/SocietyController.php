@@ -69,8 +69,8 @@ class SocietyController extends Controller
                 'emr_designation.*' => 'required|string',
                 'emr_phone' => 'required|array',
                 'emr_phone.*' => 'required|numeric|min:10',
-                'emr_id' => 'nullable|array',
-                'emr_id.*' => 'integer',
+                // 'emr_id' => 'nullable|array',
+                // 'emr_id.*' => 'integer',
             ]);
             // echo "validator fails = ";dd($validator->fails());
             // dd("Adfas");
@@ -85,7 +85,6 @@ class SocietyController extends Controller
                         'message' => $validator->errors()->first(),
                     ]);
             }
-            
             $insData = [
                 'name' => $request->input('sname'),
                 'location' => $request->input('location'),
@@ -105,44 +104,45 @@ class SocietyController extends Controller
                 'total_towers' => $request->input('totalTowers'),
                 'amenities' => implode(',', $request->input('amenities'))
             ];
+            
             $society = Society::create($insData);
             
             superAdminLog('info', 'Society::created');
             $societyId = $society->id;
             
-            $bnameArray = $request->input('bname');
-            $totalUnitsArray = $request->input('totalUnits');
-            $unitTypeArray = $request->input('unit_type');
-            $unitQtyArray = $request->input('unit_qty');
+            // $bnameArray = $request->input('bname');
+            // $totalUnitsArray = $request->input('totalUnits');
+            // $unitTypeArray = $request->input('unit_type');
+            // $unitQtyArray = $request->input('unit_qty');
             
-            $totalFloorsArray = $request->input('totalFloors');
-            $property_numberArray = $request->input('property_number');
-            $property_floorArray = $request->input('property_floor');
-            $property_typeArray = $request->input('property_type');
-            $ownershipArray = $request->input('ownership');
-            $unitSizeArray = $request->input('unit_size');
-            $bhkArray = $request->input('bhk');
+            // $totalFloorsArray = $request->input('totalFloors');
+            // $property_numberArray = $request->input('property_number');
+            // $property_floorArray = $request->input('property_floor');
+            // $property_typeArray = $request->input('property_type');
+            // $ownershipArray = $request->input('ownership');
+            // $unitSizeArray = $request->input('unit_size');
+            // $bhkArray = $request->input('bhk');
             
-            if($bnameArray){
-                foreach ($bnameArray as $blockKey => $blockName) {
+            // if($bnameArray){
+            //     foreach ($bnameArray as $blockKey => $blockName) {
                     
-                    foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
-                        Block::create([
-                            'name' => $blockName,
-                            'total_floor' => $totalFloorsArray[$blockKey],
-                            'property_number' => $property_number,
-                            'floor' => $property_floorArray[$blockKey][$unitIndex],
-                            'unit_type' => $property_typeArray[$blockKey][$unitIndex],
-                            'ownership' => $ownershipArray[$blockKey][$unitIndex],
-                            'unit_size' => !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '',
-                            'bhk' => !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '',
-                            'society_id' => $societyId,
-                            'total_units' => 0,
-                        ]);
-                    }
-                }
-                superAdminLog('info', 'Block::created');
-            }
+            //         foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
+            //             Block::create([
+            //                 'name' => $blockName,
+            //                 'total_floor' => $totalFloorsArray[$blockKey],
+            //                 'property_number' => $property_number,
+            //                 'floor' => $property_floorArray[$blockKey][$unitIndex],
+            //                 'unit_type' => $property_typeArray[$blockKey][$unitIndex],
+            //                 'ownership' => $ownershipArray[$blockKey][$unitIndex],
+            //                 'unit_size' => !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '',
+            //                 'bhk' => !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '',
+            //                 'society_id' => $societyId,
+            //                 'total_units' => 0,
+            //             ]);
+            //         }
+            //     }
+            //     superAdminLog('info', 'Block::created');
+            // }
             
             
             // emergency contact
@@ -158,6 +158,7 @@ class SocietyController extends Controller
                     'society_id' => $societyId,
                 ]);
             }
+            
             superAdminLog('info', 'SocietyContact::created');
             DB::commit();
             superAdminLog('info', 'end::store');
@@ -165,9 +166,8 @@ class SocietyController extends Controller
                 'status' => 'success',
                 'message' => 'Added successfully'
             ]);
-            // dd('eee');
             
-        } catch (\Exception $e) {
+        }catch (\Exception $e) {
             superAdminLog('error', 'Exception::', $e->getMessage());
             DB::rollBack();
             return redirect()->back()->with([
@@ -296,7 +296,7 @@ class SocietyController extends Controller
 
         try {
             superAdminLog('info', 'Entered update method');
-
+            
             $society = Society::find($societyId);
             if (!$society) {
                 superAdminLog('error', 'Society not found');
@@ -304,10 +304,10 @@ class SocietyController extends Controller
                     [
                         'status' => 'success',
                         'message' => 'Not found',
-                    ]
-                );
-            }
-
+                        ]
+                    );
+                }
+                
             $society->update([
                 'name' => $request->input('sname'),
                 'location' => $request->input('location'),
@@ -329,118 +329,120 @@ class SocietyController extends Controller
                     ? implode(',', $request->input('amenities'))
                     : null
             ]);
+
             superAdminLog('info', 'society updated');
             // Get the existing blocks for this society
-            $existingBlocks = Block::where('society_id', $societyId)->get()->keyBy('id');
+            // $existingBlocks = Block::where('society_id', $societyId)->get()->keyBy('id');
 
             
 
-            $bnameArray = $request->input('bname');
-            $blockIdArray = $request->input('block_id');
-            $totalUnitsArray = $request->input('totalUnits');
-            $unitTypeArray = $request->input('unit_type');
-            $unitQtyArray = $request->input('unit_qty');
+            // $bnameArray = $request->input('bname');
+            // $blockIdArray = $request->input('block_id');
+            // $totalUnitsArray = $request->input('totalUnits');
+            // $unitTypeArray = $request->input('unit_type');
+            // $unitQtyArray = $request->input('unit_qty');
             
-            $totalFloorsArray = $request->input('totalFloors');
-            $property_numberArray = $request->input('property_number');
-            $property_floorArray = $request->input('property_floor');
-            $property_typeArray = $request->input('property_type');
-            $ownershipArray = $request->input('ownership');
-            $unitSizeArray = $request->input('unit_size');
-            $bhkArray = $request->input('bhk');
-            $blockIdsToKeep = [];
-            if($bnameArray){
-                foreach ($bnameArray as $blockKey => $blockName) {
-                    if (isset($blockIdArray[$blockKey])) {
+            // $totalFloorsArray = $request->input('totalFloors');
+            // $property_numberArray = $request->input('property_number');
+            // $property_floorArray = $request->input('property_floor');
+            // $property_typeArray = $request->input('property_type');
+            // $ownershipArray = $request->input('ownership');
+            // $unitSizeArray = $request->input('unit_size');
+            // $bhkArray = $request->input('bhk');
+            // $blockIdsToKeep = [];
+            // if($bnameArray){
+            //     // foreach ($bnameArray as $blockKey => $blockName) {
+            //     //     // if (isset($blockIdArray[$blockKey])) {
                         
-                        if (1 === 1) {
-                            foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
-                                Block::updateOrCreate(
-                                    ['id' => $blockIdArray[$blockKey][$unitIndex]],
-                                    [
-                                        'name' => $blockName,
-                                        'total_floor' => $totalFloorsArray[$blockKey],
-                                        'property_number' => $property_number,
-                                        'floor' => $property_floorArray[$blockKey][$unitIndex],
-                                        'unit_type' => $property_typeArray[$blockKey][$unitIndex],
-                                        'ownership' => $ownershipArray[$blockKey][$unitIndex],
-                                        'unit_size' => !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '',
-                                        'bhk' => !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '',
-                                        'society_id' => $societyId,
-                                        'total_units' => 0,
-                                    ]
-                                );
+            //     //     //     // if (1 === 1) {
+            //     //     //         // foreach ($property_numberArray[$blockKey] as $unitIndex => $property_number) {
+            //     //     //             // Block::updateOrCreate(
+            //     //     //             //     ['id' => $blockIdArray[$blockKey][$unitIndex]],
+            //     //     //             //     [
+            //     //     //             //         'name' => $blockName,
+            //     //     //             //         'total_floor' => $totalFloorsArray[$blockKey],
+            //     //     //             //         'property_number' => $property_number,
+            //     //     //             //         'floor' => $property_floorArray[$blockKey][$unitIndex],
+            //     //     //             //         'unit_type' => $property_typeArray[$blockKey][$unitIndex],
+            //     //     //             //         'ownership' => $ownershipArray[$blockKey][$unitIndex],
+            //     //     //             //         'unit_size' => !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '',
+            //     //     //             //         'bhk' => !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '',
+            //     //     //             //         'society_id' => $societyId,
+            //     //     //             //         'total_units' => 0,
+            //     //     //             //     ]
+            //     //     //             // );
     
-                                if (!empty($blockIdArray[$blockKey][$unitIndex])) {
-                                    $blockIdsToKeep[] = $blockIdArray[$blockKey][$unitIndex];
+            //     //     //             // if (!empty($blockIdArray[$blockKey][$unitIndex])) {
+            //     //     //             //     $blockIdsToKeep[] = $blockIdArray[$blockKey][$unitIndex];
     
-                                    $existsBlockInMember = Member::where('block_id', $blockIdArray[$blockKey][$unitIndex])->exists();
+            //     //     //                 // $existsBlockInMember = Member::where('block_id', $blockIdArray[$blockKey][$unitIndex])->exists();
     
-                                    if ($existsBlockInMember) {
-                                        $member = Member::where('block_id', $blockIdArray[$blockKey][$unitIndex])->first();
-                                        if ($member) {
-                                            $member->floor_number = $property_floorArray[$blockKey][$unitIndex];
-                                            $member->unit_type = $property_typeArray[$blockKey][$unitIndex];
-                                            $member->aprt_no = $property_number;
-                                            $member->save();
-                                        }
+            //     //     //                 // if ($existsBlockInMember) {
+            //     //     //                 //     $member = Member::where('block_id', $blockIdArray[$blockKey][$unitIndex])->first();
+            //     //     //                 //     if ($member) {
+            //     //     //                 //         $member->floor_number = $property_floorArray[$blockKey][$unitIndex];
+            //     //     //                 //         $member->unit_type = $property_typeArray[$blockKey][$unitIndex];
+            //     //     //                 //         $member->aprt_no = $property_number;
+            //     //     //                 //         $member->save();
+            //     //     //                 //     }
     
-                                    }
-                                    // ------------ Complaints
-                                    Complaint::whereIn('block_id', array_column($blockIdArray, $unitIndex))
-                                        ->chunk(100, function ($complaints) use ($blockIdArray, $blockKey, $unitIndex, $blockName, $property_floorArray, $property_typeArray, $property_number) {
-                                            foreach ($complaints as $complaint) {
-                                                $complaint->block_name = $blockName;
-                                                $complaint->floor_number = $property_floorArray[$blockKey][$unitIndex];
-                                                $complaint->unit_type = $property_typeArray[$blockKey][$unitIndex];
-                                                $complaint->aprt_no = $property_number;
-                                                $complaint->save();
-                                            }
-                                        });
+            //     //     //                 // }
+            //     //     //                 // ------------ Complaints
+            //     //     //                 // Complaint::whereIn('block_id', array_column($blockIdArray, $unitIndex))
+            //     //     //                 //     ->chunk(100, function ($complaints) use ($blockIdArray, $blockKey, $unitIndex, $blockName, $property_floorArray, $property_typeArray, $property_number) {
+            //     //     //                 //         foreach ($complaints as $complaint) {
+            //     //     //                 //             $complaint->block_name = $blockName;
+            //     //     //                 //             $complaint->floor_number = $property_floorArray[$blockKey][$unitIndex];
+            //     //     //                 //             $complaint->unit_type = $property_typeArray[$blockKey][$unitIndex];
+            //     //     //                 //             $complaint->aprt_no = $property_number;
+            //     //     //                 //             $complaint->save();
+            //     //     //                 //         }
+            //     //     //                 //     });
     
-                                    // ------------ SOS
-                                    Sos::whereIn('block_id', array_column($blockIdArray, $unitIndex))
-                                        ->chunk(100, function ($sosRecords) use ($blockIdArray, $blockKey, $unitIndex, $property_floorArray, $property_typeArray, $property_number) {
-                                            foreach ($sosRecords as $sos) {
-                                                $sos->floor = $property_floorArray[$blockKey][$unitIndex];
-                                                $sos->unit_type = $property_typeArray[$blockKey][$unitIndex];
-                                                $sos->unit_no = $property_number;
-                                                $sos->save();
-                                            }
-                                        });
+            //     //     //                 // ------------ SOS
+            //     //     //                 // Sos::whereIn('block_id', array_column($blockIdArray, $unitIndex))
+            //     //     //                 //     ->chunk(100, function ($sosRecords) use ($blockIdArray, $blockKey, $unitIndex, $property_floorArray, $property_typeArray, $property_number) {
+            //     //     //                 //         foreach ($sosRecords as $sos) {
+            //     //     //                 //             $sos->floor = $property_floorArray[$blockKey][$unitIndex];
+            //     //     //                 //             $sos->unit_type = $property_typeArray[$blockKey][$unitIndex];
+            //     //     //                 //             $sos->unit_no = $property_number;
+            //     //     //                 //             $sos->save();
+            //     //     //                 //         }
+            //     //     //                 //     });
     
-                                    // ------------ Trade Property (Rent/Sell)
-                                    TradeProperty::whereIn('block_id', array_column($blockIdArray, $unitIndex))
-                                        ->chunk(100, function ($tradeProperties) use ($blockIdArray, $blockKey, $unitIndex, $property_floorArray, $property_typeArray, $property_number, $bhkArray, $unitSizeArray) {
-                                            foreach ($tradeProperties as $tradeProperty) {
-                                                $tradeProperty->floor = $property_floorArray[$blockKey][$unitIndex];
-                                                $tradeProperty->unit_type = $property_typeArray[$blockKey][$unitIndex];
-                                                $tradeProperty->unit_number = $property_number;
-                                                $tradeProperty->bhk = !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '';
-                                                $tradeProperty->area = !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '';
-                                                $tradeProperty->save();
-                                            }
-                                        });
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            //     //     //                 // ------------ Trade Property (Rent/Sell)
+            //     //     //                 // TradeProperty::whereIn('block_id', array_column($blockIdArray, $unitIndex))
+            //     //     //                 //     ->chunk(100, function ($tradeProperties) use ($blockIdArray, $blockKey, $unitIndex, $property_floorArray, $property_typeArray, $property_number, $bhkArray, $unitSizeArray) {
+            //     //     //                 //         foreach ($tradeProperties as $tradeProperty) {
+            //     //     //                 //             $tradeProperty->floor = $property_floorArray[$blockKey][$unitIndex];
+            //     //     //                 //             $tradeProperty->unit_type = $property_typeArray[$blockKey][$unitIndex];
+            //     //     //                 //             $tradeProperty->unit_number = $property_number;
+            //     //     //                 //             $tradeProperty->bhk = !empty($bhkArray[$blockKey][$unitIndex]) ? $bhkArray[$blockKey][$unitIndex] : '';
+            //     //     //                 //             $tradeProperty->area = !empty($unitSizeArray[$blockKey][$unitIndex]) ? $unitSizeArray[$blockKey][$unitIndex] : '';
+            //     //     //                 //             $tradeProperty->save();
+            //     //     //                 //         }
+            //     //     //                 //     });
+            //     //     //             // }
+            //     //     //         // }
+            //     //     //     }
+            //     //     // }
+            //     // }
+            // }
 
-            $blockIdsToDelete = $existingBlocks->keys()->diff($blockIdsToKeep);
+            // $blockIdsToDelete = $existingBlocks->keys()->diff($blockIdsToKeep);
 
-            Block::whereIn('id', $blockIdsToDelete)->delete();
-            Block::whereIn('id', $blockIdsToDelete)->forceDelete();
+            // Block::whereIn('id', $blockIdsToDelete)->delete();
+            // Block::whereIn('id', $blockIdsToDelete)->forceDelete();
             superAdminLog('info', 'society updated');//
 
             
-            $existingSocietyContacts = SocietyContact::where('society_id', $societyId)->get()->keyBy('id');
+            // $existingSocietyContacts = SocietyContact::where('society_id', $societyId)->get()->keyBy('id');
 
             $emrNameArray = $request->input('emr_name');
             $emrDesignationArray = $request->input('emr_designation');
             $emrPhoneArray = $request->input('emr_phone');
-            $emrIdArray = $request->input('emr_id');
+            // $emrIdArray = $request->input('emr_id');
+            // dd($request->all());
 
             $emrIdsToKeep = [];
 
@@ -482,8 +484,8 @@ class SocietyController extends Controller
                 }
             }
 
-            $emrIdsToDelete = $existingSocietyContacts->keys()->diff($emrIdsToKeep);
-            SocietyContact::destroy($emrIdsToDelete);
+            // $emrIdsToDelete = $existingSocietyContacts->keys()->diff($emrIdsToKeep);
+            // SocietyContact::destroy($emrIdsToDelete);
             superAdminLog('info', 'society updated');
 
             DB::commit();
@@ -502,9 +504,7 @@ class SocietyController extends Controller
                 'message' => 'Failed please try again !'
             ]);
         }
-    }
-
-  
+    }  
 
     public function importFile(Request $request): JsonResponse{
         $request->validate([
@@ -527,15 +527,11 @@ class SocietyController extends Controller
         try {
             Excel::import($import, $request->file('importedFile'));
             $importResponse = session('import_response');      
-      dd($importResponse);
-            $skippedBlocks = $import->skippedBlocks ?? 0; // custom property
-            $totalImported = $import->total_blocks ?? 0;
-            dd($totalImported);
+           
             return response()->json([
                 'status' => true,
                 'message' => 'Import successful.',
-                'imported' => $totalImported,
-                'skipped_blocks' => $skippedBlocks,
+                'skipped_blocks' => $importResponse['skipped_blocks'],
             ]);
         } catch (ValidationException $e) {
             $failures = $e->failures();
