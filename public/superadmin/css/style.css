@@ -462,6 +462,19 @@ span.date-plac.none-plac,span.none-plac.time-plac { display: block; }
 .choosefile input#fileInput {
     max-width: 250px;
 }
+.add_block i.fa-building {
+    color: #000;
+    font-size: 20px;
+    display: inline-block;
+    margin-top: 7px;
+}
+
+.actions a {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+
 
 /* Responsive */
 @media (max-width: 1399px){

@@ -13,7 +13,7 @@
                 @import url('https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
                 body{ font-family: "PT Sans", sans-serif;background-color:#f5f6fa;}
                 h1{font-size:2.8rem;font-weight:700;margin-bottom:20px;}
-                .loginPage{display:flex;width:100%;height:100vh;background:url('storage/logologin.png')0 0 no-repeat;background-size:cover;align-items:center;justify-content:center;padding:15px;}
+                .loginPage{display:flex;width:100%;height:100vh;background:url('storage/loginbg.jpg')0 0 no-repeat;background-size:cover;align-items:center;justify-content:center;padding:15px;}
                 .loginForm{display:flex;flex-direction:column;width:1100px;background:#fff;border-radius:20px;padding:35px;}
                 .loginLogo img{max-width:290px;object-fit:contain;}
                 .loginLogo{background:#E2D8FB;height:220px;display:flex;align-items:center;justify-content:center;border-radius:15px;}

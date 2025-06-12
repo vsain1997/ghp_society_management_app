@@ -143,6 +143,9 @@
                             </td>
                             <td class="text-center">
                                 <div class="actions">
+                                    <a href="javascript:void(0)" id="{{ $society->id }}" class="add_block">
+                                        <i class="fa fa-building" aria-hidden="true"></i>
+                                    </a>
                                     <a href="javascript:void(0)" id="{{ $society->id }}" class="edit">
                                         <img src="{{ url($thisModule) }}/img/edit.png" alt="edit">
                                     </a>
@@ -179,14 +182,44 @@
     </div>
 </div>
 
-
+ <!-- block import modal -->
+<div class="modal fade custom_Modal" id="blockSocietyModal" tabindex="-1" aria-labelledby="blockSocietyModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h3 id="modalHeadTxt">Add Block</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="add_society_wrapper">
+                    <div class="tab-content" id="myTabContent">                           
+                        <div class="" >                               
+                            <div class="block_wrapper">
+                                <div class="memberBx">
+                                    <div class="choosefile flex">
+                                        <div>
+                                            <input type="hidden" name="block_society_file" class="block_society_file">
+                                            <input class="form-control" type="file" id="fileInput" accept=".csv, .xlsx, .xls, .txt" required>
+                                        </div>
+                                        <button id="uploadBtn" class="btn btn-success">Upload</button>
+                                    </div>                
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Modal::add -->
 <div class="modal fade custom_Modal" id="addSocietyModal" tabindex="-1" aria-labelledby="addSocietyModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content ">
             <div class="modal-header">
-                <h3 id="modalHeadTxt">Add Society</h3>
+                <h3 id="modalHeadTxt" class="modalHeadTxt">Add Society</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -484,7 +517,7 @@
                             </div>
                             <div class="tab-pane fade" id="societyTab2" role="tabpanel"
                                 aria-labelledby="societyTab2-tab">
-                               <div class="memberBx">
+                               <!-- <div class="memberBx">
                                     <div class="choosefile flex">
                                         <div>
                                             <input class="form-control" type="file" id="fileInput" accept=".csv, .xlsx, .xls, .txt" required>
@@ -492,7 +525,7 @@
                                         </div>
                                         <button id="uploadBtn" class="btn btn-success">Upload</button>
                                     </div>                
-                                </div>
+                                </div> -->
                                 <div class="block_wrapper">
                                     <div class="accordion" id="accordionBlock">
                                         <div class="accordion-item" data-serial="1">
@@ -1277,7 +1310,7 @@
                     '{{ route($thisModule . '.society.store') }}'
                 );
                 $('#submitAddMemberForm').attr('data-formtype', 'add');
-                $('#modalHeadTxt').text('Add Society');
+                $('.modalHeadTxt').text('Add Society');
                 $('a.remove_property_row').closest('tr').remove();
                 // add btn for draft and publish
                 $('#societyAddFormDraft').show();
@@ -1424,6 +1457,12 @@
                 $('#societyTab1-tab').trigger('click');
 
             });
+            $('.add_block').on('click', function() {
+                $societyId = $(this).attr('id');
+                $('.block_society_file').val($societyId);
+                $('#blockSocietyModal').modal('show');
+
+            });
 
             $('.edit').on('click', function() {
                 // loader
@@ -1444,7 +1483,7 @@
                 });
                 $('.text-danger').text('');
                 // change modal heading
-                $('#modalHeadTxt').text('Edit Society');
+                $('.modalHeadTxt').text('Edit Society');
 
                 const societyId = $(this).attr('id');
 
@@ -1465,19 +1504,18 @@
                             toastr[res.status](res.message);
                         }
                         $('#societyAddForm').attr('action',
-                            '{{ route($thisModule . '.society.update', ['id' => '__ID__']) }}'
-                            .replace('__ID__', data.id));
+                        '{{ route($thisModule . '.society.update', ['id' => '__ID__']) }}'
+                        .replace('__ID__', data.id));
                         $('#societyAddForm2').attr('data-formtype', 'edit');
                         if(data.status == 'inactive'){
-
                             $('#societyAddForm2').text('Update And Publish');
                             $('#societyAddFormDraft').text('Update Draft');
                         }else{
                             $('#societyAddFormDraft').hide();
                             $('#societyAddForm2').text('Update');
-
+                            
                         }
-
+                        
                         // modal data
                         // const assignAdminSelect = $('#assignAdmin');
                         // assignAdminSelect.empty();
@@ -1576,7 +1614,9 @@
                             $('#emer_block').append(emrRowHtml);
                         });
                         // Group blocks by name
+
                         var groupedBlocks = groupBy(data.blocks, 'name');
+
                         // Iterate over the grouped blocks
                         $.each(groupedBlocks, function(blockName, blocks) {
                             var blockIndex = Object.keys(groupedBlocks).indexOf(
@@ -1657,6 +1697,7 @@
                                     </div>
                                 `;
                             $('#accordionBlock').append(accordionItem);
+
                         });
 
                         //group blocks by name
@@ -1797,7 +1838,7 @@
         $(document).ready(function () {
             $('#uploadBtn').on('click', function (e) {
                 e.preventDefault();
-                var totalTower = $(this).parent().parent().parent().parent().find("#totalTowers").val();
+                var societyId = $('.block_society_file').val();
                 var fileInput = $('#fileInput')[0].files[0];
                 if (!fileInput) {
                     alert("Please select a file.");
@@ -1805,8 +1846,8 @@
                 }
 
                 var formData = new FormData();
+                formData.append('societyId', societyId);
                 formData.append('importedFile', fileInput);
-                formData.append('totalTower', totalTower);
                 $.ajax({
                     url: "{{ route($thisModule . '.society.import') }}",
                     type: 'POST',

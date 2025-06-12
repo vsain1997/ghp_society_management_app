@@ -502,8 +502,7 @@ class SocietyController extends Controller
 
   
 
-    public function importFile(Request $request)
-{
+    public function importFile(Request $request){
     $request->validate([
         'importedFile' => 'required|mimes:csv,xlsx,xls|max:5048',
     ]);
@@ -512,8 +511,10 @@ class SocietyController extends Controller
         return back()->with('error', 'File upload failed');
     }
 
-    $totalTower = $request->input('totalTower');
-    $import = new SocietyImport();
+    $societyId = $request->input('societyId');
+    $totalTower = Society::where('id', $societyId)
+        ->value('total_towers');
+    $import = new SocietyImport($societyId, $totalTower);
     Excel::import($import, $request->file('importedFile'));
 
     $parsedHtml = '';
