@@ -194,7 +194,7 @@
             <div class="modal-body">
                 <div class="add_society_wrapper">
                     <div class="tab-content" id="myTabContent">                           
-                        <div class="" >                               
+                        <div class="">                               
                             <div class="block_wrapper">
                                 <div class="memberBx">
                                     <div class="choosefile flex">
@@ -1858,11 +1858,32 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     success: function (response) {
-                        $('#accordionBlock').append();
-                        
-                        // console.log(response.html);
-                        $('#accordionBlock').html(response.html);
-                        // Optionally, refresh a part of the page or reset input
+                        if (response.status) {
+                            let htmlMessage = `<b>${response.message}</b><br>Total Imported: ${response.imported}`;
+
+                            if (response.skipped_blocks.length > 0) {
+                                htmlMessage += `<br><br><b>Skipped Blocks:</b><br>`;
+                                htmlMessage += response.skipped_blocks.join('<br>');
+                            }
+
+                            Swal.fire({
+                                title: 'Import Successful ✅',
+                                html: htmlMessage,
+                                icon: 'success'
+                            }).then(() => {
+                                location.reload();
+                            });
+
+                        } else {
+                            Swal.fire({
+                                title: 'Import Failed ❌',
+                                text: response.message,
+                                icon: 'error'
+                            }).then(() => {
+                                location.reload(); // Optional: remove this if you don't want to reload on failure
+                            });
+                        }
+
                     },
                     error: function (xhr) {
                         alert("An error occurred while uploading the file.");

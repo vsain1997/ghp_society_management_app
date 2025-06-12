@@ -14,6 +14,10 @@ use App\Models\Block;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\JsonResponse;
+use Maatwebsite\Excel\Validators\ValidationException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class SocietyController extends Controller
 {
@@ -502,149 +506,60 @@ class SocietyController extends Controller
 
   
 
-    public function importFile(Request $request){
-    $request->validate([
-        'importedFile' => 'required|mimes:csv,xlsx,xls|max:5048',
-    ]);
+    public function importFile(Request $request): JsonResponse{
+        $request->validate([
+            'importedFile' => 'required|mimes:csv,xlsx,xls|max:5048',
+        ]);
 
-    if (!$request->hasFile('importedFile')) {
-        return back()->with('error', 'File upload failed');
-    }
-
-    $societyId = $request->input('societyId');
-    $totalTower = Society::where('id', $societyId)
-        ->value('total_towers');
-    $import = new SocietyImport($societyId, $totalTower);
-    Excel::import($import, $request->file('importedFile'));
-
-    $parsedHtml = '';
-    $decodedData = json_decode($import->data, true);
-    $totalImportedTowers = count($decodedData);
-    $skippedTowers = $totalImportedTowers - $totalTower;
-
-    foreach (array_slice($decodedData, 0, $totalTower) as $index => $block) {
-        $serial = $index + 1;
-        $blockName = $block['block_name'] ?? '';
-        $properties = $block['properties'] ?? [];
-        $propertyRows = '';
-        $propertiesCount = count($properties);
-
-        foreach ($properties as $prop) {
-           $bhkOptions = '<option value="">Select BHK</option>';
-            for ($i = 1; $i <= 5; $i++) {
-                $selected = ($i == $prop['bhk']) ? 'selected' : '';
-                $bhkOptions .= "<option value=\"$i\" $selected>$i BHK</option>";
-            }
-
-
-            $typeOptions = '
-                <option value="residential" ' . ($prop['type'] == 'residential' ? 'selected' : '') . '>Residential</option>
-                <option value="commercial" ' . ($prop['type'] == 'commercial' ? 'selected' : '') . '>Commercial</option>
-            ';
-
-            $propertyRows .= "
-                <tr>
-                    <td>
-                        <input type=\"hidden\" name=\"block_id[$serial][]\">
-                        <input type=\"text\" name=\"property_number[$serial][]\" class=\"block-field\" value=\"{$prop['property_number']}\">
-                    </td>
-                    <td>
-                        <input type=\"text\" name=\"property_floor[$serial][]\" class=\"block-field\" value=\"{$prop['floor']}\">
-                    </td>
-                    <td>
-                        <select name=\"property_type[$serial][]\" class=\"block-field\">
-                            $typeOptions
-                        </select>
-                    </td>
-                    <td class=\"d-none\">
-                        <select name=\"ownership[$serial][]\" class=\"block-field\">
-                            <option value=\"vacant\" selected>Vacant</option>
-                            <option value=\"occupied\">Occupied</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type=\"text\" name=\"unit_size[$serial][]\" class=\"block-field\" value=\"{$prop['area']}\">
-                    </td>                          
-                    <td>
-                        <select name=\"bhk[$serial][]\" class=\"block-field\">
-                            $bhkOptions
-                        </select>
-                    </td>
-                    <td>
-                        <a href=\"javascript:void(0)\" class=\"btn btn-primary btn-sm add_property_row\">+</a>
-                    </td>
-                </tr>
-            ";
+        if (!$request->hasFile('importedFile')) {
+            return response()->json([
+                'status' => false,
+                'message' => 'File upload failed.',
+            ], 400);
         }
 
-        $parsedHtml .= "
-            <div class=\"accordion-item\" data-serial=\"$serial\">
-                <h2 class=\"accordion-header\" id=\"blockHeading$serial\">
-                    <button class=\"accordion-button\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#blockCollapse$serial\" aria-expanded=\"true\" aria-controls=\"blockCollapse$serial\">
-                        <span class=\"showBlockName\">$blockName</span>
-                    </button>
-                </h2>
-                <div id=\"blockCollapse$serial\" class=\"accordion-collapse collapse show\" aria-labelledby=\"blockHeading$serial\" data-bs-parent=\"#accordionBlock\">
-                    <div class=\"accordion-body\">
-                        <div class=\"block_fields\">
-                            <div class=\"custom_form\">
-                                <div class=\"form\">
-                                    <div class=\"row\">
-                                        <div class=\"col\">
-                                            <div class=\"form-group\">
-                                                <label>Tower Name/Block Name</label>
-                                                <input type=\"text\" name=\"bname[$serial]\" class=\"form-control\" value=\"$blockName\">
-                                            </div>
-                                        </div>
-                                        <div class=\"col\">
-                                            <div class=\"form-group\">
-                                                <label>Total Units</label>
-                                                <input type=\"text\" name=\"totalFloors[$serial]\" class=\"form-control\" value=\"$propertiesCount\">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class=\"blocks_table\">
-                                <div class=\"table-responsive\">
-                                    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">
-                                        <thead>
-                                            <tr>
-                                                <th>Property Number</th>
-                                                <th>Floor</th>
-                                                <th>Property Type</th>
-                                                <th class=\"d-none\">Ownership</th>
-                                                <th>Size (Sq.Yard)</th>
-                                                <th>BHK</th>
-                                                <th>&nbsp;</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id=\"tower_property_$serial\">
-                                            $propertyRows
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan=\"7\">
-                                                    <button type=\"button\" class=\"deleteBlock btn btn-danger mt-2\" style=\"width:100%\">Delete</button>
-                                                </td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        ";
+        $societyId = $request->input('societyId');
+        $totalTower = Society::where('id', $societyId)->value('total_towers');
+        $unitType = Society::where('id', $societyId)->value('type');
+
+        $import = new SocietyImport($societyId, $totalTower, $unitType);
+
+        try {
+            Excel::import($import, $request->file('importedFile'));
+            $importResponse = session('import_response');      
+      dd($importResponse);
+            $skippedBlocks = $import->skippedBlocks ?? 0; // custom property
+            $totalImported = $import->total_blocks ?? 0;
+            dd($totalImported);
+            return response()->json([
+                'status' => true,
+                'message' => 'Import successful.',
+                'imported' => $totalImported,
+                'skipped_blocks' => $skippedBlocks,
+            ]);
+        } catch (ValidationException $e) {
+            $failures = $e->failures();
+            $errors = [];
+
+            foreach ($failures as $failure) {
+                $errors[] = "Row {$failure->row()}: " . implode(', ', $failure->errors());
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Import failed due to validation errors.',
+                'errors' => $errors,
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Import Exception: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An unexpected error occurred during import.',
+            ], 500);
+        }
     }
-    
-    return response()->json([
-        'status' => 'success',
-        'html' => $parsedHtml,
-        'skipped_towers' => $skippedTowers,
-    ]);
-}
+
 
 
 
