@@ -94,6 +94,7 @@ class MembersImport implements ToCollection, WithHeadingRow
                     $member->society_id = $society->id;
                     $member->block_id = $block->id;
                     $member->floor_number = $block->floor;
+                    $member->occupancy_status = trim($row['occupancy_status']);
                     $member->unit_type = $block->unit_type;
                     $member->aprt_no = $block->property_number;
                     $member->ownership_type = trim($row['ownership']);

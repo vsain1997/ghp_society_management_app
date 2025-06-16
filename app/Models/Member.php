@@ -29,6 +29,7 @@ class Member extends Model
         'emer_name',
         'emer_relation',
         'emer_phone',
+        'occupancy_status',
         
         
     ];

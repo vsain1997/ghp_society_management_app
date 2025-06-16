@@ -19,6 +19,7 @@ class Bill extends Model
         'service_id',
         'bill_type',
         'amount',
+        'installment',
         'due_date',
         'society_id',
         'member_id',
@@ -26,7 +27,7 @@ class Bill extends Model
         'invoice_number',
         'status',
         'payment_status',
-        'payment_date'
+        'payment_date',
     ];
 
     // protected $appends = ['due_date_remain_days', 'due_date_delay_days'];

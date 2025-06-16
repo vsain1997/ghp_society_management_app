@@ -498,6 +498,7 @@ class BillingController extends Controller
 
 
         if($request->isMethod('post')){
+            // dd($request->all());
             try{
                 _dLog(eventType: 'info', activityName: 'Bill Collection Started', description: 'Starting the process of collect bill', modelType: 'Bill', modelId: $id);
                 $validator = Validator::make($request->all(), [
@@ -513,12 +514,40 @@ class BillingController extends Controller
                         'message' => 'Validation failed: ' . $validator->errors(),
                     ]);
                 }
+                if ($request->installment > 0) {
+                    $installmentAmount = $bill->installment + $request->installment;
 
-                $bill->update([
-                    'status' => 'paid',
-                    'payment_status' => 'paid',
-                    'payment_date' => Carbon::now(),
-                ]);
+                    if ($installmentAmount > $bill->amount) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => "Installment amount cannot be greater than total bill amount."
+                        ]);
+                    }
+
+                    if ($installmentAmount == $bill->amount) {
+                        $bill->update([
+                            'installment' => $installmentAmount,
+                            'status' => 'paid',
+                            'payment_status' => 'paid',
+                            'payment_date' => Carbon::now(),
+                        ]);
+                    } else {
+                        $bill->update([
+                            'installment' => $installmentAmount,
+                            'payment_status' => 'partial',
+                        ]);
+                    }
+
+                } else {
+                    // If no installment given, treat it as full payment
+                    $bill->update([
+                        'installment' => $bill->amount,
+                        'status' => 'paid',
+                        'payment_status' => 'paid',
+                        'payment_date' => Carbon::now(),
+                    ]);
+                }
+
 
                 BillPayment::create([
                     'user_id' => $bill->user_id,

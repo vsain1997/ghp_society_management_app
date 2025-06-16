@@ -22,6 +22,10 @@
                 <label class="form-check-label" for="amount">Amount <span class="text-danger">*</span></label>
                 <input type="number" min="0" class="form-control lh-lg" id="amount" name="amount" placeholder="Amount.." readonly required value="{{ $bill->amount }}">
             </div>
+             <div class="col-md-6">
+                <label class="form-check-label" for="installment">Installment <span class="text-danger">*</span></label>
+                <input type="number" min="0" class="form-control lh-lg" id="installment" name="installment" placeholder="Installment.." value="{{ $bill->installment }}">
+            </div>
         </div>
         <div class="save-close-btn">
             <button type="button" class="border_theme_btn close-btn cancel_btn" data-bs-dismiss="modal">Close</button>

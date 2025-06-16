@@ -1861,7 +1861,7 @@
                     },
                     success: function (response) {
                         if (response.status) {
-                            let htmlMessage = `<b>${response.message}</b><br>Total Imported: ${response.imported}`;
+                            let htmlMessage = `<b>${response.message}</b>`;
 
                             if (response.skipped_blocks.length > 0) {
                                 htmlMessage += `<br><br><b>Skipped Blocks:</b><br>`;

@@ -91,7 +91,9 @@
                             <th class="text-center">Bill Type</th>
                             <th class="text-center">Property Number</th>
                             {{--  <th class="text-center">Service</th>  --}}
-                            <th class="text-center">Amount</th>
+                            <th class="text-center">Total Amount</th>
+                            <th class="text-center">Installment</th>
+                            <th class="text-center">Pending Amount</th>
                             <th class="text-center">Due Date</th>
                             <th class="text-center">Bill Status</th>
                             <th class="text-center">Action</th>
@@ -133,6 +135,8 @@
                                     <td class="text-center py-2">{{ $billing->service->name }}</td>
                                     <td class="text-center py-2">{{ $billing->member ? $billing->member->aprt_no : '-' }}</td>
                                     <td class="text-center py-2">{{ $billing->amount }}</td>
+                                    <td class="text-center py-2">{{ $billing->installment }}</td>
+                                    <td class="text-center py-2">{{ $billing->amount - $billing->installment }}</td>
                                     <td class="text-center py-2">
                                         {{ \Carbon\Carbon::parse($billing->due_date)->format('d M Y') }}
                                     </td>
