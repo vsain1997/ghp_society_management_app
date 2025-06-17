@@ -135,7 +135,7 @@
                                     <td class="text-center py-2">{{ $billing->service->name }}</td>
                                     <td class="text-center py-2">{{ $billing->member ? $billing->member->aprt_no : '-' }}</td>
                                     <td class="text-center py-2">{{ $billing->amount }}</td>
-                                    <td class="text-center py-2">{{ $billing->installment }}</td>
+                                    <td class="text-center py-2">{{ !empty($billing->installment) ? $billing->installment : 0 }}</td>
                                     <td class="text-center py-2">{{ $billing->amount - $billing->installment }}</td>
                                     <td class="text-center py-2">
                                         {{ \Carbon\Carbon::parse($billing->due_date)->format('d M Y') }}
