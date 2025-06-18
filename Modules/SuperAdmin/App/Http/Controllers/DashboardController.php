@@ -46,6 +46,7 @@ class DashboardController extends Controller
 
             // total resident unit occupied
             $members = Member::where('status', 'active')->where('society_id', $society_id)->count();
+            $occupancyCount = Member::where('status', 'active')->where('society_id', $society_id)->where('occupancy_status','yes')->count();
 
             $service_providers = ServiceProviders::where('society_id', $society_id)->count();
 
@@ -135,6 +136,7 @@ class DashboardController extends Controller
             return view('superadmin::dashboard.dashboard', [
                 'society_units' => $society_units,
                 'members' => $members,
+                'occupancyCount' => $occupancyCount,
                 'complaints' => $complaints,
                 'notices' => $notices,
                 'service_providers' => $service_providers,

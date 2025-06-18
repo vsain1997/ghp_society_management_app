@@ -4,6 +4,8 @@ namespace Modules\Admin\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
+use App\Imports\MembersImport;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Society;
@@ -14,6 +16,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Exception;
+use Maatwebsite\Excel\Facades\Excel;
+
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -31,53 +35,86 @@ class MemberController extends Controller
 
     public function index(Request $request)
     {
-        try {
-            _dLog(eventType: 'info', activityName: 'Member Index Accessed', description: 'Accessing member index page');
 
-            $selectedSociety = getSelectedSociety($request);
-
-            if (empty($selectedSociety)) {
-                $selectedSociety = auth()->user()->member->society_id;
-            }
-
-            $status = $request->input(key: 'status', default: 'active');
-            $search = $request->input(key: 'search', default: '');
-            $search_col = $request->input(key: 'search_for', default: '');
-
-            $members = Member::with('block')
-                ->searchByStatus($status)
-                ->when($search && $search_col, function ($query) use ($search, $search_col) {
-                    // Apply dynamic column search
-                    return $query->where($search_col, 'LIKE', '%' . $search . '%');
-                })
-                ->where('society_id', $selectedSociety)
-                ->orderBy('name', 'asc')
-                ->paginate(25);
-
-            _dLog(eventType: 'info', activityName: 'Members Retrieved', description: 'Members retrieved', status: 'success', severityLevel: 1);
-
-            return view(
-                'admin::member.member',
-                [
-                    'members' => $members,
-                    'search' => $search,
-                ]
-            );
-        } catch (Exception $e) {
-            _dLog(eventType: 'error', activityName: 'Member Index Error', description: 'Exception during member index retrieval: ' . $e->getMessage(), status: 'failed', severityLevel: 2);
-            return redirect()->back()->with([
-                'status' => 'error',
-                'message' => 'Failed, please try again!',
-            ]);
+        // get society
+        // $selectedSociety = session('__selected_society__');
+        // if (!$selectedSociety) {
+        //     $selectedSociety = Society::orderBy('id', 'asc')->first();
+        //     if (!$selectedSociety) {
+        //         //when no society created
+        //         session(['active_tab' => '#tab3-tab']);//society tab
+        //         return redirect()->route('superadmin.settings')->with([
+        //             'status' => 'warning',
+        //             'message' => 'Please create a Society First !'
+        //         ]);
+        //     }
+        //     session(['__selected_society__' => $request->society_id]);
+        // }
+        $selectedSociety = getSelectedSociety($request);
+        $blocks = Block::where('society_id', $selectedSociety)
+            ->select('name')
+            ->distinct()
+            ->orderBy('name')
+            ->get();
+        if ($selectedSociety instanceof \Illuminate\Http\RedirectResponse) {
+            return $selectedSociety; // Redirect if necessary
         }
+
+        // Continue with business logic using $selectedSociety
+
+
+        // $search = $request->input('search', '');
+        // $search_col = $request->input('search_for', '');
+        // // Fetch societies with filters and pagination
+        // $members = Member::with('block')
+        //     ->when($search, function ($query) use ($search) {
+        //         return $query->where(function ($query) use ($search) {
+        //             $query->where('name', 'LIKE', '%' . $search . '%')
+        //                 ->orWhere('phone', 'LIKE', '%' . $search . '%')
+        //                 ->orWhere('email', 'LIKE', '%' . $search . '%')
+        //                 ->orWhere('status', 'LIKE', '%' . $search . '%');
+        //         });
+        //     })
+        //     ->where('society_id', $selectedSociety)
+        //     ->orderBy('id', 'desc')
+        //     ->paginate(25);
+
+        $status = $request->input(key: 'status', default: 'active');
+        $search = $request->input(key: 'search', default: '');
+        $tower = $request->input(key: 'tower', default: '');
+        $search_col = $request->input(key: 'search_for', default: '');
+
+        $members = Member::with('block')
+            ->searchByStatus($status)
+            ->when($search && $search_col, function ($query) use ($search, $search_col) {
+                // Apply dynamic column search
+                return $query->where($search_col,$search);
+            })
+            ->when($tower, function ($query) use ($tower) {
+                // Apply tower filter
+                return $query->whereHas('block', function ($q) use ($tower) {
+                    $q->where('name', 'LIKE', '%' . $tower . '%');
+                });
+            })
+            ->where('society_id', $selectedSociety)
+            ->paginate(25);
+
+
+        return view(
+            'admin::member.member',
+            [
+                'members' => $members,
+                'search' => $search,
+                'blocks' => $blocks,
+            ]
+        );
     }
 
     // Store a newly created member
     public function store(Request $request)
     {
         try {
-            _dLog(eventType: 'info', activityName: 'Member Creation Started', description: 'Starting the process of creating a new member');
-
+            superAdminLog('info', 'start::store');
             DB::beginTransaction();
 
             $validator = Validator::make($request->all(), [
@@ -92,8 +129,7 @@ class MemberController extends Controller
             ]);
 
             if ($validator->fails()) {
-                _dLog(eventType: 'error', activityName: 'Member Creation Validation Failed', description: 'Validation error during member creation: ' . $validator->errors()->first(), modelType: 'Member', modelId: null, status: 'failed');
-
+                superAdminLog('error', 'Validation failed: ' . $validator->errors()->first());
                 return redirect()->back()
                     ->withInput()
                     ->with([
@@ -107,11 +143,8 @@ class MemberController extends Controller
             //     ->where('status', 'active')
             //     ->where('deleted_at', NULL)
             //     ->where('block_id', $request->input('block_id'))
-            //     // ->where('floor_number', $request->input('floor_number'))
             //     ->where('unit_type', $request->input('unit_type'))
-            //     // ->where('aprt_no', $request->input('aprt_no'))
             //     ->count();
-
             // $getBlockUnitInfo = Block::where('id', $request->input('block_id'))
             //     ->first();
             // $totalUnit = $getBlockUnitInfo->total_units;
@@ -137,8 +170,9 @@ class MemberController extends Controller
             $user->password = bcrypt(trim($request->input('password')));
             $user->save();
 
+            superAdminLog('info', 'start::user created');
             //get block info
-            $blockInfo = Block::find($request->input('aprt_no'));//dont be confuse , it is block id
+            $blockInfo = Block::find($request->input('aprt_no')); //dont be confuse , it is block id
 
             // create member
             $member = new Member();
@@ -153,17 +187,31 @@ class MemberController extends Controller
             $member->aprt_no = $blockInfo->property_number;
             $member->user_id = $user->id;
             $member->ownership_type = $request->input('ownership');
+            $member->maintenance_bill = $request->input('maintenance_bill');
             $member->owner_name = $request->input('owner_name');
             $member->emer_name = $request->input('emer_name');
             $member->emer_relation = $request->input('emer_relation');
             $member->emer_phone = $request->input('emer_phone');
-            $member->maintenance_bill = $request->input('maintenance_bill');
             $member->save();
+            if ($user->role == 'admin') {
 
+                // Assign the 'admin' role to the user
+                $user->assignRole('admin');
+
+                // Fetch all permissions assigned to the 'admin' role
+                $adminRole = Role::findByName('admin');
+                $adminPermissions = $adminRole->permissions;
+
+                // Assign all permissions of the 'admin' role directly to the user
+                $user->syncPermissions($adminPermissions); //seeder is Used
+            }
+
+            // =================================================
             // save notification defaults values
+            // resident app for resident + admin role
             $insertDefaultNotification = [];
-            $residentNotifications = config('notification_settings.resident_app');
-            foreach ($residentNotifications as $defaultSettingName) {
+            $residentAppNotifications = config('notification_settings.resident_app');
+            foreach ($residentAppNotifications as $defaultSettingName) {
                 $insertDefaultNotification[] = [
                     'name' => $defaultSettingName,
                     'status' => 'enabled',
@@ -177,24 +225,60 @@ class MemberController extends Controller
                 DB::table('notification_settings')->insert($insertDefaultNotification);
             }
 
-            _dLog(eventType: 'info', activityName: 'Member Created', description: 'New member created', modelType: 'Member', modelId: $member->id, status: 'success', severityLevel: 1, beforeData: null, afterData: $member->toArray(), requestData: $request->all());
+            if ($user->role == 'admin') {
+                //for admin panel notification settings
+                $residentAppNotifications = config('notification_settings.admin_panel');
+                $insertDefaultNotificationPanel = [];
+                foreach ($residentAppNotifications as $defaultSettingName) {
+                    $insertDefaultNotificationPanel[] = [
+                        'name' => $defaultSettingName,
+                        'status' => 'enabled',
+                        'user_of_system' => 'panel',
+                        'user_id' => $user->id,
+                        'role' => $user->role,
+                        'society_id' => $request->input('society_id')
+                    ];
+                }
+                if (!empty($insertDefaultNotificationPanel)) {
+                    DB::table('notification_settings')->insert($insertDefaultNotificationPanel);
+                }
+            }
+            // =====================================================
 
+            superAdminLog('info', 'start::member created');
             DB::commit();
+            superAdminLog('info', 'end::store');
 
             return redirect()->back()->with([
                 'status' => 'success',
                 'message' => 'Added successfully'
             ]);
-
         } catch (Exception $e) {
+            dd($e);
+            superAdminLog('error', 'Exception::', $e->getMessage());
             DB::rollBack();
-
-            _dLog(eventType: 'error', activityName: 'Member Creation Failed', description: 'Exception during member creation: ' . $e->getMessage(), modelType: 'Member', modelId: null, status: 'failed', severityLevel: 2);
-
             return redirect()->back()->with([
                 'status' => 'error',
-                'message' => 'Failed, please try again!',
+                'message' => 'Failed please try again !'
             ]);
+        }
+    }
+
+
+    public function importFile(Request $request)
+    {
+        $request->validate([
+            'importedFile' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+        ]);
+
+        try {
+            $societyId = $request->input('society_id');
+            Excel::import(new MembersImport($societyId), $request->file('importedFile'));
+
+            return back()->with('success', 'Members imported successfully.');
+        } catch (Exception $e) {
+            dd($e->getMessage());
+            return back()->with('error', 'Import failed: ' . $e->getMessage());
         }
     }
 
@@ -228,8 +312,7 @@ class MemberController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            _dLog(eventType: 'info', activityName: 'Member Update Started', description: 'Starting the process of update member', modelType: 'Member', modelId: $id);
-
+            adminLog('info', 'start::update Member');
             DB::beginTransaction();
 
             $validator = Validator::make($request->all(), [
@@ -252,7 +335,6 @@ class MemberController extends Controller
                 );
             }
 
-
             $user = User::find($request->input('user_id'));
             if (!$user) {
                 return response()->json(
@@ -264,14 +346,135 @@ class MemberController extends Controller
             }
 
             if ($user) {
+                $previousRole = $user->role;
+                $changeRequestRole = $request->input('role');
+
+                if ($previousRole == 'admin' && $changeRequestRole == 'resident') {
+                    //remove user role from 'admin' and remove all permissions
+                    // Remove the 'admin' role from the user
+                    $user->removeRole('admin');
+                    // Revoke all permissions assigned to the user
+                    $user->syncPermissions([]); //seeder is Used
+                    // =================================================
+                    // delete old notification settings
+                    DB::table('notification_settings')
+                        ->where('user_id', $user->id)
+                        ->delete();
+                    // save notification defaults values
+                    // resident app for resident + admin role
+                    $insertDefaultNotification = [];
+                    $residentAppNotifications = config('notification_settings.resident_app');
+                    foreach ($residentAppNotifications as $defaultSettingName) {
+                        $insertDefaultNotification[] = [
+                            'name' => $defaultSettingName,
+                            'status' => 'enabled',
+                            'user_of_system' => 'app',
+                            'user_id' => $user->id,
+                            'role' => $user->role,
+                            'society_id' => $request->input('society_id')
+                        ];
+                    }
+                    if (!empty($insertDefaultNotification)) {
+                        DB::table('notification_settings')->insert($insertDefaultNotification);
+                    }
+                } elseif ($previousRole == 'resident' && $changeRequestRole == 'admin') {
+                    // Assign the 'admin' role to the user
+                    $user->assignRole('admin');
+
+                    // Fetch all permissions assigned to the 'admin' role
+                    $adminRole = Role::findByName('admin');
+                    $adminPermissions = $adminRole->permissions;
+
+                    // Assign all permissions of the 'admin' role directly to the user
+                    $user->syncPermissions($adminPermissions); //seeder is Used
+
+                    // =================================================
+                    // delete old notification settings
+                    DB::table('notification_settings')
+                        ->where('user_id', $user->id)
+                        ->delete();
+                    // save notification defaults values
+                    // resident app for resident + admin role
+                    $insertDefaultNotification = [];
+                    $residentAppNotifications = config('notification_settings.resident_app');
+                    foreach ($residentAppNotifications as $defaultSettingName) {
+                        $insertDefaultNotification[] = [
+                            'name' => $defaultSettingName,
+                            'status' => 'enabled',
+                            'user_of_system' => 'app',
+                            'user_id' => $user->id,
+                            'role' => $user->role,
+                            'society_id' => $request->input('society_id')
+                        ];
+                    }
+                    if (!empty($insertDefaultNotification)) {
+                        DB::table('notification_settings')->insert($insertDefaultNotification);
+                    }
+
+                    if ($changeRequestRole == 'admin') {
+                        //for admin panel notification settings
+                        $residentAppNotifications = config('notification_settings.admin_panel');
+                        $insertDefaultNotificationPanel = [];
+                        foreach ($residentAppNotifications as $defaultSettingName) {
+                            $insertDefaultNotificationPanel[] = [
+                                'name' => $defaultSettingName,
+                                'status' => 'enabled',
+                                'user_of_system' => 'panel',
+                                'user_id' => $user->id,
+                                'role' => $changeRequestRole,
+                                'society_id' => $request->input('society_id')
+                            ];
+                        }
+                        if (!empty($insertDefaultNotificationPanel)) {
+                            DB::table('notification_settings')->insert($insertDefaultNotificationPanel);
+                        }
+                    }
+                    // =====================================================
+                }
                 // Update the user using mass assignment
-                $user->update($request->only([
-                    'name',
-                    'email',
-                    'phone',
-                    'role',
-                ]));
+                if ($request->input('role') == 'admin') {
+
+                    if ($request->filled('password')) {
+
+                        $user->update([
+                            'password' => bcrypt($request->input('password')),
+                            'name' => $request->input('name'),
+                            'email' => $request->input('email'),
+                            'phone' => $request->input('phone'),
+                            'role' => $request->input('role'),
+                        ]);
+                    } else {
+
+                        $user->update([
+                            'name' => $request->input('name'),
+                            'email' => $request->input('email'),
+                            'phone' => $request->input('phone'),
+                            'role' => $request->input('role'),
+                        ]);
+                    }
+                } else {
+
+                    $user->update([
+                        'name' => $request->input('name'),
+                        'email' => $request->input('email'),
+                        'phone' => $request->input('phone'),
+                        'role' => $request->input('role'),
+                    ]);
+                }
             }
+
+            // if ($user->role == 'admin') {
+
+            //     // Assign the 'admin' role to the user
+            //     $user->assignRole('admin');
+
+            //     // Fetch all permissions assigned to the 'admin' role
+            //     $adminRole = Role::findByName('admin');
+            //     $adminPermissions = $adminRole->permissions;
+
+            //     // Assign all permissions of the 'admin' role directly to the user
+            //     $user->syncPermissions($adminPermissions);
+            // }
 
             $member = Member::find($id);
             if (!$member) {
@@ -305,9 +508,9 @@ class MemberController extends Controller
             $member->maintenance_bill = $request->input('maintenance_bill');
             $member->save();
 
-            DB::commit();
+            // $member = Member::with('block')->find($member->id);
 
-            _dLog(eventType: 'info', activityName: 'Member Updated', description: 'Member updated ( Title : ' . $member->name . ' ) ', modelType: 'Member', modelId: $member->id, status: 'success', severityLevel: 1, beforeData: null, afterData: $member->toArray(), requestData: $request->all());
+            DB::commit();
 
             return response()->json(
                 [
@@ -316,13 +519,12 @@ class MemberController extends Controller
                 ]
             );
         } catch (Exception $e) {
-
-            _dLog(eventType: 'error', activityName: 'Member Update Failed', description: 'Exception during member update: ' . $e->getMessage(), modelType: 'Member', modelId: $id, status: 'failed', severityLevel: 2);
-
             DB::rollBack();
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed, please try again!',
+                'message' => 'Failed please try again !' . $e->getMessage()
+                //show error message
+                // 'error' => $e->getMessage(),
             ]);
         }
     }
@@ -345,7 +547,7 @@ class MemberController extends Controller
             _dLog(eventType: 'info', activityName: 'Member Details Accessed', description: 'Accessing details of member ', modelType: 'Member', modelId: $id, status: 'success', severityLevel: 1);
 
             return view(
-                'superadmin::member.details',
+                'admin::member.details',
                 compact('member', 'dailyHelpStaffs')
             );
         } catch (Exception $e) {

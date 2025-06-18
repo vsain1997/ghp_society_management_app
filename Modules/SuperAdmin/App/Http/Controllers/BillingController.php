@@ -52,28 +52,26 @@ class BillingController extends Controller
             $property_number = $request->input(key: 'property_number', default: '');
             $search_col = $request->input(key: 'search_for', default: '');
 
-            $bills = Bill::with('user', 'service','member')
+            $bills = Bill::with(['user', 'service', 'member'])
                 ->searchByStatus($status)
-                // ->when($search && $search_col, function ($query) use ($search, $search_col) {
-                //     return $query->where($search_col, 'LIKE', '%' . $search . '%');
-                // })
                 ->when($search, function ($query) use ($search) {
                     return $query->whereHas('user', function ($q) use ($search) {
                         $q->where('name', 'LIKE', '%' . $search . '%');
                     });
                 })
                 ->when($property_number, function ($query) use ($property_number) {
-                    $query->whereHas('member', function ($q) use ($property_number) {
+                    return $query->whereHas('member', function ($q) use ($property_number) {
                         $q->where('aprt_no', 'LIKE', '%' . $property_number . '%');
                     });
                 })
                 ->where('society_id', $selectedSociety);
+            
             if ($request->filled('user_id')) {
                 $bills = $bills->searchByResident($request->user_id);
             }
-            // dd($bills->limit(10)->get());
-            $bills = $bills
-                ->paginate(25);
+            
+            $bills = $bills->paginate(25);
+        
 
             _dLog(eventType: 'info', activityName: 'Bills List Retrieved', description: 'Bills list retrieved', status: 'success', severityLevel: 1);
 
@@ -498,7 +496,6 @@ class BillingController extends Controller
 
 
         if($request->isMethod('post')){
-            // dd($request->all());
             try{
                 _dLog(eventType: 'info', activityName: 'Bill Collection Started', description: 'Starting the process of collect bill', modelType: 'Bill', modelId: $id);
                 $validator = Validator::make($request->all(), [
@@ -514,6 +511,7 @@ class BillingController extends Controller
                         'message' => 'Validation failed: ' . $validator->errors(),
                     ]);
                 }
+
                 if ($request->installment > 0) {
                     $installmentAmount = $bill->installment + $request->installment;
 
@@ -547,7 +545,6 @@ class BillingController extends Controller
                         'payment_date' => Carbon::now(),
                     ]);
                 }
-
 
                 BillPayment::create([
                     'user_id' => $bill->user_id,

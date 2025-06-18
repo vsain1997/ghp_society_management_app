@@ -11,7 +11,7 @@
                 <p>Add or manage members of the society</p>
             </div>
             <div class="memberBx">
-                <form action="{{ route($thisModule . '.member.import.excel') }}" method="POST" enctype="multipart/form-data" >
+                <form action="{{ route($thisModule . '.member.import') }}" method="POST" enctype="multipart/form-data" >
                     @csrf
                     <div class="choosefile flex">
                         <div class="">
@@ -108,7 +108,7 @@
                                     </svg> --}}
                                     Filter
                                 </button>
-                                <a href="{{ route($thisModule . '.member.index') }}" class="resetbtn" style="font-size: 18px; background: #4b40b5; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
+                                <a href="{{ route($thisModule . '.member.index') }}" class="resetbtn" style="font-size: 18px; background: #6459cc; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
 
                             </div>
                         </div>
@@ -158,6 +158,8 @@
                             <th class="text-center">Role</th>
                             
                             <!-- <th class="text-center">Floor</th> -->
+                             <th class="text-center">Occupancy</th>
+
                             <th class="text-center">Property Type/Unit Type</th>                            
                             <th class="text-center">Maintenance Bill</th>
                             <th class="text-center">Contact</th>
@@ -181,6 +183,9 @@
                                     <td class="text-center">{{ $member->name }}</td>
                                     <td class="text-center"><?= ucfirst($member->role)?></td>
                                     <!-- <td class="text-center">{{ $member->floor_number }}</td> -->
+                                    <td class="text-center">
+                                        <?= !empty($member->occupancy_status) ? ucfirst($member->occupancy_status) : '-' ?>
+                                    </td>
                                     <td class="text-center"><?= ucfirst($member->unit_type) ?></td>                                    
                                     <td class="text-center">{{ toRupeeCurrency($member->maintenance_bill) ?? '--' }}</td>
                                     <td class="text-center">{{ $member->phone }}</td>
@@ -200,14 +205,14 @@
                                     <td class="text-center">
                                         <div class="actions">
                                             <a href="javascript:void(0)" id="{{ $member->id }}" class="edit">
-                                                <img src="{{ url($thisModule) }}/img/edit.png" alt="edit">
+                                                <img src="{{ asset($thisModule) }}/img/edit.png" alt="edit">
                                             </a>
                                             <a class="view" href="{{ route($thisModule . '.member.details', ['id' => $member->id]) }}"
                                                 id="{{ $member->id }}">
-                                                <img src="{{ url($thisModule) }}/img/eye.png" alt="eye">
+                                                <img src="{{ asset($thisModule) }}/img/eye.png" alt="eye">
                                             </a>
                                             <a href="javascript:void(0)" data-id="{{ $member->id }}" class="delete">
-                                                <img src="{{ url($thisModule) }}/img/delete.png" alt="delete">
+                                                <img src="{{ asset($thisModule) }}/img/delete.png" alt="delete">
                                             </a>
                                         </div>
                                     </td>

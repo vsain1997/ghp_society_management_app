@@ -32,7 +32,7 @@
                                 <input type="hidden" name="sid" value="{{ session('__selected_society__') }}">
                                 <div class="filter-secl">
                                     <select name="property_number" id="property_number" class="property_number form-select form-control">
-                                        <option value="">--select Propery--</option>
+                                        <option value="">--Select Property--</option>
                                          @if (!empty($societyResidents))
                                             @foreach ($societyResidents as $resident)
                                                 <option 
@@ -45,7 +45,7 @@
                                 </div>
                                 <div class="filter-secl">
                                     <select name="user_id" id="user_id2" class="residentsList form-select form-control">
-                                        <option value="">--select Resident--</option>
+                                        <option value="">--Select Resident--</option>
                                         @if (!empty($societyResidents))
                                             @foreach ($societyResidents as $resident)
                                                 <option data-floor="{{ $resident->floor_number }}"
@@ -96,7 +96,7 @@
                             <th class="text-center">Member</th>
                             <th class="text-center">Bill Type</th>
                             <th class="text-center">Property Number</th>
-                            <th class="text-center">Service</th>
+                            <!-- <th class="text-center">Service</th> -->
                             <th class="text-center">Total Amount</th>
                             <th class="text-center">Installment</th>
                             <th class="text-center">Pending Amount</th>
@@ -117,11 +117,21 @@
                                 @endphp
                                 <tr>
                                     <td class="text-center py-2">
-                                        <a href="{{ route('admin.member.details', ['id' => $billing->user->member->id]) }}" class="text-dark">
+                                    @php
+                                        $memberId = optional(optional($billing->user)->member)->id;
+                                    @endphp
+
+                                    @if ($memberId)
+                                        <a href="{{ route('admin.member.details', ['id' => $memberId]) }}" class="text-dark">
+                                    @else
+                                        <a href="javascript:void(0)" class="text-muted" title="No Member Found">
+                                    @endif
+
                                             <div class="row item d-flex align-items-center">
                                                 <div class="col-2">
                                                     <div class="ratio ratio-1x1">
-                                                        <img src="{{ $billing->user->image_url }}" class="img-fluid rounded-circle object-fit-cover">
+                                                    <img src="{{ optional($billing->user)->image_url ?? asset('default.jpg') }}" class="img-fluid rounded-circle object-fit-cover">
+
                                                     </div>
                                                 </div>
                                                 <div class="col-10 px-0 text-start">
@@ -132,16 +142,18 @@
                                         </a>
                                     </td>
                                     <td class="text-center py-2">
-                                        @if ($billing->bill_type == 'my_bill')
+                                        <!-- @if ($billing->bill_type == 'my_bill')
                                             Utility Bill
                                         @else
                                             {{ Str::ucfirst(str_replace('_', ' ', $billing->bill_type)) }}
-                                        @endif
+                                        @endif -->
+                                        {{ $billing->service->name }}
                                     </td>
                                     <td class="text-center py-2">{{ $billing->member ? $billing->member->aprt_no : '-' }}</td>
-                                    <td class="text-center py-2">{{ $billing->service->name }}</td>
+                                    <!-- <td class="text-center py-2">{{ $billing->service->name }}</td> -->
                                     <td class="text-center py-2">{{ $billing->amount }}</td>
-                                    <td class="text-center py-2">{{ $billing->installment }}</td>
+                                    <td class="text-center py-2">{{ !empty($billing->installment) ? $billing->installment : 0 }}</td>
+
                                     <td class="text-center py-2">{{ $billing->amount - $billing->installment }}</td>
                                     <td class="text-center py-2">
                                         {{ \Carbon\Carbon::parse($billing->due_date)->format('d M Y') }}
@@ -181,71 +193,21 @@
                                                     <a class="edit-icon" href="javascript:void(0)" data-modal="updateBillModal"
                                                         data-target="{{ route('admin.billing.update.bill', ['bill_id' => $billing->id]) }}"
                                                         onclick="manageAddEditProcess(this)">
-                                                        <svg width="16" height="17" viewBox="0 0 16 17" fill="none"
-                                                            xmlns="http://www.w3.org/2000/svg">
-                                                            <g clip-path="url(#clip0_193_2081)">
-                                                                <path
-                                                                    d="M7.33398 3.34825H2.66732C2.3137 3.34825 1.97456 3.48873 1.72451 3.73878C1.47446 3.98882 1.33398 4.32796 1.33398 4.68158V14.0149C1.33398 14.3685 1.47446 14.7077 1.72451 14.9577C1.97456 15.2078 2.3137 15.3483 2.66732 15.3483H12.0007C12.3543 15.3483 12.6934 15.2078 12.9435 14.9577C13.1935 14.7077 13.334 14.3685 13.334 14.0149V9.34825"
-                                                                    stroke="white" stroke-width="1.33333"
-                                                                    stroke-linecap="round" stroke-linejoin="round" />
-                                                                <path
-                                                                    d="M12.334 2.34825C12.5992 2.08303 12.9589 1.93404 13.334 1.93404C13.7091 1.93404 14.0688 2.08303 14.334 2.34825C14.5992 2.61347 14.7482 2.97318 14.7482 3.34825C14.7482 3.72332 14.5992 4.08303 14.334 4.34825L8.00065 10.6816L5.33398 11.3483L6.00065 8.68158L12.334 2.34825Z"
-                                                                    stroke="white" stroke-width="1.33333"
-                                                                    stroke-linecap="round" stroke-linejoin="round" />
-                                                            </g>
-                                                            <defs>
-                                                                <clipPath id="clip0_193_2081">
-                                                                    <rect width="16" height="16" fill="white"
-                                                                        transform="translate(0 0.68158)" />
-                                                                </clipPath>
-                                                            </defs>
-                                                        </svg>
+                                                        <img src="{{ asset($thisModule) }}/img/edit.png" alt="edit">
                                                     </a>
                                                 @endcan
                                             @endif
                                             <a class="view"
                                                 href="{{ route($thisModule . '.billing.details', ['id' => $billing->id]) }}"
                                                 id="{{ $billing->id }}">
-                                                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M0.625 7.5C0.625 7.5 3.125 2.5 7.5 2.5C11.875 2.5 14.375 7.5 14.375 7.5C14.375 7.5 11.875 12.5 7.5 12.5C3.125 12.5 0.625 7.5 0.625 7.5Z"
-                                                        stroke="#8077F5" stroke-width="1.25" stroke-linecap="round"
-                                                        stroke-linejoin="round" />
-                                                    <path
-                                                        d="M7.5 9.375C8.53553 9.375 9.375 8.53553 9.375 7.5C9.375 6.46447 8.53553 5.625 7.5 5.625C6.46447 5.625 5.625 6.46447 5.625 7.5C5.625 8.53553 6.46447 9.375 7.5 9.375Z"
-                                                        stroke="#8077F5" stroke-width="1.25" stroke-linecap="round"
-                                                        stroke-linejoin="round" />
-                                                </svg>
+                                                <img src="{{ asset($thisModule) }}/img/eye.png" alt="view">
                                             </a>
                                             @if ($billing->user->role != 'admin')
                                                 @can('billing.delete')
                                                     <a class="delete delete-icon" href="javascript:void(0)"
                                                         data-id="{{ $billing->id }}">
-                                                        <svg width="16" height="17" viewBox="0 0 16 17"
-                                                            fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <g clip-path="url(#clip0_193_2091)">
-                                                                <path d="M2 4.68158H3.33333H14" stroke="#C90202"
-                                                                    stroke-width="1.33333" stroke-linecap="round"
-                                                                    stroke-linejoin="round" />
-                                                                <path
-                                                                    d="M12.6673 4.68157V14.0149C12.6673 14.3685 12.5268 14.7077 12.2768 14.9577C12.0267 15.2078 11.6876 15.3482 11.334 15.3482H4.66732C4.3137 15.3482 3.97456 15.2078 3.72451 14.9577C3.47446 14.7077 3.33398 14.3685 3.33398 14.0149V4.68157M5.33398 4.68157V3.34824C5.33398 2.99462 5.47446 2.65548 5.72451 2.40543C5.97456 2.15538 6.3137 2.01491 6.66732 2.01491H9.33398C9.68761 2.01491 10.0267 2.15538 10.2768 2.40543C10.5268 2.65548 10.6673 2.99462 10.6673 3.34824V4.68157"
-                                                                    stroke="#C90202" stroke-width="1.33333"
-                                                                    stroke-linecap="round" stroke-linejoin="round" />
-                                                                <path d="M6.66602 8.01491V12.0149" stroke="#C90202"
-                                                                    stroke-width="1.33333" stroke-linecap="round"
-                                                                    stroke-linejoin="round" />
-                                                                <path d="M9.33398 8.01491V12.0149" stroke="#C90202"
-                                                                    stroke-width="1.33333" stroke-linecap="round"
-                                                                    stroke-linejoin="round" />
-                                                            </g>
-                                                            <defs>
-                                                                <clipPath id="clip0_193_2091">
-                                                                    <rect width="16" height="16" fill="white"
-                                                                        transform="translate(0 0.68158)" />
-                                                                </clipPath>
-                                                            </defs>
-                                                        </svg>
+                                                        <img src="{{ asset($thisModule) }}/img/delete.png" alt="view">
+
                                                     </a>
                                                 @endcan
                                             @endif

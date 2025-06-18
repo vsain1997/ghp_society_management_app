@@ -63,8 +63,7 @@
                             <button type="submit" class="bg_theme_btn">
                                 Filter
                             </button>
-                             <a href="{{ route($thisModule . '.society.resident_unit.index') }}" class="resetbtn" style="font-size: 18px; background: #4b40b5; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
-
+                             <a href="{{ route($thisModule . '.society.resident_unit.index') }}" class="resetbtn" style="font-size: 16px; background: #4b40b5; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
                         </div>
                     </div>
                 </form>
@@ -133,13 +132,20 @@
                     <td class="text-center exp-status-btn"><button>Vacant</button></td>
                     <td></td>
                     @else
-                    <td class="text-center up-status-btn"><button>Occupied</button></td>
+                    <td class="text-center up-status-btn"><button>Allotted</button></td>
                     <td class="text-center">
-                        <a class="view"
+                        <a href="javascript:void(0)" id="{{ $data->id }}" class="edit">
+                            <img src="{{ asset($thisModule) }}/img/edit.png" alt="edit">
+                        </a>
+                        <a class="view" href="{{ route($thisModule . '.member.details', ['id' => $data->member_info->id]) }}"
+                            id="{{ $data->member_info->id }}">
+                            <img src="{{ asset($thisModule) }}/img/eye.png" alt="eye">
+                        </a>
+                        <!-- <a class="view"
                             href="{{ route($thisModule . '.member.details', ['id' => $data->member_info->id]) }}"
                             id="{{ $data->member_info->id }}">
                             <i class="fa-regular fa-user" title="Member Details" style="margin-right:8px"></i>
-                        </a>
+                        </a> -->
                     </td>
                     @endif
                     </tr>
@@ -337,83 +343,76 @@
 </script>
 {{-- show edit form --}}
 <script>
-    $(document).ready(function () {
-        $('body').on('click', '.edit', function () {
-            $('.err').text('');
-            // loader add
-            $('#loader').css('width', '50%');
-            $('#loader').fadeIn();
-            $('#blockOverlay').fadeIn();
+    // $(document).ready(function () {
+    //     $('body').on('click', '.edit', function () {
+    //         $('.err').text('');
+    //         $('#loader').css('width', '50%');
+    //         $('#loader').fadeIn();
+    //         $('#blockOverlay').fadeIn();
 
-            // $('#addNoticeForm')[0].reset();
-            $('#addNoticeForm').find(
-                'input:not([name="_token"],[name^="unit_type"],[name^="created_by"]), select, textarea'
-            ).each(
-                function () {
-                    $(this).val('');
-                });
+    //         $('#addNoticeForm').find(
+    //             'input:not([name="_token"],[name^="unit_type"],[name^="created_by"]), select, textarea'
+    //         ).each(
+    //             function () {
+    //                 $(this).val('');
+    //             });
 
-            $('#addNoticeForm select').each(function () {
-                $(this).prop('selectedIndex', 0); // Select the first option
-            });
-            // disable outside click + exc press
-            $('#addNoticeModal').modal({
-                backdrop: 'static',
-                keyboard: false
-            })
-            // change modal heading
-            $('#modalHeadTxt').text('Edit Notice');
+    //         $('#addNoticeForm select').each(function () {
+    //             $(this).prop('selectedIndex', 0);
+    //         });
+    //         $('#addNoticeModal').modal({
+    //             backdrop: 'static',
+    //             keyboard: false
+    //         })
+    //         $('#modalHeadTxt').text('Edit Notice');
 
-            const noticeId = $(this).attr('id');
+    //         const noticeId = $(this).attr('id');
 
-            $.ajax({
-                url: "{{ route($thisModule . '.notice.edit', ['id' => ':noticeId']) }}"
-                    .replace(':noticeId', noticeId),
-                method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                dataType: 'json',
-                processData: false,
-                contentType: false,
-                success: function (res) {
-                    data = res.data;
-                    if (res.status == 'error') {
-                        toastr[res.status](res.message);
-                    }
-                    $('#addNoticeForm').attr('action',
-                        '{{ route($thisModule . '.notice.update', ['id' => '__ID__']) }}'
-                            .replace('__ID__', data.id));
-                    $('#submitAddNoticeForm').attr('data-formtype', 'edit');
+    //         $.ajax({
+    //             url: "{{ route($thisModule . '.notice.edit', ['id' => ':noticeId']) }}"
+    //                 .replace(':noticeId', noticeId),
+    //             method: 'GET',
+    //             headers: {
+    //                 'X-CSRF-TOKEN': csrfToken
+    //             },
+    //             dataType: 'json',
+    //             processData: false,
+    //             contentType: false,
+    //             success: function (res) {
+    //                 data = res.data;
+    //                 if (res.status == 'error') {
+    //                     toastr[res.status](res.message);
+    //                 }
+    //                 $('#addNoticeForm').attr('action',
+    //                     '{{ route($thisModule . '.notice.update', ['id' => '__ID__']) }}'
+    //                         .replace('__ID__', data.id));
+    //                 $('#submitAddNoticeForm').attr('data-formtype', 'edit');
 
-                    //feed #addNoticeForm form data by jq below
-                    $('#id').val(data.id);
-                    $('#society_id').val(data.society_id);
-                    $('#title').val(data.title);
-                    $('#description').val(data.description);
-                    $('#date').val(data.date);
-                    $('#time').val(data.time);
+    //                 $('#id').val(data.id);
+    //                 $('#society_id').val(data.society_id);
+    //                 $('#title').val(data.title);
+    //                 $('#description').val(data.description);
+    //                 $('#date').val(data.date);
+    //                 $('#time').val(data.time);
 
-                    //loader removed
-                    $('#loader').css('width', '100%');
-                    $('#loader').fadeOut();
-                    $('#blockOverlay').fadeOut();
+    //                 $('#loader').css('width', '100%');
+    //                 $('#loader').fadeOut();
+    //                 $('#blockOverlay').fadeOut();
 
-                    $('#addNoticeModal').modal('show');
-                },
-                error: function (xhr, status, error) {
+    //                 $('#addNoticeModal').modal('show');
+    //             },
+    //             error: function (xhr, status, error) {
 
-                    //loader removed
-                    $('#loader').css('width', '100%');
-                    $('#loader').fadeOut();
-                    $('#blockOverlay').fadeOut();
+    //                 $('#loader').css('width', '100%');
+    //                 $('#loader').fadeOut();
+    //                 $('#blockOverlay').fadeOut();
 
-                    toastr.error('Unable to process the data');
-                    console.error('Unable to process the data', error);
-                }
-            });
-        });
-    });
+    //                 toastr.error('Unable to process the data');
+    //                 console.error('Unable to process the data', error);
+    //             }
+    //         });
+    //     });
+    // });
 </script>
 {{-- delete submit --}}
 <script>

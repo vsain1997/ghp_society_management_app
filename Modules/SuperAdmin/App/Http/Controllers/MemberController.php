@@ -72,7 +72,7 @@ class MemberController extends Controller
             ->searchByStatus($status)
             ->when($search && $search_col, function ($query) use ($search, $search_col) {
                 // Apply dynamic column search
-                return $query->where($search_col, 'LIKE', '%' . $search . '%');
+                return $query->where($search_col, $search );
             })
             ->when($tower, function ($query) use ($tower) {
                 // Apply tower filter
@@ -80,8 +80,8 @@ class MemberController extends Controller
                     $q->where('name', 'LIKE', '%' . $tower . '%');
                 });
             })
-            ->where('society_id', $selectedSociety)
-            ->paginate(25);
+            ->where('society_id', $selectedSociety)->paginate(25);
+            // dd($members->toRawSql());
 
 
         return view(
@@ -250,22 +250,7 @@ class MemberController extends Controller
 
 
     //Import file data
-    public function importMembers(Request $request)
-    {
-        $request->validate([
-            'importedFile' => 'required|file|mimes:xlsx,xls,csv|max:2048',
-        ]);
-
-        try {
-            $societyId = $request->input('society_id');
-            Excel::import(new MembersImport($societyId), $request->file('importedFile'));
-
-            return back()->with('success', 'Members imported successfully.');
-        } catch (Exception $e) {
-            dd($e->getMessage());
-            return back()->with('error', 'Import failed: ' . $e->getMessage());
-        }
-    }
+  
     public function importFile(Request $request)
     {
         $request->validate([

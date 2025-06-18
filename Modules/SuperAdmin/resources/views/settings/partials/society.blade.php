@@ -147,14 +147,14 @@
                                         <i class="fa fa-building" aria-hidden="true"></i>
                                     </a>
                                     <a href="javascript:void(0)" id="{{ $society->id }}" class="edit">
-                                        <img src="{{ url($thisModule) }}/img/edit.png" alt="edit">
+                                        <img src="{{ asset($thisModule) }}/img/edit.png" alt="edit">
                                     </a>
                                     <a href="{{ route($thisModule . '.society.details', ['id' => $society->id]) }}"
                                         id="{{ $society->id }}" class="view">
-                                        <img src="{{ url($thisModule) }}/img/eye.png" alt="eye">
+                                        <img src="{{ asset($thisModule) }}/img/eye.png" alt="eye">
                                     </a>
                                     <a href="javascript:void(0)" data-id="{{ $society->id }}" class="delete">
-                                        <img src="{{ url($thisModule) }}/img/delete.png" alt="delete">
+                                        <img src="{{ asset($thisModule) }}/img/delete.png" alt="delete">
                                     </a>
                                 </div>
                             </td>

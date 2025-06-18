@@ -68,6 +68,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth.admin')->group(function
         ->name('check.user.email');
     Route::post('/user/check/apertment', [AdminController::class, 'checkApertmentNo'])
         ->name('check.user.apertmentNo');
+    Route::post('/user/check/isAlreadyAdminExist', [AdminController::class, 'isAlreadyAdminExist'])
+        ->name('check.user.isAlreadyAdminExist');
     Route::post('/user/check/checkVacancy', [AdminController::class, 'checkVacancy'])
         ->name('check.user.checkVacancy');
 
@@ -201,6 +203,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth.admin')->group(function
 
         Route::get('/', [MemberController::class, 'index'])->name('index');
         Route::post('/create', [MemberController::class, 'store'])->name('store');
+        Route::post('/import', [MemberController::class, 'importFile'])->name('import');
+
         // Route::get('/show/{id}', [MemberController::class, 'show'])->name('show');
         Route::get('/details/{id}', [MemberController::class, 'show'])->name('details');
         Route::get('/edit/{id}', [MemberController::class, 'edit'])->name('edit');

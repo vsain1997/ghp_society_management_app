@@ -24,15 +24,29 @@
                         </div>
                     </a>
                 </li>
+                 
                 <li>
                     <a href="{{ url($thisModule . '/member') }}">
                         <div class="unit-img-box">
                             <img src="img/solar_layers-bold.png" alt="">
                         </div>
                         <div class="unit-text-box">
-                            <h4>Total Occupied</h4>
+                            <h4>Allotted</h4>
                             <h3>
                                 {{ $members }}
+                            </h3>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <div class="unit-img-box">
+                            <img src="img/solar_layers-bold.png" alt="">
+                        </div>
+                        <div class="unit-text-box">
+                            <h4>Total Occupancy</h4>
+                            <h3>
+                               {{ $occupancyCount }}
                             </h3>
                         </div>
                     </a>

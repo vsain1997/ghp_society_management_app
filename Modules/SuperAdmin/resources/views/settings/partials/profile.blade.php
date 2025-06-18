@@ -5,11 +5,11 @@
             @php
                 $imagePathProfile =
                     $userDetails->image && Storage::disk('public')->exists($userDetails->image)
-                        ? 'storage/' . $userDetails->image
+                        ? 'storage/app/public/' . $userDetails->image
                         : 'storage/profile_picture/default.png'; // default image path
             @endphp
 
-            <img id="showProPic" src="{{ asset($imagePathProfile) }}" alt="Profile Picture">
+            <img id="showProPic" src="{{ url($imagePathProfile) }}" alt="Profile Picture">
 
             <span class="uploadPic">
                 <input type="file" name="profile_picture" id="profile_picture" onchange="loadFile(event)">

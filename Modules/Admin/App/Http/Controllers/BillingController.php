@@ -86,7 +86,7 @@ class BillingController extends Controller
             if ($request->filled('user_id')) {
                 $bills = $bills->searchByResident($request->user_id);
             }
-            $bills = $bills->orderBy('id', 'desc')
+            $bills = $bills
                 ->paginate(25);
 
             _dLog(eventType: 'info', activityName: 'Bills List Retrieved', description: 'Bills list retrieved', status: 'success', severityLevel: 1);

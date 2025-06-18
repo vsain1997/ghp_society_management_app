@@ -28,7 +28,7 @@
                                 <input type="hidden" name="sid" value="{{ session('__selected_society__') }}">
                                 <div class="filter-secl">
                                     <select name="property_number" id="property_number" class="property_number form-select form-control">
-                                        <option value="">--select Propery--</option>
+                                        <option value="">--Select Property--</option>
                                          @if (!empty($societyResidents))
                                             @foreach ($societyResidents as $resident)
                                                 <option 
@@ -41,7 +41,7 @@
                                 </div>
                                 <div class="filter-secl">
                                     <select name="user_id" id="user_id2" class="residentsList form-select form-control">
-                                        <option value="">--select Resident--</option>
+                                        <option value="">--Select Resident--</option>
                                         @if (!empty($societyResidents))
                                             @foreach ($societyResidents as $resident)
                                                 <option data-floor="{{ $resident->floor_number }}"
@@ -111,11 +111,20 @@
                                 @endphp
                                 <tr>
                                     <td class="text-center py-2">
-                                        <a href="{{ route('superadmin.member.details', ['id' => $billing->user->member->id]) }}" class="text-dark">
+                                    @php
+                                        $memberId = optional(optional($billing->user)->member)->id;
+                                    @endphp
+
+                                    @if ($memberId)
+                                        <a href="{{ route('admin.member.details', ['id' => $memberId]) }}" class="text-dark">
+                                    @else
+                                        <a href="javascript:void(0)" class="text-muted" title="No Member Found">
+                                    @endif
                                             <div class="row item d-flex align-items-center">
                                                 <div class="col-2">
                                                     <div class="ratio ratio-1x1">
-                                                        <img src="{{ $billing->user->image_url }}" class="img-fluid rounded-circle object-fit-cover">
+                                                    <img src="{{ optional($billing->user)->image_url ?? asset('default.jpg') }}" class="img-fluid rounded-circle object-fit-cover">
+
                                                     </div>
                                                 </div>
                                                 <div class="col-10 px-0">
@@ -178,17 +187,17 @@
                                     <td class="text-center py-2 ">
                                         <div class="actions">
                                             <a class="edit-icon" href="javascript:void(0)" data-modal="updateBillModal" data-target="{{ route('superadmin.billing.update.bill', ['bill_id' => $billing->id]) }}" onclick="manageAddEditProcess(this)">
-                                                <img src="{{ url($thisModule) }}/img/edit.png" alt="edit">
+                                                <img src="{{ asset($thisModule) }}/img/edit.png" alt="edit">
                                             </a>
 
                                             <a class="view" href="{{ route($thisModule . '.billing.details', ['id' => $billing->id]) }}" id="{{ $billing->id }}">
-                                                <img src="{{ url($thisModule) }}/img/eye.png" alt="view">
+                                                <img src="{{ asset($thisModule) }}/img/eye.png" alt="view">
                                             </a>
 
                                             @if ($billing->user->role != 'admin')
                                                 <a class="delete delete-icon" href="javascript:void(0)"
                                                     data-id="{{ $billing->id }}">
-                                                    <img src="{{ url($thisModule) }}/img/delete.png" alt="view">
+                                                    <img src="{{ asset($thisModule) }}/img/delete.png" alt="view">
                                                 </a>
                                             @endif
                                         </div>

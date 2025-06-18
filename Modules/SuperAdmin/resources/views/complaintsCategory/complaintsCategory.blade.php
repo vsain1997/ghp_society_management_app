@@ -97,12 +97,12 @@
                                     <td class="text-center">
                                         <div class="actions">
                                             <a class="edit edit-icon" href="javascript:void(0)" id="{{ $cCategory->id }}">
-                                                <img src="{{ url($thisModule) }}/img/edit.png" alt="edit">
+                                                <img src="{{ asset($thisModule) }}/img/edit.png" alt="edit">
                                             </a>
 
                                             <a class="delete delete-icon" href="javascript:void(0)"
                                                 data-id="{{ $cCategory->id }}">
-                                                <img src="{{ url($thisModule) }}/img/delete.png" alt="delete">
+                                                <img src="{{ asset($thisModule) }}/img/delete.png" alt="delete">
                                             </a>
 
                                         </div>

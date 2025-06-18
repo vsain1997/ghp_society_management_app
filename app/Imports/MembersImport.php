@@ -41,7 +41,7 @@ class MembersImport implements ToCollection, WithHeadingRow
         return 100; // Adjust based on memory capacity
     }
 
-    public function collection(Collection $rows)
+     public function collection(Collection $rows)
     {
         $society = Society::find($this->society_id);
         if (!$society) {

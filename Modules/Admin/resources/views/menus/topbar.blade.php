@@ -98,10 +98,10 @@
                             $userDetails = Auth::user();
                             $imagePathProfile =
                                 $userDetails->image && Storage::disk('public')->exists($userDetails->image)
-                                    ? 'storage/' . $userDetails->image
+                                    ? 'storage/app/public/' . $userDetails->image
                                     : 'storage/profile_picture/default.png'; // default image path
                         @endphp
-                        <img id="showProPic2" src="{{ asset($imagePathProfile) }}" alt="profile">
+                        <img id="showProPic2" src="{{ url($imagePathProfile) }}" alt="profile">
                         <strong>
                             {{ Auth::user()->name }}
                             <span>{{ ucwords(str_replace('_', ' ', Auth::user()->role)) }}</span>

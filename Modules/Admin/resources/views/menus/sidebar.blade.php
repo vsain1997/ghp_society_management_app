@@ -1,7 +1,7 @@
 <div class="side_header">
     <div class="logo_wrapper">
         <a href="#">
-            <img src="{{ url($thisModule) }}/img/logo.png" alt="logo">
+            <img src="{{ asset($thisModule) }}/img/logo.png" alt="logo">
         </a>
     </div>
     <div class="navigation_wrapper">
@@ -9,11 +9,12 @@
             <li>
                 <a href="{{ url($thisModule . '/dashboard') }}"
                     class="{{ request()->is($thisModule . '/dashboard*') ? 'active' : '' }}">
-                    <img src="{{ url($thisModule) }}/img/dashboard.svg" alt="Dashboard">
+                    <img src="{{ asset($thisModule) }}/img/dashboard.svg" alt="Dashboard">
                     Dashboard
                 </a>
             </li>
             @if (hasPermissionLike('society.'))
+            
             <li>
                 <a href="{{ url($thisModule . '/society/properties') }}"
                     class="{{ request()->is($thisModule . '/society/properties*') ? 'active' : '' }}">
@@ -28,8 +29,8 @@
             <li>
                 <a href="{{ url($thisModule . '/member') }}"
                     class="{{ request()->is($thisModule . '/member') ? 'active' : '' }}">
-                    <img src="{{ url($thisModule) }}/img/members.svg" alt="Staff">
-                    Member
+                    <img src="{{ asset($thisModule) }}/img/members.svg" alt="Staff">
+                    Members
                 </a>
             </li>
             @endif
@@ -49,7 +50,7 @@
                 {{ request()->is($thisModule . '/service*') ? 'show-items' : '' }}
                 ">
                 <a href="javascript:void(0);" class="{{ request()->is($thisModule . '/service*') ? 'active' : '' }}">
-                    <img src="{{ url($thisModule) }}/img/service-providers.svg" alt="Services">
+                    <img src="{{ asset($thisModule) }}/img/service-providers.svg" alt="Services">
                     Services
                 </a>
                 <button class="item-drop-btn"><svg width="35px" height="35px" viewBox="0 0 24 24" fill="none"
@@ -90,7 +91,7 @@
                 {{ request()->is($thisModule . '/complaint*') ? 'show-items' : '' }}
                 ">
                 <a href="javascript:void(0);" class="{{ request()->is($thisModule . '/complaint*') ? 'active' : '' }}">
-                    <img src="{{ url($thisModule) }}/img/complaints.svg" alt="Complaints">
+                    <img src="{{ asset($thisModule) }}/img/complaints.svg" alt="Complaints">
                     Complaints
                 </a>
                 <button class="item-drop-btn"><svg width="35px" height="35px" viewBox="0 0 24 24" fill="none"
@@ -130,7 +131,7 @@
             <li>
                 <a href="{{ url($thisModule . '/event') }}"
                     class="{{ request()->is($thisModule . '/event*') ? 'active' : '' }}">
-                    <img src="{{ url($thisModule) }}/img/events.svg" alt="Events ">
+                    <img src="{{ asset($thisModule) }}/img/events.svg" alt="Events ">
                     Events
                 </a>
             </li>
@@ -139,7 +140,7 @@
             <li>
                 <a href="{{ url($thisModule . '/notice') }}"
                     class="{{ request()->is($thisModule . '/notice*') ? 'active' : '' }}">
-                    <img src="{{ url($thisModule) }}/img/notice-board.svg" alt="Notice Board">
+                    <img src="{{ asset($thisModule) }}/img/notice-board.svg" alt="Notice Board">
                     Notice Board
                 </a>
             </li>
@@ -149,7 +150,7 @@
                 {{ request()->is($thisModule . '/sos*') ? 'show-items' : '' }}
                 ">
                 <a href="javascript:void(0);" class="{{ request()->is($thisModule . '/sos*') ? 'active' : '' }}">
-                    <img src="{{ url($thisModule) }}/img/sos.svg" alt="SOS">
+                    <img src="{{ asset($thisModule) }}/img/sos.svg" alt="SOS">
                     SOS
                 </a>
                 <button class="item-drop-btn"><svg width="35px" height="35px" viewBox="0 0 24 24" fill="none"
@@ -191,8 +192,8 @@
                 {{ request()->is($thisModule . '/visitor*') ? 'show-items' : '' }}
                 ">
                 <a href="javascript:void(0);" class="{{ request()->is($thisModule . '/visitor*') ? 'active' : '' }}">
-                    <img src="{{ url($thisModule) }}/img/visitors.svg" alt="Visitor">
-                    visitors
+                    <img src="{{ asset($thisModule) }}/img/visitors.svg" alt="Visitor">
+                    Visitors
                 </a>
                 <button class="item-drop-btn"><svg width="35px" height="35px" viewBox="0 0 24 24" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -230,7 +231,7 @@
             <li>
                 <a href="{{ url($thisModule . '/property-listing') }}"
                     class="{{ request()->is($thisModule . '/property-listing') ? 'active' : '' }}">
-                    <img src="{{ url($thisModule) }}/img/property-listings.svg" alt="Property Listing ">
+                    <img src="{{ asset($thisModule) }}/img/property-listings.svg" alt="Property Listing ">
                     Property Listing
                 </a>
             </li>
@@ -239,7 +240,7 @@
             <li>
                 <a href="{{ url($thisModule . '/poll') }}"
                     class="{{ request()->is($thisModule . '/poll*') ? 'active' : '' }}">
-                    <img src="{{ url($thisModule) }}/img/polls.svg" alt="Polls">
+                    <img src="{{ asset($thisModule) }}/img/polls.svg" alt="Polls">
                     Polls
                 </a>
             </li>
@@ -248,7 +249,7 @@
             <li>
                 <a href="{{ url($thisModule . '/billing') }}"
                     class="{{ request()->is($thisModule . '/billing*') ? 'active' : '' }}">
-                    {{-- <img src="{{ url($thisModule) }}/img/refer.svg" alt="Billing"> --}}
+                    {{-- <img src="{{ asset($thisModule) }}/img/refer.svg" alt="Billing"> --}}
                     <i class="fa-solid fa-money-bill-wave" style="margin-right:8px"></i>
                     Billing
                 </a>
@@ -258,7 +259,7 @@
             <li>
                 <a href="{{ url($thisModule . '/refer-property') }}"
                     class="{{ request()->is($thisModule . '/refer-property*') ? 'active' : '' }}">
-                    <img src="{{ url($thisModule) }}/img/refer.svg" alt="Refer Property">
+                    <img src="{{ asset($thisModule) }}/img/refer.svg" alt="Refer Property">
                     Refer Property
                 </a>
             </li>
@@ -267,7 +268,7 @@
             <li>
                 <a href="{{ url($thisModule . '/document') }}"
                     class="{{ request()->is($thisModule . '/document*') ? 'active' : '' }}">
-                    {{-- <img src="{{ url($thisModule) }}/img/visitors.svg" alt="Document"> --}}
+                    {{-- <img src="{{ asset($thisModule) }}/img/visitors.svg" alt="Document"> --}}
                     <i class="fa-solid fa-file" style="margin-right: 8px;"></i>
                     Documents
                 </a>
@@ -277,7 +278,7 @@
             <li>
                 <a href="{{ url($thisModule . '/parcel') }}"
                     class="{{ request()->is($thisModule . '/parcel') ? 'active' : '' }}">
-                    {{-- <img src="{{ url($thisModule) }}/img/visitors.svg" alt="Parcel"> --}}
+                    {{-- <img src="{{ asset($thisModule) }}/img/visitors.svg" alt="Parcel"> --}}
                     <i class="fa-solid fa-cube" style="margin-right: 8px;"></i>
                     Parcels
                 </a>
@@ -331,7 +332,7 @@
             @endif
             <li>
                 <a href="javascript:void(0);" class="makeUserLogout">
-                    <img src="{{ url($thisModule) }}/img/logout.svg" alt="Log Out">
+                    <img src="{{ asset($thisModule) }}/img/logout.svg" alt="Log Out">
                     Log Out
                 </a>
             </li>

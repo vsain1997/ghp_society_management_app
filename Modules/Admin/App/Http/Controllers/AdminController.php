@@ -585,6 +585,34 @@ class AdminController extends Controller
             ]);
         }
     }
+    public function isAlreadyAdminExist(Request $request)
+    {
+        if ($request->userId !== null) {
+
+            $isAdminExists = Member::where('user_id', '!=', $request->userId)
+                ->where('society_id', $request->society_id)
+                ->where('role', 'admin')
+                ->exists();
+
+        } else {
+
+            $isAdminExists = Member::where('society_id', $request->society_id)
+                ->where('role', 'admin')
+                ->exists();
+        }
+
+        if ($isAdminExists) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Already Exist !',
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Available',
+            ]);
+        }
+    }
     public function checkVacancy(Request $request)
     {
         $society_id = getSelectedSociety($request);

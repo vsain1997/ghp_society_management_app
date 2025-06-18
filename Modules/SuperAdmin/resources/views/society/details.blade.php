@@ -73,7 +73,7 @@
                         <h4>{{ isset($society->assigned_admin->name) ? $society->assigned_admin->name : '' }}</h4>
                     </li> --}}
                     <li>
-                        <p>Total Area (Sq. Ft.)</p>
+                        <p>Total Area (Sq. Yard.)</p>
                         <h4>{{ $society->total_area }}</h4>
                     </li>
                     <li>
@@ -141,7 +141,7 @@
                                 <th>Property Number</th>
                                 <th>Floor</th>
                                 <th>Property Type</th>
-                                <th>Size (sq. ft.)</th>
+                                <th>Size (sq. Yard.)</th>
                                 <th>BHK</th>
                                 <th>Property Status</th>
                             </tr>

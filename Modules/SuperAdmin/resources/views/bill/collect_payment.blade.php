@@ -14,15 +14,16 @@
                         <option value="cash">CASH</option>
                         <option value="neft">NEFT</option>
                         <option value="cheque">Cheque</option>
+                        <option value="qr">QR</option>
                     </select>
                 </div>
             </div>
 
             <div class="col-md-6">
                 <label class="form-check-label" for="amount">Amount <span class="text-danger">*</span></label>
-                <input type="number" min="0" class="form-control lh-lg" id="amount" name="amount" placeholder="Amount.." required value="{{ $bill->amount }}">
+                <input type="number" min="0" class="form-control lh-lg" id="amount" name="amount" placeholder="Amount.." readonly required value="{{ $bill->amount }}">
             </div>
-            <div class="col-md-6">
+             <div class="col-md-6">
                 <label class="form-check-label" for="installment">Installment <span class="text-danger">*</span></label>
                 <input type="number" min="0" class="form-control lh-lg" id="installment" name="installment" placeholder="Installment.." value="{{ $bill->installment }}">
             </div>

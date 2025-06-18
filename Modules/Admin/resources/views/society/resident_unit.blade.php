@@ -9,9 +9,9 @@
             <div class="filter_table_head">
                 <div class="search_wrapper search-members-gstr">
                     <form method="GET">
-                        <div class="input-group">
-                            <div class="filter-box">
-                                <div class="filter-secl">
+                        <div class="input-group"> 
+                            <div class="filter-box gap-3">
+                                <div class="filter-secl filter-w-150">
                                     <label for="occupancy">Occupancy</label>
                                     <select name="occupancy" id="occupancy" class=" form-select form-control">
                                         <option value="">All</option>
@@ -22,8 +22,9 @@
                                     </select>
                                     <span class="text-primary err" id="aprtNoShowData"></span>
                                 </div>
-                                <div class="filter-secl">
-                                    <label for="tower">Tower</label>
+                                <div class="filter-secl filter-w-150">
+                                    <label for="tower">Tower/Block
+                                    </label>
                                     <select name="tower" id="tower" class=" form-select form-control">
                                         <option value="">--Select--</option>
                                         @foreach($blocks as $block)
@@ -36,7 +37,7 @@
                                     </select>
                                     <span class="text-danger" id="tower_error"></span>
                                 </div>
-                                <div class="filter-secl">
+                                <!-- <div class="filter-secl">
                                     <label for="floor">Floor</label>
                                     <select name="floor" id="floor" class=" form-select form-control">
                                         <option value="">--Select--</option>
@@ -49,7 +50,7 @@
                                         @endforeach
                                     </select>
                                     <span class="text-danger" id="floor_error"></span>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="search-full-box">
                                 <input type="search" name="search" id="search" placeholder="Search.."
@@ -57,6 +58,7 @@
                                 <button type="submit" class="bg_theme_btn">
                                     Filter
                                 </button>
+                                <a href="{{ route($thisModule . '.society.resident_unit.index') }}" class="resetbtn" style="font-size: 16px; background: #4b40b5; color: white; padding: 9px 15px; border-radius: 6px; margin-left: 7px;">Reset</a>
                             </div>
                         </div>
                     </form>
@@ -80,9 +82,9 @@
                         <tr>
                             <th class="text-center">Tower</th>
                             <th class="text-center">Property Number</th>
-                            <th class="text-center">Property Type</th>
-                            <th class="text-center">Floor</th>
-                            <th class="text-center">Size (Sq. Ft.)</th>
+                            <th class="text-center">Property Type/Unit Type</th>
+                            <!-- <th class="text-center">Floor</th> -->
+                            <th class="text-center">Size (Sq.Yard)</th>
                             <th class="text-center">Ownership </th>
                             <th class="text-center">Name of Occupant </th>
                             <th class="text-center">Number</th>
@@ -106,9 +108,9 @@
                                 <td class="text-center">
                                     {{ !empty($data->unit_type) ? ucfirst($data->unit_type) : '' }}
                                 </td>
-                                <td class="text-center">
+                                <!-- <td class="text-center">
                                     {{ !empty($data->floor) ? ucfirst($data->floor) : '' }}
-                                </td>
+                                </td> -->
                                 <td class="text-center">
                                     {{ !empty($data->unit_size) ? ucfirst($data->unit_size) : '' }}
                                 </td>
@@ -125,7 +127,7 @@
                                     <td class="text-center exp-status-btn"><button>Vacant</button></td>
                                     <td></td>
                                 @else
-                                    <td class="text-center up-status-btn"><button>Occupied</button></td>
+                                    <td class="text-center up-status-btn"><button>Allotted</button></td>
                                     <td class="text-center">
                                         <a class="view" href="{{ route($thisModule . '.member.details', ['id' => $data->member_info->id]) }}"
                                             id="{{ $data->member_info->id }}">

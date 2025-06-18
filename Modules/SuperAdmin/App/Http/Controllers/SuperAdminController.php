@@ -717,7 +717,7 @@ class SuperAdminController extends Controller
             ]);
         } else {
             return response()->json([
-                'success' => false,
+                'success' => true,
                 'message' => 'Available',
             ]);
         }
