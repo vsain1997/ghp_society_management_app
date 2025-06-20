@@ -619,6 +619,7 @@
                     userId: userId,
                 };
             } else if (field === 'isAlreadyAdminExist') {
+                alert("async admin");
                 url = '{{ route($thisModule . '.check.user.isAlreadyAdminExist') }}';
                 body = {
                     society_id: value,
@@ -776,20 +777,21 @@
             // console.log('called', formType);
 
             // Assign form values to variables
-            let userId = $('#user_id').val().trim();
-            let name = $('#name').val().trim();
-            let role = $('#role').val();
-            let phone = $('#phone').val().trim();
-            let email = $('#email').val().trim();
-            let societyId = $('#society_id').val();
-            let blockId = $('#block_id').val();
-            let aprtNo = $('#aprt_no').val().trim();
-            let ownership = $('#ownership').val().trim();
-            let maintenance_bill = $('#maintenance_bill').val().trim();
-            let owner_name = $('#owner_name').val().trim();
-            let emer_name = $('#emer_name').val().trim();
-            let emer_relation = $('#emer_relation').val().trim();
-            let emer_phone = $('#emer_phone').val().trim();
+            let userId = $('#user_id')?.val()?.trim() || '';
+            let name = $('#name')?.val()?.trim() || '';
+            let role = $('#role')?.val() || '';
+            let phone = $('#phone')?.val()?.trim() || '';
+            let email = $('#email')?.val()?.trim() || '';
+            let societyId = $('#society_id')?.val() || '';
+            let blockId = $('#block_id')?.val() || '';
+            let aprtNo = $('#aprt_no')?.val()?.trim() || '';
+            let ownership = $('#ownership')?.val()?.trim() || '';
+            let maintenance_bill = $('#maintenance_bill')?.val()?.trim() || '';
+            let owner_name = $('#owner_name')?.val()?.trim() || '';
+            let emer_name = $('#emer_name')?.val()?.trim() || '';
+            let emer_relation = $('#emer_relation')?.val()?.trim() || '';
+            let emer_phone = $('#emer_phone')?.val()?.trim() || '';
+
 
 
             // console.log(formType);
@@ -818,6 +820,7 @@
                 // resultApertNo = await checkDuplicate('apert_no', aprtNo, userId);
                 // vacancyInfo = await checkDuplicate('checkVacancy', aprtNo, userId, societyInfo);
                 if (role == 'admin') {
+                    alert("admin");
 
                     isAlreadyAdminExist = await checkDuplicate('isAlreadyAdminExist', societyId, userId);
                 }

@@ -696,31 +696,31 @@ class SuperAdminController extends Controller
 
     public function isAlreadyAdminExist(Request $request)
     {
-        if ($request->userId !== null) {
+//         if ($request->userId !== null) {
 
-            $isAdminExists = Member::where('user_id', '!=', $request->userId)
-                ->where('society_id', $request->society_id)
-                ->where('role', 'admin')
-                ->exists();
+//             $isAdminExists = Member::where('user_id', '!=', $request->userId)
+//                 ->where('society_id', $request->society_id)
+//                 ->where('role', 'admin')
+//                 ->exists();
 
-        } else {
+//         } else {
 
-            $isAdminExists = Member::where('society_id', $request->society_id)
-                ->where('role', 'admin')
-                ->exists();
-        }
-
-        if ($isAdminExists) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Already Exist !',
-            ]);
-        } else {
-            return response()->json([
-                'success' => true,
-                'message' => 'Available',
-            ]);
-        }
+//             $isAdminExists = Member::where('society_id', $request->society_id)
+//                 ->where('role', 'admin')
+//                 ->exists();
+//         }
+// dd($isAdminExists);
+//         if ($isAdminExists) {
+//             return response()->json([
+//                 'success' => true,
+//                 'message' => 'Already Exist !',
+//             ]);
+//         } else {
+//             return response()->json([
+//                 'success' => true,
+//                 'message' => 'Available',
+//             ]);
+//         }
     }
 
     public function checkVacancy(Request $request)
